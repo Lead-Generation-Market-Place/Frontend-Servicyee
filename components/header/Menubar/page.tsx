@@ -6,9 +6,9 @@ import { FaSearch, FaRegUser, FaRegHeart, FaShoppingBag } from 'react-icons/fa';
 import { Switch } from '@/components/ui/switch';
 import Location from '@/components/root/SearchLocation';
 import Categories from '@/components/root/SearchCategories';
-import MobileNavbar from "@/app/shared/header/MobileNavbar/page";
-import DesktopNavbar from "@/app/shared/header/DesktopNavbar/page";
-import TopBar from "@/app/shared/header/TopBar/page";
+import MobileNavbar from "@/components/header/MobileNavbar/page";
+import DesktopNavbar from "@/components/header/DesktopNavbar/page";
+import TopBar from "@/components/header/TopBar/page";
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
