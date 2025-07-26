@@ -1,5 +1,9 @@
+export const useRegister = () =>
+{
+  
+}
 // hooks/mutations/useRegister.ts
-import { useMutation } from '@tanstack/react-query'
+/*import { useMutation } from '@tanstack/react-query'
 import axios from 'axios'
 
 const REGISTER_URL = `${process.env.NEXT_PUBLIC_API_URL}/`
@@ -16,3 +20,5 @@ export const useRegister = () =>
       return res.data
     },
   })
+
+  */

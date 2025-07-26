@@ -1,4 +1,15 @@
-'use client'
+
+
+export default function LoginForm() {
+
+  return (
+    <div>
+      
+    </div>
+  )
+
+}
+/* 'use client'
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -117,7 +128,9 @@ export default function LoginForm({
           {!emailChecked ? (
             <form onSubmit={handleEmailCheck}>
               <div className="grid gap-6">
-                {/* Social Buttons */}
+                {/* Social Buttons 
+
+                /*
                 <div className="flex flex-col gap-4">
                   <Button variant="outline" className="w-full gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="h-5 w-5">
@@ -138,12 +151,13 @@ export default function LoginForm({
                   </Button>
                 </div>
 
-                {/* Divider */}
+                {/* Divider */
+                /*
                 <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
                   <span className="bg-white dark:bg-gray-900 text-muted-foreground relative z-10 px-2">Or continue with</span>
                 </div>
 
-                {/* Email Input */}
+                {/* Email Input 
                 <div className="relative grid gap-3">
                   <Label htmlFor="email">Email</Label>
                   <Input
@@ -241,3 +255,6 @@ export default function LoginForm({
     </div>
   )
 }
+
+
+*/
