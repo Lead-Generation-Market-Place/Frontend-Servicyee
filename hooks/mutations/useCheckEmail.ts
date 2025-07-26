@@ -1,4 +1,3 @@
-// hooks/mutations/useCheckEmail.ts
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 
@@ -8,7 +7,7 @@ if (!baseUrl) {
   throw new Error("API URL not defined");
 }
 
-const API_URL = `${baseUrl}/api/v1/check_email/`;
+const API_URL = `${baseUrl}/`;
 
 interface CheckEmailResponse {
   exists: boolean;
@@ -18,6 +17,7 @@ interface CheckEmailResponse {
 export const useCheckEmail = () => {
   return useMutation<CheckEmailResponse, Error, { email: string }>({
     mutationFn: async ({ email }) => {
+    
       const res = await axios.post(API_URL, { email }, {
         headers: {
           'Content-Type': 'application/json',
