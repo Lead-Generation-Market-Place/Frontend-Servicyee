@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { FaSearch, FaRegUser, FaRegHeart, FaShoppingBag } from 'react-icons/fa';
 import { Switch } from '@/components/ui/switch';
 import Location from '@/components/root/SearchLocation';
-import Categories from '@/components/root/SearchCategories';
 import MobileNavbar from '@/components/main/header/MobileNavbar/page';
 import DesktopNavbar from '@/components/main/header/DesktopNavbar/page'; 
 import LanguageSwitcher from '@/components/common/LanguageSwitcher';
@@ -77,7 +76,7 @@ const Header = () => {
           {/* Location, Categories, Search */}
           <div className="w-full md:w-auto flex-1 max-w-3xl flex items-center gap-4">
             <Location />
-            <Categories />
+            {/* <Categories /> */}
             <div className="flex-1 flex items-center  relative bg-white dark:bg-gray-800">
               <input
                 type="text"
