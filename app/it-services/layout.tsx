@@ -1,5 +1,7 @@
-import Footer from "@/components/main/Footer/page";
-import MenuBar from "@/components/main/header/Menubar/page";
+import MenuBar from "@/app/shared/header/Menubar/page";
+import Footer from "@/app/shared/Footer/page";
+
+
 import React from "react";
 
 

@@ -1,5 +1,4 @@
 'use client'
-// components/Navbar.tsx
 import { useState, useEffect } from 'react';
 import { Search, Menu, X, User, ShoppingBag, MapPin, ChevronDown } from 'lucide-react';
 import Link from 'next/link';

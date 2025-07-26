@@ -1,4 +1,4 @@
-import HeroSection from '@/components/main/HeroSection';
+import HeroSection from '@/components/root/HeroSection';
 import React from 'react';
 
 
