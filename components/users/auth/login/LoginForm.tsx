@@ -1,6 +1,8 @@
+'use client'
+
 import { cn } from "@/lib/utils"
-import React from "react"
 import { Button } from "@/components/ui/button"
+import { Loader2 } from "lucide-react"
 import {
   Card,
   CardContent,
@@ -10,90 +12,232 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import React, { useEffect, useState } from "react"
+import { useCheckEmail } from '@/hooks/mutations/useCheckEmail'
+import { useLogin } from '@/hooks/mutations/useLogin'
+import { useRegister } from '@/hooks/mutations/useRegister'
+import Link from "next/link"
+import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
 
- function LoginForm({
+
+export default function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const router = useRouter()
+  const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [emailChecked, setEmailChecked] = useState(false)
+
+  const {
+    mutate: checkEmail,
+    data: emailCheckData,
+    isPending: isCheckingEmail,
+    isSuccess: isEmailCheckedSuccess,
+    isError: isEmailCheckError,
+    error: emailCheckError,
+  } = useCheckEmail()
+
+  const {
+    mutate: login,
+    isPending: isLoggingIn,
+    isError: isLoginError,
+    error: loginError,
+  } = useLogin()
+
+  const {
+    mutate: register,
+    isPending: isRegistering,
+    isError: isRegisterError,
+    error: registerError,
+  } = useRegister()
+
+  const emailExists = isEmailCheckedSuccess && emailCheckData?.exists === true
+  const isPending = isCheckingEmail || isLoggingIn || isRegistering
+
+  const handleEmailCheck = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!email || isCheckingEmail) return
+    checkEmail({ email }, {
+      onSuccess: () => setEmailChecked(true)
+    })
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!email || !password || isPending) return
+
+    if (emailExists) {
+      login({ email, password }, {
+        onSuccess: () => {
+          toast.success("Login successful!")
+          router.push("/dashboard")
+        },
+        onError: () => toast.error("Login failed.")
+      })
+    } else {
+      if (!username) {
+        toast.error("Please enter a username to register.")
+        return
+      }
+      if (password !== confirmPassword) {
+        toast.error("Passwords do not match.")
+        return
+      }
+      register({ username, email, password }, {
+        onSuccess: () => {
+          toast.success("Registration successful!")
+          router.push("/login")
+        },
+        onError: () => toast.error("Registration failed.")
+      })
+    }
+  }
+
+  useEffect(() => {
+    setUsername('')
+    setPassword('')
+    setConfirmPassword('')
+    setEmailChecked(false)
+  }, [email])
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card>
+      <Card className="rounded-[6px] bg-white dark:bg-gray-900 border border-border shadow-sm">
         <CardHeader className="text-center">
-          <CardTitle className="text-xl">Welcome back</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-xl text-gray-900 dark:text-white">Welcome back</CardTitle>
+          <CardDescription className="text-gray-600 dark:text-gray-400">
             Login with your Apple or Google account
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
-            <div className="grid gap-6">
-              <div className="flex flex-col gap-4">
-                <Button variant="outline" className="w-full">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <path
-                      d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"
-                      fill="currentColor"
-                    />
-                  </svg>
-                  Login with Apple
-                </Button>
-                <Button variant="outline" className="w-full">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <path
-                      d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"
-                      fill="currentColor"
-                    />
-                  </svg>
-                  Login with Google
-                </Button>
-              </div>
-              <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
-                <span className="bg-card text-muted-foreground relative z-10 px-2">
-                  Or continue with
-                </span>
-              </div>
+          {!emailChecked ? (
+            <form onSubmit={handleEmailCheck}>
               <div className="grid gap-6">
-                <div className="grid gap-3">
+                {/* Social Buttons */}
+                <div className="flex flex-col gap-4">
+                  <Button variant="outline" className="w-full gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="h-5 w-5">
+                      <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" fill="currentColor" />
+                    </svg>
+                    Login with Apple
+                  </Button>
+                  <Button variant="outline" className="w-full gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="h-5 w-5">
+                      <g transform="matrix(1, 0, 0, 1, 27.009001, -39.238998)">
+                        <path fill="#4285F4" d="M -3.264 51.509 C -3.264 50.719 -3.334 49.969 -3.454 49.239 L -14.754 49.239 L -14.754 53.749 L -8.284 53.749 C -8.574 55.229 -9.424 56.479 -10.684 57.329 L -10.684 60.329 L -6.824 60.329 C -4.564 58.239 -3.264 55.159 -3.264 51.509 Z" />
+                        <path fill="#34A853" d="M -14.754 63.239 C -11.514 63.239 -8.804 62.159 -6.824 60.329 L -10.684 57.329 C -11.764 58.049 -13.134 58.489 -14.754 58.489 C -17.884 58.489 -20.534 56.379 -21.484 53.529 L -25.464 53.529 L -25.464 56.619 C -23.494 60.539 -19.444 63.239 -14.754 63.239 Z" />
+                        <path fill="#FBBC05" d="M -21.484 53.529 C -21.734 52.809 -21.864 52.039 -21.864 51.239 C -21.864 50.439 -21.724 49.669 -21.484 48.949 L -21.484 45.859 L -25.464 45.859 C -26.284 47.479 -26.754 49.299 -26.754 51.239 C -26.754 53.179 -26.284 54.999 -25.464 56.619 L -21.484 53.529 Z" />
+                        <path fill="#EA4335" d="M -14.754 43.989 C -12.984 43.989 -11.404 44.599 -10.154 45.789 L -6.734 42.369 C -8.804 40.429 -11.514 39.239 -14.754 39.239 C -19.444 39.239 -23.494 41.939 -25.464 45.859 L -21.484 48.949 C -20.534 46.099 -17.884 43.989 -14.754 43.989 Z" />
+                      </g>
+                    </svg>
+                    Login with Google
+                  </Button>
+                </div>
+
+                {/* Divider */}
+                <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
+                  <span className="bg-white dark:bg-gray-900 text-muted-foreground relative z-10 px-2">Or continue with</span>
+                </div>
+
+                {/* Email Input */}
+                <div className="relative grid gap-3">
                   <Label htmlFor="email">Email</Label>
                   <Input
                     id="email"
                     type="email"
-                    placeholder="m@example.com"
-                    required
+                    placeholder="admin@servicyee.com"
+                    className="rounded-[4px] focus:bg-white pr-20"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    disabled={isCheckingEmail}
+                    
                   />
                 </div>
-                <div className="grid gap-3">
-                  <div className="flex items-center">
-                    <Label htmlFor="password">Password</Label>
-                    <a
-                      href="#"
-                      className="ml-auto text-sm underline-offset-4 hover:underline"
-                    >
-                      Forgot your password?
-                    </a>
-                  </div>
-                  <Input id="password" type="password" required />
-                </div>
-                <Button type="submit" className="w-full">
-                  Login
+
+                {isEmailCheckError && (
+                  <p className="text-red-600 text-sm">{emailCheckError?.message || "Failed to check email"}</p>
+                )}
+
+                <Button
+                  type="submit"
+                  disabled={!email || isCheckingEmail}
+                  className="dark:text-white w-full bg-[#0077B6] hover:bg-[#35a5e1] rounded-[4px]"
+                >
+                  {isCheckingEmail ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <span>Continue</span>}
                 </Button>
               </div>
-              <div className="text-center text-sm">
-                Don&apos;t have an account?{" "}
-                <a href="#" className="underline underline-offset-4">
-                  Sign up
-                </a>
+            </form>
+          ) : (
+            <form onSubmit={handleSubmit}>
+              <div className="grid gap-6">
+                <div className="relative grid gap-3">
+                  <Label htmlFor="email">Email</Label>
+                  <Input id="email" type="email" className="rounded-[4px] focus:bg-white pr-20" value={email} readOnly />
+                  <button
+                    type="button"
+                    onClick={() => setEmailChecked(false)}
+                    className="absolute top-9 right-2 text-xs text-[#0077B6] hover:underline font-semibold"
+                    tabIndex={-1}
+                  >
+                    Change
+                  </button>
+                </div>
+
+                {emailExists ? (
+                  <div className="grid gap-3">
+                    <Label htmlFor="password">Password</Label>
+                    <Input id="password" type="password" placeholder="**************" value={password} onChange={(e) => setPassword(e.target.value)}  />
+                  </div>
+                ) : (
+                  <>
+                    <div className="grid gap-3">
+                      <Label htmlFor="username">Username</Label>
+                      <Input id="username" type="text" placeholder="Liaqat Paindah" value={username} onChange={(e) => setUsername(e.target.value)}  />
+                    </div>
+                    <div className="grid gap-3">
+                      <Label htmlFor="password">Password</Label>
+                      <Input id="password" type="password" placeholder="**************" value={password} onChange={(e) => setPassword(e.target.value)}  />
+                    </div>
+                    <div className="grid gap-3">
+                      <Label htmlFor="confirm_password">Confirm Password</Label>
+                      <Input id="confirm_password" type="password" placeholder="**************" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}  />
+                    </div>
+                  </>
+                )}
+
+                {(isLoginError || isRegisterError) && (
+                  <p className="text-red-600 text-sm">
+                    {(loginError?.message || registerError?.message) ?? "Submission failed"}
+                  </p>
+                )}
+
+                <Button
+                  type="submit"
+                  disabled={isPending || !password || (!emailExists && (!username || !confirmPassword))}
+                  className="dark:text-white w-full bg-[#0077B6] hover:bg-[#35a5e1] rounded-[4px]"
+                >
+                  {isPending ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      {emailExists ? "Logging in..." : "Registering..."}
+                    </>
+                  ) : (
+                    <span>{emailExists ? "Login" : "Register"}</span>
+                  )}
+                </Button>
               </div>
-            </div>
-          </form>
+            </form>
+          )}
         </CardContent>
       </Card>
-      <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-        and <a href="#">Privacy Policy</a>.
+
+      <div className="text-muted-foreground text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
+        By clicking continue, you agree to our <Link href="#">Terms of Service</Link> and <Link href="#">Privacy Policy</Link>.
       </div>
     </div>
   )
 }
-
-export default LoginForm
