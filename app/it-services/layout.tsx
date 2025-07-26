@@ -1,4 +1,4 @@
-import MenuBar from "@/app/shared/header/Menubar/page";
+import MenuBar from "@/components/header/Menubar/page";
 import Footer from "@/app/shared/Footer/page";
 
 
