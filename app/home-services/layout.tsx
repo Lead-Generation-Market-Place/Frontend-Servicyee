@@ -1,3 +1,4 @@
+
 import React from "react";
 
 
@@ -7,9 +8,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-   <div className="min-h-screen xl:flex">
-    
-          {children}
+    <div className="">
+      {children}
     </div>
   );
 }
