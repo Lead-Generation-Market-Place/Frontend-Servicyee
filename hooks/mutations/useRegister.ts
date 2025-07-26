@@ -2,7 +2,7 @@
 import { useMutation } from '@tanstack/react-query'
 import axios from 'axios'
 
-const REGISTER_URL = `${process.env.NEXT_PUBLIC_API_URL}/api/v1/register/`
+const REGISTER_URL = `${process.env.NEXT_PUBLIC_API_URL}/`
 
 export const useRegister = () =>
   useMutation({

@@ -2,7 +2,7 @@
 import { useMutation } from '@tanstack/react-query'
 import axios from 'axios'
 
-const LOGIN_URL = `${process.env.NEXT_PUBLIC_API_URL}/api/v1/login/`
+const LOGIN_URL = `${process.env.NEXT_PUBLIC_API_URL}/`
 
 export const useLogin = () =>
   useMutation({

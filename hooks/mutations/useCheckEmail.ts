@@ -7,7 +7,7 @@ if (!baseUrl) {
   throw new Error("API URL not defined");
 }
 
-const API_URL = `${baseUrl}/api/v1/check_email/`;
+const API_URL = `${baseUrl}/`;
 
 interface CheckEmailResponse {
   exists: boolean;
