@@ -2,7 +2,6 @@
 
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "@/components/providers/context/SidebarContext";
 import { defaultNavItems, serviceProviderNavItems } from "@/components/navigation/home-services/header/navItems";
@@ -142,8 +141,8 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ isServiceProvider }) => {
     >
       <div className={`py-8 flex ${!isExpanded ? "lg:justify-center" : "justify-start"}`}>
         <Link href="/" className="flex items-center justify-center w-full">
-          <div className="relative w-36 h-10 mx-auto">
-            <Image src="/yelpax.png" alt="Logo" fill style={{ objectFit: "contain" }} priority />
+          <div className="relative w-36 h-10 mx-auto text-2xl font-bold">
+            Servicyee
           </div>
         </Link>
       </div>

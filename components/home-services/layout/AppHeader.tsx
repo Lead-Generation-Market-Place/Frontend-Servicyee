@@ -2,7 +2,6 @@
 import { ModeToggle } from "@/components/providers/context/ToggleMode";
 import UserDropdown from "@/components/navigation/home-services/header/UserDropdown";
 import { useSidebar } from "@/components/providers/context/SidebarContext";
-import Image from "next/image";
 import Link from "next/link";
 import React, { useState ,useEffect,useRef} from "react";
 
@@ -83,20 +82,7 @@ const AppHeader: React.FC = () => {
           </button>
 
           <Link href="/" className="lg:hidden">
-            <Image
-              width={154}
-              height={32}
-              className="dark:hidden"
-              src="./images/logo/logo.svg"
-              alt="Logo"
-            />
-            <Image
-              width={154}
-              height={32}
-              className="hidden dark:block"
-              src="./images/logo/logo-dark.svg"
-              alt="Logo"
-            />
+            Servicyee
           </Link>
 
           <button
