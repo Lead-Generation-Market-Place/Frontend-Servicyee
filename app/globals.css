@@ -4,6 +4,41 @@
 
 
 @custom-variant dark (&:is(.dark *));
+/* app/globals.css */
+
+
+:root {
+  --deep-navy: #03045E;
+  --dark-azure: #023E8A;
+  --teal-blue: #007786;
+  --cerulean: #0096C7;
+  --cyan: #0084D8;
+  --light-cyan: #48CAE4;
+  --pale-cyan: #90E0EF;
+  --icy-blue: #ADE8F4;
+  --ice-white: #CAF0F8;
+
+  /* Semantic */
+  --primary: var(--deep-navy);
+  --primary-hover: var(--dark-azure);
+  --secondary: var(--cyan);
+  --secondary-hover: var(--teal-blue);
+  --background: var(--ice-white);
+  --text: var(--deep-navy);
+  --text-muted: #64748B;
+  --border: #E5E7EB;
+}
+
+.dark {
+  --primary: var(--dark-azure);
+  --primary-hover: var(--teal-blue);
+  --background: var(--deep-navy);
+  --text: var(--ice-white);
+  --text-muted: var(--pale-cyan);
+  --border: rgba(72, 202, 228, 0.2);
+}
+
+
 
 @theme inline {
   --color-background: var(--background);

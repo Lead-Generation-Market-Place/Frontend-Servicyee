@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { FaSearch, FaRegUser, FaRegHeart, FaShoppingBag } from 'react-icons/fa';
+import { FaSearch, FaRegHeart, FaShoppingBag } from 'react-icons/fa';
 import { Switch } from '@/components/ui/switch';
 import Location from '@/components/root/SearchLocation';
 import Categories from '@/components/root/SearchCategories';
 import MobileNavbar from "@/components/header/MobileNavbar/page";
 import DesktopNavbar from "@/components/header/DesktopNavbar/page";
 import TopBar from "@/components/header/TopBar/page";
+import Modal from '../SideBar/page';
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -92,18 +93,15 @@ const Header = () => {
           </div>
 
           {/* User actions */}
-          <div className="flex items-center space-x-4 md:space-x-5">
-            <div className="flex items-center space-x-2">
+          <div className="flex items-center">
+            <div className="flex items-center ">
               <Switch id="dark-mode-toggle" checked={darkMode} onCheckedChange={toggleDarkMode} />
             </div>
             <button className="hidden md:flex flex-col items-center p-2 text-gray-800 dark:text-gray-300 hover:text-[#0077B6] dark:hover:text-[#48CAE4] group">
               <FaRegHeart className="text-lg mb-0.5" />
               <span className="text-xs text-gray-900 dark:text-gray-300 group-hover:text-[#0077B6] dark:group-hover:text-[#48CAE4]">Wishlist</span>
             </button>
-            <Link href="/login" className="hidden md:flex flex-col items-center p-2 text-gray-800 dark:text-gray-300 hover:text-[#0077B6] dark:hover:text-[#48CAE4] group">
-              <FaRegUser className="text-lg mb-0.5" />
-              <span className="text-xs text-gray-900 dark:text-gray-300 group-hover:text-[#0077B6] dark:group-hover:text-[#48CAE4]">Account</span>
-            </Link>
+            <Modal />
             <div className="relative">
               <button className="flex flex-col items-center p-2 text-gray-800 dark:text-gray-300 hover:text-[#0077B6] dark:hover:text-[#48CAE4] group">
                 <FaShoppingBag className="text-lg mb-0.5" />
