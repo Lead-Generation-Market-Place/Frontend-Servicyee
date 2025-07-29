@@ -1,14 +1,12 @@
+import React from 'react'
+import Main from '@/app/home-services/root/main/page'
 
-import React from 'react';
-
-
-
-const Consumer = () => {
-
+const Home = () => {
   return (
-<div>
-</div>
-  );
+    <div>
+      <Main/>
+      </div>
+  )
 }
 
-export default Consumer;
+export default Home

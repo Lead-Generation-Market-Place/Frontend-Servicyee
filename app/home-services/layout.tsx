@@ -1,5 +1,6 @@
 
 import React from "react";
+import { SidebarProvider } from "../../components/providers/context/SidebarContext";
 
 
 export default function RootLayout({
@@ -9,7 +10,8 @@ export default function RootLayout({
 }>) {
   return (
     <div className="">
-      {children}
+          <SidebarProvider>{children}</SidebarProvider>
+      
     </div>
   );
 }

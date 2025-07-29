@@ -1,5 +1,5 @@
 import React from 'react';
-import Main from '@/app/home-services/main/page'
+import Main from '@/app/home-services/root/main/page'
 
 
 
