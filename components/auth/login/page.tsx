@@ -82,7 +82,7 @@ import Link from "next/link"
               <div className="text-center text-sm">
                 Don&apos;t have an account?{" "}
                 <Link href="/auth/register" className="underline underline-offset-4">
-                  Sign up
+                  Sign up as Professional
                 </Link>
               </div>
             </div>
