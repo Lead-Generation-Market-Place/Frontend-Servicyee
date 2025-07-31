@@ -18,36 +18,32 @@ export const useSidebar = () => {
   return context;
 };
 
-export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
       const mobile = window.innerWidth < 768;
-      setIsMobileOpen(mobile ? false : isMobileOpen);
+      setIsMobile(mobile);
+      if (!mobile) {
+        setIsMobileOpen(false);
+      }
     };
 
-    window.addEventListener("resize", handleResize);
     handleResize();
-
+    window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [isMobileOpen]);
+  }, []);
 
-  const toggleSidebar = () => {
-    setIsExpanded((prev) => !prev);
-  };
-
-  const toggleMobileSidebar = () => {
-    setIsMobileOpen((prev) => !prev);
-  };
+  const toggleSidebar = () => setIsExpanded((prev) => !prev);
+  const toggleMobileSidebar = () => setIsMobileOpen((prev) => !prev);
 
   return (
     <SidebarContext.Provider
       value={{
-        isExpanded,
+        isExpanded: isMobile ? false : isExpanded,
         isMobileOpen,
         toggleSidebar,
         toggleMobileSidebar,
