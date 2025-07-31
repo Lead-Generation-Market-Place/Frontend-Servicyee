@@ -32,7 +32,7 @@ export default function Example() {
         // Simulate server delay
         setTimeout(() => {
             setIsSubmitting(false);
-            router.push('/home-services/dashboard')
+            router.push('/home-services/dashboard/Services')
 
         }, 2000);
     };
