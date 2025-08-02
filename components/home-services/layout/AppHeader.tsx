@@ -81,7 +81,7 @@ const AppHeader: React.FC = () => {
             {/* Cross Icon */}
           </button>
 
-          <Link href="/" className="lg:hidden">
+          <Link href="/home-services/dahsboard" className="lg:hidden">
             Servicyee
           </Link>
 

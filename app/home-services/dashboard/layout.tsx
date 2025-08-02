@@ -11,14 +11,14 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { isExpanded,  isMobileOpen } = useSidebar();
+  const { isExpanded, isMobileOpen } = useSidebar();
 
   // Dynamic class for main content margin based on sidebar state
   const mainContentMargin = isMobileOpen
     ? "ml-0"
-    : isExpanded 
-    ? "lg:ml-[290px]"
-    : "lg:ml-[90px]";
+    : isExpanded
+      ? "lg:ml-[290px]"
+      : "lg:ml-[90px]";
 
   return (
     <div className=" xl:flex">
@@ -31,7 +31,8 @@ export default function AdminLayout({
         {/* Header */}
         <AppHeader />
         {/* Page Content */}
-        <div className="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">{children}</div>
+        <div className="p-4 mx-auto max-w-[var(--breakpoint-2xl)] md:p-6 bg-white text-black dark:bg-gray-900 dark:text-white">
+          {children}</div>
       </div>
     </div>
   );

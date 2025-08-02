@@ -178,7 +178,7 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ isServiceProvider }) => {
       } ${isMobileOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}
     >
       <div className={`py-8 flex ${!isExpanded ? "lg:justify-center" : "justify-start"}`}>
-        <Link href="/" className="flex items-center justify-center w-full">
+        <Link href="/home-services/dashboard" className="flex items-center justify-center w-full">
           <div className="relative w-36 h-10 mx-auto">Servicyee</div>
         </Link>
       </div>

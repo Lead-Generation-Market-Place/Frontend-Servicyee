@@ -4,6 +4,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { Loader2 } from 'lucide-react';
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import ShowModal from "@/components/ui/show-modal";
 
 export default function Example() {
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -32,7 +33,7 @@ export default function Example() {
         // Simulate server delay
         setTimeout(() => {
             setIsSubmitting(false);
-            router.push('/home-services/dashboard/Services')
+            router.push('/home-services/dashboard/services')
 
         }, 2000);
     };
@@ -40,35 +41,98 @@ export default function Example() {
 
     return (
         <>
-            {showModal && (
-                <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
-                    <div className="bg-white dark:bg-gray-900 rounded-md shadow-xl w-full max-w-2xl p-6">
-                        <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Please confirm your information</h2>
-                        <div className="grid grid-cols-2 gap-4 text-sm text-gray-700 dark:text-gray-300">
-                            {Object.entries(formData).map(([key, value]) => (
-                                <div key={key} className="border-b py-1">
-                                    <span className="font-medium capitalize">{key.replaceAll('-', ' ')}:</span> {value as string}
-                                </div>
-                            ))}
+            <ShowModal
+                isOpen={showModal}
+                onClose={() => setShowModal(false)}
+                title="Please confirm your information"
+                type="info"
+                size="lg"
+                actions={
+                    <>
+                        <button
+                            onClick={() => setShowModal(false)}
+                            className="px-6 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-[4px] transition-all duration-200"
+                        >
+                            Edit Information
+                        </button>
+                                                 <button
+                             onClick={confirmSubmit}
+                             disabled={isSubmitting}
+                             className="inline-flex items-center gap-2 rounded-[4px] bg-[#0077B6] hover:bg-[#35a5e1] dark:bg-[#0077B6] dark:hover:bg-[#35a5e1] px-6 py-2.5 text-sm font-semibold text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl"
+                         >
+                            {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
+                            Confirm & Submit
+                        </button>
+                    </>
+                }
+            >
+                <div className="space-y-6">
+                                         {/* Profile Header */}
+                     <div className="text-center mb-8">
+                         <div className="w-20 h-20 bg-gradient-to-br from-[#0077B6] to-[#35a5e1] rounded-full flex items-center justify-center mx-auto mb-4">
+                             <span className="text-white text-2xl font-bold">
+                                 {formData['username'] ? formData['username'][0].toUpperCase() : 'B'}
+                             </span>
+                         </div>
+                         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                             {formData['username'] || 'Business Profile'}
+                         </h3>
+                         <p className="text-sm text-gray-500 dark:text-gray-400">
+                             {formData['first-name'] && formData['last-name'] 
+                                 ? `${formData['first-name']} ${formData['last-name']}` 
+                                 : 'Business Account'
+                             }
+                         </p>
+                     </div>
+
+                    {/* Information Sections */}
+                    <div className="space-y-6">
+                                                 {/* Business Information */}
+                         <div className="bg-gray-50 dark:bg-gray-800/50 rounded-[4px] p-6">
+                             <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                                 <div className="w-2 h-2 bg-[#0077B6] dark:bg-[#35a5e1] rounded-full"></div>
+                                 Business Information
+                             </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {Object.entries(formData).filter(([key]) => 
+                                    ['username', 'category', 'country', 'street-address', 'city', 'region', 'postal-code', 'website'].includes(key)
+                                ).map(([key, value]) => (
+                                    <div key={key} className="flex flex-col">
+                                        <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                                            {key.replaceAll('-', ' ')}
+                                        </span>
+                                        <span className="text-sm text-gray-900 dark:text-white font-medium mt-1">
+                                            {value as string || 'Not provided'}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
-                        <div className="mt-6 flex justify-end gap-3">
-                            <button
-                                onClick={() => setShowModal(false)}
-                                className="text-sm font-semibold text-gray-700 dark:text-white"
-                            >
-                                Edit
-                            </button>
-                            <button
-                                onClick={confirmSubmit}
-                                className="inline-flex items-center gap-2 rounded bg-[#0077B6] px-4 py-2 text-sm font-medium text-white hover:bg-[#35a5e1]"
-                            >
-                                {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
-                                Confirm & Submit
-                            </button>
+
+                        {/* Personal Information */}
+                        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-[4px] p-6">
+                            <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                Personal Information
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {Object.entries(formData).filter(([key]) => 
+                                    ['first-name', 'last-name', 'email', 'phone'].includes(key)
+                                ).map(([key, value]) => (
+                                    <div key={key} className="flex flex-col">
+                                        <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                                            {key.replaceAll('-', ' ')}
+                                        </span>
+                                        <span className="text-sm text-gray-900 dark:text-white font-medium mt-1">
+                                            {value as string || 'Not provided'}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </div>
-            )}
+            </ShowModal>
             <form onSubmit={handlePreview} className="max-w-4xl mx-auto bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md shadow-md p-12 space-y-8 divide-y divide-gray-200 dark:divide-gray-700">
                 <div className="space-y-8">
                     <div className="border-b border-gray-900/10 dark:border-gray-700 pb-6">
