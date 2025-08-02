@@ -1,6 +1,6 @@
 "use client";
-import { ModeToggle } from "@/components/providers/context/ToggleMode";
-import UserDropdown from "@/components/navigation/home-services/header/UserDropdown";
+import { ModeToggle } from "@/components/providers/theme/ToggleMode";
+import UserDropdown from "@/components/navigation/ProfessionalLayout/UserDropdown";
 import { useSidebar } from "@/components/providers/context/SidebarContext";
 import Link from "next/link";
 import React, { useState ,useEffect,useRef} from "react";
@@ -81,7 +81,7 @@ const AppHeader: React.FC = () => {
             {/* Cross Icon */}
           </button>
 
-          <Link href="/" className="lg:hidden">
+          <Link href="/home-services/dahsboard" className="lg:hidden">
             Servicyee
           </Link>
 

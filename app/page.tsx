@@ -1,15 +1,14 @@
 import React from 'react';
-import Main from '@/app/home-services/main/page'
 
 
 
-const Consumer = () => {
+const RootLayout = () => {
 
   return (
     <>
-      <Main />
+    <h2>Welcome!</h2>
     </>
   );
 }
 
-export default Consumer;
+export default RootLayout;

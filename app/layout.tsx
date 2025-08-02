@@ -3,8 +3,9 @@ import { Inter } from "next/font/google";
 
 import "./globals.css";
 import React from "react";
-import { ThemeProvider } from "@/styles/theme-provider";
+import { ThemeProvider } from "@/components/providers/theme/theme-provider";
 import QueryProvider from "@/components/providers/context/QueryProvider";
+import { SidebarProvider } from "@/components/providers/context/SidebarContext";
 
 const inter = Inter({
   subsets: ['latin'],
@@ -31,7 +32,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange>
           <QueryProvider>
-            {children}
+            <SidebarProvider>{children}</SidebarProvider>
           </QueryProvider>
         </ThemeProvider>
       </body>
