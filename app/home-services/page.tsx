@@ -1,12 +1,9 @@
 import React from 'react'
-import Main from '@/app/home-services/main/page'
 
-const Home = () => {
+const HomeServices = () => {
   return (
-    <div>
-      <Main/>
-      </div>
+    <div>HomeServices</div>
   )
 }
 
-export default Home
+export default HomeServices
