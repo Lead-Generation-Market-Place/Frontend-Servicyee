@@ -24,9 +24,6 @@ export default function SubCategoryServicesPage({
   const { id } = use(searchParams);
   console.log(id);
 
-  const [selectedMile, setSelectedMile] = useState<string | null>(null);
-  const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
-  const [expandedFilter, setExpandedFilter] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false); // For mobile filter toggle
   const decodedName = decodeURIComponent(name);
 
@@ -122,14 +119,7 @@ export default function SubCategoryServicesPage({
                 showFilters ? "block" : "hidden"
               } md:block md:flex-1`}
             >
-              <ProfessionalFilters
-                selectedMile={selectedMile}
-                setSelectedMile={setSelectedMile}
-                selectedLocations={selectedLocations}
-                setSelectedLocations={setSelectedLocations}
-                expandedFilter={expandedFilter}
-                setExpandedFilter={setExpandedFilter}
-              />
+              <ProfessionalFilters />
             </div>
 
             {/* Services grid */}
