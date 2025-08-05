@@ -76,7 +76,7 @@ const HeroSection = () => {
     }
 
     return (
-        <section className="bg-white dark:bg-gray-900 overflow-hidden">
+        <section className=" pt-8 bg-white dark:bg-gray-900 overflow-hidden ">
             <div className="px-6 mx-auto max-w-7xl lg:px-8">
                 <motion.div
                     ref={ref}

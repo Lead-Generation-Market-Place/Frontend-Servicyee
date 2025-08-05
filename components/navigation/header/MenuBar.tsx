@@ -1,10 +1,10 @@
 import Link from 'next/link';
 
-const DesktopNavbar = () => {
+const MenuBar = () => {
   return (
     <nav className="hidden md:block bg-white dark:bg-gray-900 border-b dark:border-gray-700 px-4 py-2">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-start space-x-8 overflow-x-auto py-4 text-sm">
+      <div className="container max-w-7xl mx-auto ">
+        <div className="flex items-center justify-between space-x-8 overflow-x-auto py-4 text-sm">
           <Link href="/homeservices" className="whitespace-nowrap text-gray-800 dark:text-gray-300 hover:text-[#0077B6] dark:hover:text-[#48CAE4] font-normal">Todays Deals</Link>
           <Link href="/beauty" className="whitespace-nowrap text-gray-800 dark:text-gray-300 hover:text-[#0077B6] dark:hover:text-[#48CAE4] font-normal">Beauty & Spas</Link>
           <Link href="https://marketplace-vhbe.onrender.com/" className="whitespace-nowrap text-gray-800 dark:text-gray-300 hover:text-[#0077B6] dark:hover:text-[#48CAE4] font-normal">Home Services</Link>
@@ -20,4 +20,4 @@ const DesktopNavbar = () => {
   );
 };
 
-export default DesktopNavbar;
+export default MenuBar;

@@ -1,7 +1,7 @@
 'use client';
 
-import { FaBars, FaTimes } from 'react-icons/fa';
-import React from 'react';
+import { FaBars, FaSearch, FaTimes } from 'react-icons/fa';
+import React, { useState } from 'react';
 import Link from 'next/link';
 
 interface MobileNavbarProps {
@@ -10,6 +10,8 @@ interface MobileNavbarProps {
 }
 
 const MobileNavbar = ({ mobileMenuOpen, setMobileMenuOpen }: MobileNavbarProps) => {
+  
+  const [searchQuery, setSearchQuery] = useState('');
   // Close menu when clicking outside
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -38,8 +40,8 @@ const MobileNavbar = ({ mobileMenuOpen, setMobileMenuOpen }: MobileNavbarProps) 
   }, [mobileMenuOpen, setMobileMenuOpen]);
 
   return (
-    <div className="lg:hidden bg-white dark:bg-gray-900 border-b dark:border-gray-700 shadow-sm fixed top-0 left-0 right-0 z-50 mobile-nav-container">
-      <div className="container mx-auto px-4">
+    <div className="relative md:hidden bg-white dark:bg-gray-900 border-b dark:border-gray-700 shadow-sm  top-0 left-0 right-0 z-50 mobile-nav-container">
+      <div className="container max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between py-3">
           {/* Logo or brand name can go here */}
           <Link href="/" className="font-bold text-lg text-[#0066CC] dark:text-[#48CAE4]">
@@ -58,6 +60,20 @@ const MobileNavbar = ({ mobileMenuOpen, setMobileMenuOpen }: MobileNavbarProps) 
               <FaBars className="text-lg text-gray-600 dark:text-gray-400" />
             )}
           </button>
+        </div>
+        <div className="pb-3">
+          <div className="flex items-center relative bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="I'm shopping for..."
+              className="w-full px-4 py-3 text-sm text-gray-700 dark:text-gray-300 bg-transparent focus:outline-none"
+            />
+            <button className="absolute right-3 text-gray-500 dark:text-gray-400 hover:text-[#0077B6] dark:hover:text-[#48CAE4]">
+              <FaSearch />
+            </button>
+          </div>
         </div>
 
         <div
