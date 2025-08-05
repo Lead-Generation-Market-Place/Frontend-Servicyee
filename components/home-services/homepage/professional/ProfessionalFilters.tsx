@@ -11,7 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 interface ProfessionalFiltersProps {
   selectedMile: string | null;
-  setSelectedMile: void;
+  setSelectedMile: (mile: string | null) => void; // Fixed type
   selectedLocations: string[];
   setSelectedLocations: React.Dispatch<React.SetStateAction<string[]>>;
   expandedFilter: string | null;
@@ -20,7 +20,7 @@ interface ProfessionalFiltersProps {
 
 export default function ProfessionalFilters({
   selectedMile,
-  // setSelectedMile,
+  setSelectedMile,
   selectedLocations,
   setSelectedLocations,
   expandedFilter,
@@ -37,14 +37,16 @@ export default function ProfessionalFilters({
   const toggleFilter = (filter: string) => {
     setExpandedFilter((prev) => (prev === filter ? null : filter));
   };
-  console.log(selectedMile);
+
+  const handleMileSelect = (mile: string) => {
+    setSelectedMile(selectedMile === mile ? null : mile); // Toggle selection
+  };
+
   return (
-    <div
-      className={`flex-1 w-full p-4 rounded-lg shadow-md transition-colors duration-300 dark:bg-gray-800 dark:border-gray-700 bg-white border-gray-200 border`}
-    >
+    <div className="flex-1 w-full p-4 rounded-lg shadow-md transition-colors duration-300 dark:bg-gray-800 dark:border-gray-700 bg-white border-gray-200 border">
       <div className="mb-6 mt-4 flex flex-row items-center justify-start gap-2 font-bold text-lg border-b border-gray-100 dark:border-gray-800">
         <ArrowDownWideNarrow className="w-5 h-5" />
-        <p className="">Filters</p>
+        <p>Filters</p>
       </div>
 
       {/* Distance Filter */}
@@ -55,7 +57,7 @@ export default function ProfessionalFilters({
         <div className="flex justify-between items-center">
           <div className="flex flex-row items-center justify-start gap-2 text-md text-gray-500 dark:text-gray-200 font-medium">
             <LandPlot className="w-4 h-4" />
-            <p className="">Distance</p>
+            <p>Distance</p>
           </div>
           <ChevronDown
             className={`w-5 h-5 transition-transform text-gray-500 dark:text-gray-200 ${
@@ -75,7 +77,18 @@ export default function ProfessionalFilters({
                 {["134 miles", "1400 miles", "987 miles"].map((mile) => {
                   const inputId = `mile-${mile.replace(/\s+/g, "-")}`;
                   return (
-                    <div key={mile}>
+                    <div
+                      key={mile}
+                      className={`flex items-center p-2 rounded-md cursor-pointer transition-colors ${
+                        selectedMile === mile
+                          ? "dark:bg-blue-900 bg-blue-100"
+                          : "dark:hover:bg-gray-700 hover:bg-gray-100"
+                      }`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleMileSelect(mile);
+                      }}
+                    >
                       <input
                         type="radio"
                         name="mile"
@@ -104,7 +117,7 @@ export default function ProfessionalFilters({
         <div className="flex justify-between items-center">
           <div className="flex flex-row items-center justify-start gap-2 text-md text-gray-500 dark:text-gray-200 font-medium">
             <MapPinPlus className="w-4 h-4" />
-            <p className="">Location</p>
+            <p>Location</p>
           </div>
           <ChevronDown
             className={`w-5 h-5 transition-transform text-gray-500 dark:text-gray-200 ${
