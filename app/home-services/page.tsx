@@ -1,9 +1,88 @@
-import React from 'react'
+"use client";
+import Breadcrumbs from "@/components/home-services/homepage/Breadcrumbs";
+import PopularSearch from "@/components/home-services/homepage/PopularSearch";
+import dynamic from "next/dynamic";
+import { Skeleton } from "@/components/ui/skeleton";
 
-const HomeServices = () => {
+// Skeleton components
+const TitlePageSkeleton = () => (
+  <div className="w-full h-60 md:h-72 lg:h-80 xl:h-96 bg-gray-200 dark:bg-gray-800 animate-pulse" />
+);
+
+const CategorySkeleton = () => (
+  <div className="my-10 px-4">
+    <div className="max-w-6xl mx-auto">
+      <div className="flex justify-between mb-4">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-6 w-32" />
+      </div>
+      <div className="flex gap-4 overflow-hidden">
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="flex-shrink-0 w-56">
+            <Skeleton className="h-40 rounded-xl" />
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+// Lazy-loaded components with custom loading skeletons
+const TitlePage = dynamic(
+  () => import("@/components/home-services/homepage/TitlePage"),
+  {
+    loading: () => <TitlePageSkeleton />,
+    ssr: false,
+  }
+);
+
+const PopularSubCategories = dynamic(
+  () => import("@/components/home-services/homepage/PopularSubCategories"),
+  {
+    loading: () => <CategorySkeleton />,
+    ssr: false,
+  }
+);
+
+const FeaturedServices = dynamic(
+  () => import("@/components/home-services/homepage/FeaturedServices"),
+  {
+    loading: () => <CategorySkeleton />,
+    ssr: false,
+  }
+);
+
+const CategoryServices = dynamic(
+  () => import("@/components/home-services/homepage/CategoryServices"),
+  {
+    loading: () => <CategorySkeleton />,
+    ssr: false,
+  }
+);
+
+const AllCategories = dynamic(
+  () => import("@/components/home-services/homepage/AllCategories"),
+  {
+    loading: () => <CategorySkeleton />,
+    ssr: false,
+  }
+);
+
+const HomeServicesPage = () => {
   return (
-    <div>HomeServices</div>
-  )
-}
+    <div className="relative">
+      <Breadcrumbs
+        paths={[{ name: "Home", href: "/" }, { name: "Home Services" }]}
+      />
 
-export default HomeServices
+      <TitlePage />
+      <PopularSubCategories />
+      <FeaturedServices />
+      <CategoryServices />
+      <AllCategories />
+      <PopularSearch />
+    </div>
+  );
+};
+
+export default HomeServicesPage;
