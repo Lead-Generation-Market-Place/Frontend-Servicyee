@@ -17,7 +17,7 @@ const languages = [
   { code: "de", name: "Deutsch" },
 ]
 
-export default function LanguageSwitcher() {
+export default function TopBar() {
   const currentLang = "en" // Replace with actual locale logic
   const pathname = usePathname()
   const router = useRouter()
