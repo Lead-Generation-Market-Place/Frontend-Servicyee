@@ -1,9 +1,9 @@
 "use client";
 import { use, useState } from "react";
-import Breadcrumbs from "@/components/home-services/Breadcrumbs";
-import ProfessionalFilters from "@/components/home-services/professional/ProfessionalFilters";
+import Breadcrumbs from "@/components/home-services/homepage/Breadcrumbs";
+import ProfessionalFilters from "@/components/home-services/homepage/professional/ProfessionalFilters";
 import SubCategoryServices from "@/components/home-services/sub-categories/SubCategegoryServices";
-import AllCategories from "@/components/home-services/AllCategories";
+import AllCategories from "@/components/home-services/homepage/AllCategories";
 
 interface ServicesInterface {
   id: string;
@@ -22,6 +22,7 @@ export default function SubCategoryServicesPage({
 }) {
   const { name } = use(params);
   const { id } = use(searchParams);
+  console.log(id);
 
   const [selectedMile, setSelectedMile] = useState<string | null>(null);
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);

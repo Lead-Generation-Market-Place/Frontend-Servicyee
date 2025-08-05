@@ -1,6 +1,6 @@
-'use client';
-import React, { useState } from 'react';
-import { motion, Variants } from 'framer-motion';
+"use client";
+import React, { useState } from "react";
+import { motion, Variants } from "framer-motion";
 
 import {
   Dialog,
@@ -10,10 +10,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from '../ui/input';
-import { Button } from '../ui/button';
-import { Loader2, SquareMousePointer } from 'lucide-react';
-
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Loader2, SquareMousePointer } from "lucide-react";
 
 const titleVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
@@ -24,36 +23,36 @@ const titleVariants: Variants = {
       type: "spring" as const,
       stiffness: 80,
       damping: 10,
-      delay: 0.5
-    }
-  }
+      delay: 0.5,
+    },
+  },
 };
 
 const TitlePage = () => {
   const [userLocation, setUserLocation] = useState<string | null>(null);
-  const [zipCode, setZipCode] = useState('');
+  const [zipCode, setZipCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const fetchLocationFromZip = async () => {
     if (!zipCode.match(/^\d{5}$/)) {
-      setError('Please enter a valid 5-digit US zip code');
+      setError("Please enter a valid 5-digit US zip code");
       return;
     }
 
     setIsLoading(true);
-    setError('');
+    setError("");
 
     try {
       const response = await fetch(`https://api.zippopotam.us/us/${zipCode}`);
-      if (!response.ok) throw new Error('Location not found');
-      
+      if (!response.ok) throw new Error("Location not found");
+
       const data = await response.json();
-      const city = data.places[0]['place name'];
-      const state = data.places[0]['state abbreviation'];
+      const city = data.places[0]["place name"];
+      const state = data.places[0]["state abbreviation"];
       setUserLocation(`${city}, ${state}`);
     } catch (err) {
-      setError('Failed to find location for this zip code');
+      setError("Failed to find location for this zip code");
       console.error(err);
     } finally {
       setIsLoading(false);
@@ -62,7 +61,7 @@ const TitlePage = () => {
 
   const setCurrentLocation = () => {
     setIsLoading(true);
-    setError('');
+    setError("");
 
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -77,24 +76,24 @@ const TitlePage = () => {
             const state = data.address.state;
             setUserLocation(`${city}, ${state}`);
           } catch (err) {
-            setError('Failed to determine your location');
+            setError("Failed to determine your location");
             console.error(err);
           } finally {
             setIsLoading(false);
           }
         },
         (error) => {
-          setError('Please enable location permissions');
+          setError("Please enable location permissions");
           console.log(error);
           setIsLoading(false);
         }
       );
     } else {
-      setError('Geolocation is not supported by your browser');
+      setError("Geolocation is not supported by your browser");
       setIsLoading(false);
     }
   };
-  const userDefaultLocation = "Los Angeles, CA"
+  const userDefaultLocation = "Los Angeles, CA";
   return (
     <div className="w-full bg-[url('/assets/home-service/home-service-title-image.jpg')] bg-cover bg-center relative overflow-hidden">
       {/* Gradient overlay and background elements... */}
@@ -108,11 +107,11 @@ const TitlePage = () => {
             animate="show"
             className="text-white"
           >
-            <motion.h1 
+            <motion.h1
               className="text-xl sm:text-4xl md:text-xl lg:text-2xl font-bold leading-tight max-w-4xl"
-              whileHover={{ 
+              whileHover={{
                 x: 5,
-                transition: { type: "spring" as const, stiffness: 300 }
+                transition: { type: "spring" as const, stiffness: 300 },
               }}
             >
               <div className="">
@@ -121,11 +120,11 @@ const TitlePage = () => {
                   <DialogTrigger asChild>
                     <button className="cursor-pointer focus-visible:outline-none border-b-2 border-dashed border-white">
                       {userLocation ? (
-                        <span >{userLocation}</span>
+                        <span>{userLocation}</span>
                       ) : (
                         <span className="flex flex-row gap-2 justify-start items-center">
                           <span>{userDefaultLocation}</span>
-                          <SquareMousePointer className='w-6 h-6'/>
+                          <SquareMousePointer className="w-6 h-6" />
                         </span>
                       )}
                     </button>
@@ -137,10 +136,13 @@ const TitlePage = () => {
                         Enter your zip code or use your current location
                       </DialogDescription>
                     </DialogHeader>
-                    
+
                     <div className="space-y-4 py-4">
                       <div className="space-y-2">
-                        <label htmlFor="zipcode" className="block text-sm font-medium">
+                        <label
+                          htmlFor="zipcode"
+                          className="block text-sm font-medium"
+                        >
                           US Zip Code
                         </label>
                         <div className="flex gap-2">
@@ -150,20 +152,24 @@ const TitlePage = () => {
                             value={zipCode}
                             onChange={(e) => {
                               setZipCode(e.target.value);
-                              setError('');
+                              setError("");
                             }}
                             className="flex-1 focus-visible:border-0 focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 dark:focus-visible:ring-sky-600 dark:focus-visible:ring-offset-gray-900"
                           />
-                          <Button 
+                          <Button
                             onClick={fetchLocationFromZip}
                             disabled={isLoading}
-                            className='bg-sky-500 hover:bg-sky-600 text-white cursor-pointer'
+                            className="bg-sky-500 hover:bg-sky-600 text-white cursor-pointer"
                           >
-                            {isLoading ? <Loader2 className="animate-spin" /> : 'Search'}
+                            {isLoading ? (
+                              <Loader2 className="animate-spin" />
+                            ) : (
+                              "Search"
+                            )}
                           </Button>
                         </div>
                       </div>
-                      
+
                       <div className="relative">
                         <div className="absolute inset-0 flex items-center">
                           <div className="w-full border-t border-gray-200 dark:border-gray-700" />
@@ -174,7 +180,7 @@ const TitlePage = () => {
                           </span>
                         </div>
                       </div>
-                      
+
                       <Button
                         variant="outline"
                         onClick={setCurrentLocation}
@@ -187,19 +193,21 @@ const TitlePage = () => {
                           <span>Use Current Location</span>
                         )}
                       </Button>
-                      
+
                       {error && (
-                        <p className="text-sm text-red-500 dark:text-red-400">{error}</p>
+                        <p className="text-sm text-red-500 dark:text-red-400">
+                          {error}
+                        </p>
                       )}
                     </div>
                   </DialogContent>
                 </Dialog>
               </div>
             </motion.h1>
-            
+
             {/* Animated underline... */}
           </motion.div>
-          
+
           {/* Floating decorative elements... */}
         </div>
       </div>

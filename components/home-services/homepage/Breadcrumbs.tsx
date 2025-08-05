@@ -1,16 +1,20 @@
 "use client";
-import { ChevronRight } from 'lucide-react';
-import Link from 'next/link';
+import { ChevronRight } from "lucide-react";
+import Link from "next/link";
 
-export default function Breadcrumbs({ paths }: { paths: { name: string; href?: string }[] }) {
+export default function Breadcrumbs({
+  paths,
+}: {
+  paths: { name: string; href?: string }[];
+}) {
   return (
-    <nav className="flex items-center text-sm text-gray-900 dark:text-gray-200 mb-4 md:absolute md:top-48 md:left-9 z-50 px-4 md:px-0">
+    <nav className="flex items-center text-sm text-gray-900 dark:text-gray-200 mb-4 md:absolute md:top-5 md:left-9 z-50 px-4 md:px-0">
       <div className="flex items-center overflow-x-auto whitespace-nowrap py-2 w-full hide-scrollbar">
         {paths.map((path, index) => (
           <div key={index} className="flex items-center">
             {path.href ? (
-              <Link 
-                href={path.href} 
+              <Link
+                href={path.href}
                 className="hover:text-sky-500 text-gray-500 dark:text-gray-400 transition-colors"
               >
                 {decodeURIComponent(path.name)}
@@ -28,7 +32,7 @@ export default function Breadcrumbs({ paths }: { paths: { name: string; href?: s
           </div>
         ))}
       </div>
-      
+
       {/* Add this to your global CSS */}
       <style jsx>{`
         .hide-scrollbar {

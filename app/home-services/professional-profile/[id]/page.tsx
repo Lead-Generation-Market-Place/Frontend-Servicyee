@@ -8,7 +8,6 @@ import {
   Star,
   ChevronLeft,
   ChevronRight,
-  Award,
   BadgeCheck,
   Trophy,
   MapPin,
@@ -29,17 +28,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import ShareDialogWrapper from "@/components/home-services/ShareDialogWrapper";
-import Breadcrumbs from "@/components/home-services/Breadcrumbs";
+import ShareDialogWrapper from "@/components/home-services/homepage/ShareDialogWrapper";
+import Breadcrumbs from "@/components/home-services/homepage/Breadcrumbs";
 
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import QuestionModal from "@/components/home-services/homepage/QuestionModal";
 
 export default function ProfessionalProfile({
   params,
@@ -47,6 +39,7 @@ export default function ProfessionalProfile({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
+  console.log(id);
   const [activeTab, setActiveTab] = useState<string>("about");
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
 
@@ -701,12 +694,13 @@ export default function ProfessionalProfile({
               <div className="bg-sky-500 p-1 dark:bg-sky-400"></div>
               <div className="p-4 space-y-1 flex flex-col">
                 <MessageCircle className="w-4 h-4 text-gray-400 dark:text-gray-600" />
-                <Link
+                <QuestionModal />
+                {/* <Link
                   href={"/price-details"}
                   className="text-xs text-gray-400 dark:text-gray-600"
                 >
                   Contact for price
-                </Link>
+                </Link> */}
                 <Link
                   href={"/view-details"}
                   className="text-xs text-sky-500 dark:text-sky-400"
@@ -714,7 +708,7 @@ export default function ProfessionalProfile({
                   View Details
                 </Link>
               </div>
-              <div className="p-2 space-y-4">
+              {/* <div className="p-2 space-y-4">
                 <div>
                   <label
                     htmlFor="service"
@@ -791,14 +785,19 @@ export default function ProfessionalProfile({
                     </SelectContent>
                   </Select>
                 </div>
-              </div>
+              </div> */}
+
               <div className="p-4 text-center">
-                <Link
+                <QuestionModal
+                  triggerText="Request Quotation"
+                  triggerClassName="bg-sky-500 dark:bg-sky-400 px-4 py-2 text-white rounded hover:bg-sky-600 dark:hover:bg-sky-500 transition-colors"
+                />
+                {/* <Link
                   href={"/"}
                   className="bg-sky-500 dark:bg-sky-400 px-4 py-2 text-white rounded hover:bg-sky-600 dark:hover:bg-sky-500 transition-colors"
                 >
                   Request Quotation
-                </Link>
+                </Link> */}
               </div>
               <div className="flex flex-row gap-2 justify-center items-center text-xs text-green-500 mt-4">
                 <span className="relative flex size-3">
