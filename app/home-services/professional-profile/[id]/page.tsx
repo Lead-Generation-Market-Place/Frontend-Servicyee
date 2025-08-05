@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { use } from "react";
 
 import {
@@ -51,14 +51,17 @@ export default function ProfessionalProfile({
   const reviewsRef = useRef<HTMLDivElement>(null);
   const faqsRef = useRef<HTMLDivElement>(null);
 
-  const tabs = [
-    { id: "about", name: "About", ref: aboutRef },
-    { id: "service", name: "Service", ref: serviceRef },
-    { id: "photo", name: "Photos", ref: photosRef },
-    { id: "credential", name: "Credentials", ref: credentialRef },
-    { id: "reviews", name: "Reviews", ref: reviewsRef },
-    { id: "faqs", name: "FAQs", ref: faqsRef },
-  ];
+  const tabs = useMemo(
+    () => [
+      { id: "about", name: "About", ref: aboutRef },
+      { id: "service", name: "Service", ref: serviceRef },
+      { id: "photo", name: "Photos", ref: photosRef },
+      { id: "credential", name: "Credentials", ref: credentialRef },
+      { id: "reviews", name: "Reviews", ref: reviewsRef },
+      { id: "faqs", name: "FAQs", ref: faqsRef },
+    ],
+    []
+  );
 
   const portfolio_album = [
     { id: 1, file: "image", imageUrl: "/assets/home-service/service (1).jpg" },
@@ -83,7 +86,6 @@ export default function ProfessionalProfile({
     }
   };
 
-  // Handle scroll to update active tab
   useEffect(() => {
     const handleScroll = () => {
       const scrollPosition = window.scrollY + 100;
@@ -103,7 +105,7 @@ export default function ProfessionalProfile({
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [tabs]);
 
   // Photo carousel controls
   const nextPhoto = () => {
