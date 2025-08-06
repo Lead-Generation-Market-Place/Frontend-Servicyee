@@ -43,6 +43,7 @@ export default function HomeLayout({
           </div>
         </div>
       </div>
+
     </div>
     // <div className=" xl:flex">
     //   {/* Sidebar and Backdrop */}
