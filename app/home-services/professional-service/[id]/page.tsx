@@ -1,6 +1,6 @@
 "use client";
 import { MapPin } from "lucide-react";
-import { use, useState } from "react";
+import { use } from "react";
 import { motion } from "framer-motion";
 import ProfessionalList from "@/components/home-services/homepage/professional/ProfessionalList";
 import ProfessionalFilters from "@/components/home-services/homepage/professional/ProfessionalFilters";
@@ -13,10 +13,6 @@ export default function ProfessionalPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-
-  const [selectedMile, setSelectedMile] = useState<string | null>(null);
-  const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
-  const [expandedFilter, setExpandedFilter] = useState<string | null>(null);
 
   const ProfessionalDetails = [
     {
@@ -103,15 +99,8 @@ export default function ProfessionalPage({
           </div>
         </motion.div>
 
-        <div className="flex flex-col lg:flex-row gap-6">
-          <ProfessionalFilters
-            selectedMile={selectedMile}
-            setSelectedMile={setSelectedMile}
-            selectedLocations={selectedLocations}
-            setSelectedLocations={setSelectedLocations}
-            expandedFilter={expandedFilter}
-            setExpandedFilter={setExpandedFilter}
-          />
+        <div className="flex flex-col lg:flex-row gap-2">
+          <ProfessionalFilters />
 
           <ProfessionalList professionals={ProfessionalDetails} />
 
