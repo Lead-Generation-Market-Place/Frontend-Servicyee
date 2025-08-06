@@ -1,5 +1,5 @@
-import Footer from "@/components/navigation/Footer/page";
-import MenuBar from "@/components/navigation/header/Menubar/page";
+import Footer from "@/components/navigation/Footer";
+import Header from "@/components/navigation/header/index";
 import React from "react";
 
 
@@ -10,7 +10,7 @@ export default function RootLayout({
 }>) {
   return (
     <div className="">
-      <MenuBar/>
+      <Header/>
       {children}
       <Footer/>
     </div>
