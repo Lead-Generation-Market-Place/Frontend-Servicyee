@@ -2,13 +2,23 @@
 /* global google */
 "use client";
 import { Libraries } from "@react-google-maps/api";
-
 import React, { useRef, useState, useEffect, useCallback, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { GoogleMap, useJsApiLoader, Circle, StandaloneSearchBox, } from "@react-google-maps/api";
 import { Loader2 } from "lucide-react";
+import { ProgressBar } from "./ProgressBar";
 const libraries: Libraries = ["places"];
+
+const ONBOARDING_STEPS = [
+  { id: 1, name: 'Profile' },
+  { id: 2, name: 'Reviews' },
+  { id: 3, name: 'Preferences' },
+  { id: 4, name: 'Location' },
+  { id: 5, name: 'Payment' },
+  { id: 6, name: 'Background' },
+];
+
 
 
 const containerStyle = {
@@ -30,6 +40,8 @@ const Map = () => {
   const mapRef = useRef<google.maps.Map | null>(null);
   const [activeTab, setActiveTab] = useState("distance");
   const [radiusMiles, setRadiusMiles] = useState(10);
+    const [currentStep] = useState(4);
+  
   const [center, setCenter] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<{
     lat: number;
@@ -63,6 +75,7 @@ const Map = () => {
   }, []);
 
   const onPlacesChanged = () => {
+    
     const places = searchBoxRef.current?.getPlaces();
     if (places && places.length > 0) {
       const place = places[0];
@@ -97,8 +110,8 @@ const Map = () => {
 
     try {
       startTransition(async () => {
-  
-        router.push(`/home-services/services/step-10`);
+
+        router.push(`/home-services/dashboard/services/step-10`);
       });
     } catch (err) {
       toast.error((err as Error).message);
@@ -125,6 +138,12 @@ const Map = () => {
 
   return (
     <div className="space-y-4">
+            <ProgressBar
+              currentStep={currentStep}
+              totalSteps={ONBOARDING_STEPS.length}
+              steps={ONBOARDING_STEPS}
+              className="mb-8"
+            />
       {/* Tabs */}
       <div className="border-b border-gray-200 dark:border-gray-700">
         <ul className="flex flex-wrap -mb-px text-xs font-medium text-center" role="tablist">

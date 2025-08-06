@@ -6,11 +6,14 @@ import { Loader2 } from 'lucide-react';
 import { ProgressBar } from "@/components/home-services/onboarding/ProgressBar";
 
 const ONBOARDING_STEPS = [
-    { id: 1, name: 'Services' },
-    { id: 2, name: 'Profile' },
-    { id: 3, name: 'Reviews' },
-    { id: 4, name: 'Preferences' },
+  { id: 1, name: 'Profile' },
+  { id: 2, name: 'Reviews' },
+  { id: 3, name: 'Preferences' },
+  { id: 4, name: 'Location' },
+  { id: 5, name: 'Payment' },
+  { id: 6, name: 'Background' },
 ];
+
 
 const defaultSchedule = [
   { dayOfWeek: 0, day: 'Sunday', shifts: [{ openTime: '00:00', closeTime: '00:00', isClosed: true }] },
@@ -43,7 +46,7 @@ export interface SaveAvailabilityResult {
 export default function AvailabilityForm() {
   const businessName = "Servicyee"
   const [selectedOption, setSelectedOption] = useState<'business' | 'string'>('business');
-  const [currentStep] = useState(5);
+  const [currentStep] = useState(3);
   const [schedule, setSchedule] = useState(defaultSchedule);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -108,7 +111,7 @@ export default function AvailabilityForm() {
         shifts: [{ openTime: '00:00', closeTime: '23:59', isClosed: false }],
       }));
     }
-    router.push('/home-services/services/step-8')
+    router.push('/home-services/dashboard/services/step-8')
     formData.set('schedule', JSON.stringify(finalSchedule));
     setIsLoading(false);
   };

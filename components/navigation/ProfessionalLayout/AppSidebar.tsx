@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "@/components/providers/context/SidebarContext";
-import { defaultNavItems, serviceProviderNavItems } from "@/components/navigation/ProfessionalLayout/navItems";
+import { serviceProviderNavItems } from "@/components/navigation/ProfessionalLayout/navItems";
 
 type SubItem = {
   name: string;
@@ -28,7 +28,7 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ isServiceProvider }) => {
   const { isExpanded, isMobileOpen } = useSidebar();
   const pathname = usePathname();
   
-  const navItems = isServiceProvider ? serviceProviderNavItems : defaultNavItems;
+  const navItems = isServiceProvider ? serviceProviderNavItems : [];
 
   const [openSubmenu, setOpenSubmenu] = useState<{ type: string; index: number } | null>(null);
   const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>({});
@@ -38,18 +38,6 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ isServiceProvider }) => {
     (path: string) => pathname === path || pathname.startsWith(`${path}/`),
     [pathname]
   );
-
-  useEffect(() => {
-    navItems.forEach((nav, index) => {
-      if (nav.subItems) {
-        nav.subItems.forEach((sub) => {
-          if (isActive(sub.path)) {
-            setOpenSubmenu({ type: "main", index });
-          }
-        });
-      }
-    });
-  }, [pathname, navItems, isActive]);
 
   useEffect(() => {
     if (openSubmenu !== null) {
@@ -83,11 +71,26 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ isServiceProvider }) => {
               {nav.subItems ? (
                 <button
                   onClick={() => handleSubmenuToggle(index, type)}
-                  className={`menu-item group ${hasSubmenuOpen ? "menu-item-active" : "menu-item-inactive"} ${
-                    !isExpanded ? "lg:justify-center" : "lg:justify-start"
-                  }`}
+                  className={`
+                    menu-item group
+                    ${hasSubmenuOpen ? 
+                      "bg-[#0077B6]/10 text-[#0077B6] dark:bg-[#005f8e]/20 dark:text-[#0077B6]" : 
+                      "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                    }
+                    ${!isExpanded ? "lg:justify-center" : "lg:justify-start"}
+                  `}
                 >
-                  {nav.icon && <span className="mr-3 text-gray-500">{nav.icon}</span>}
+                  {nav.icon && (
+                    <span className={`
+                      mr-3 
+                      ${hasSubmenuOpen ? 
+                        "text-[#0077B6] dark:text-[#0077B6]" : 
+                        "text-gray-500 dark:text-gray-400"
+                      }
+                    `}>
+                      {nav.icon}
+                    </span>
+                  )}
                   {(isExpanded || isMobileOpen) && <span>{nav.name}</span>}
                   {(isExpanded || isMobileOpen) && (
                     <span
@@ -103,12 +106,27 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ isServiceProvider }) => {
                 nav.path && (
                   <Link
                     href={nav.path}
-                    className={`menu-item group ${active ? "menu-item-active" : "menu-item-inactive"} ${
-                      !isExpanded ? "lg:justify-center" : "lg:justify-start"
-                    }`}
+                    className={`
+                      menu-item group
+                      ${active ? 
+                        "bg-[#0077B6]/10 text-[#0077B6] dark:bg-[#005f8e]/20 dark:text-[#0077B6]" : 
+                        "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                      }
+                      ${!isExpanded ? "lg:justify-center" : "lg:justify-start"}
+                    `}
                   >
-                    {nav.icon && <span className="mr-3 text-gray-500">{nav.icon}</span>}
-                    {(isExpanded || isMobileOpen) && <span>{nav.name}</span>}
+                    {nav.icon && (
+                      <span className={`
+                        mr-3 
+                        ${active ? 
+                          "text-[#0077B6] dark:text-[#0077B6]" : 
+                          "text-gray-500 dark:text-gray-400"
+                        }
+                      `}>
+                        {nav.icon}
+                      </span>
+                    )}
+                    {(isExpanded || isMobileOpen) && <span className="dark:text-gray-300">{nav.name}</span>}
                   </Link>
                 )
               )}
@@ -126,32 +144,38 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ isServiceProvider }) => {
                       <li key={sub.name}>
                         <Link
                           href={sub.path}
-                          className={`menu-dropdown-item ${
-                            isActive(sub.path)
-                              ? "menu-dropdown-item-active"
-                              : "menu-dropdown-item-inactive"
-                          }`}
+                          className={`
+                            menu-dropdown-item
+                            ${isActive(sub.path)
+                              ? "bg-[#0077B6]/10 text-[#0077B6] dark:bg-[#005f8e]/20 dark:text-[#0077B6]"
+                              : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                            }
+                          `}
                         >
                           {sub.name}
                           <span className="flex items-center gap-1 ml-auto">
                             {sub.new && (
                               <span
-                                className={`menu-dropdown-badge ${
-                                  isActive(sub.path)
-                                    ? "menu-dropdown-badge-active"
-                                    : "menu-dropdown-badge-inactive"
-                                }`}
+                                className={`
+                                  menu-dropdown-badge
+                                  ${isActive(sub.path)
+                                    ? "bg-[#0077B6]/20 text-[#0077B6] dark:bg-[#005f8e]/30 dark:text-[#0077B6]"
+                                    : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200"
+                                  }
+                                `}
                               >
                                 new
                               </span>
                             )}
                             {sub.pro && (
                               <span
-                                className={`menu-dropdown-badge ${
-                                  isActive(sub.path)
-                                    ? "menu-dropdown-badge-active"
-                                    : "menu-dropdown-badge-inactive"
-                                }`}
+                                className={`
+                                  menu-dropdown-badge
+                                  ${isActive(sub.path)
+                                    ? "bg-purple-100 text-purple-800 dark:bg-purple-700 dark:text-purple-100"
+                                    : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200"
+                                  }
+                                `}
                               >
                                 pro
                               </span>
@@ -173,13 +197,21 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ isServiceProvider }) => {
 
   return (
     <aside
-      className={`fixed mt-16 lg:mt-0 top-0 left-0 z-50 h-screen px-5 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 text-gray-900 transition-all duration-300 ease-in-out ${
-        isExpanded || isMobileOpen ? "w-[290px]" : "w-[90px]"
-      } ${isMobileOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}
+      className={`
+        fixed mt-16 lg:mt-0 top-0 left-0 z-50 h-screen px-5 
+        bg-white dark:bg-gray-900 
+        border-r border-gray-200 dark:border-gray-800 
+        text-gray-900 dark:text-gray-100 
+        transition-all duration-300 ease-in-out 
+        ${isExpanded || isMobileOpen ? "w-[290px]" : "w-[90px]"} 
+        ${isMobileOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0
+      `}
     >
       <div className={`py-8 flex ${!isExpanded ? "lg:justify-center" : "justify-start"}`}>
         <Link href="/home-services/dashboard" className="flex items-center justify-center w-full">
-          <div className="relative w-36 h-10 mx-auto">Servicyee</div>
+          <div className="relative w-36 h-10 mx-auto font-bold text-gray-800 dark:text-white">
+            Servicyee
+          </div>
         </Link>
       </div>
 
