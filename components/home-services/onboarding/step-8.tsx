@@ -8,11 +8,14 @@ import { ProgressBar } from "@/components/home-services/onboarding/ProgressBar";
 import allServiceQuestions from "@/data/serivces.json";
 
 const ONBOARDING_STEPS = [
-  { id: 1, name: "Services" },
-  { id: 2, name: "Profile" },
-  { id: 3, name: "Reviews" },
-  { id: 4, name: "Preferences" },
+  { id: 1, name: 'Profile' },
+  { id: 2, name: 'Reviews' },
+  { id: 3, name: 'Preferences' },
+  { id: 4, name: 'Location' },
+  { id: 5, name: 'Payment' },
+  { id: 6, name: 'Background' },
 ];
+
 
 export interface ServiceQuestion {
   form_id: number;
@@ -34,12 +37,11 @@ export default function MultiChoiceServiceForm() {
   const [answers, setAnswers] = useState<Record<number, string | string[]>>({});
   const [isPending, setIsPending] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [currentStep] = useState(5);
+  const [currentStep] = useState(3);
   const router = useRouter();
 
 
   useEffect(() => {
-    router.prefetch("/onboarding/preference-geo");
   }, [router]);
 
   useEffect(() => {
@@ -108,7 +110,7 @@ export default function MultiChoiceServiceForm() {
         return;
       }
 
-      router.push(`/home-services/services/step-9`);
+      router.push(`/home-services/dashboard/services/step-9`);
     } catch (error) {
       toast.error(`An error occurred while proceeding: ${error}`);
     } finally {

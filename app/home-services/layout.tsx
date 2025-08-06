@@ -3,8 +3,7 @@
 import { useSidebar } from "@/components/providers/context/SidebarContext";
 import AppHeader from "@/components/navigation/ProfessionalLayout/AppHeader";
 import AppSidebar from "@/components/navigation/ProfessionalLayout/AppSidebar";
-
-import React from "react";
+import React, { useEffect } from "react";
 
 export default function HomeLayout({
   children,
@@ -20,19 +19,30 @@ export default function HomeLayout({
       ? "lg:ml-[290px]"
       : "lg:ml-[90px]";
 
+  // Apply theme to root element
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.add("theme-light", "theme-dark");
+  }, []);
+
   return (
-    <div className=" xl:flex">
+    <div className="xl:flex min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
       {/* Sidebar and Backdrop */}
       <AppSidebar isServiceProvider />
+      
       {/* Main Content Area */}
       <div
-        className={`flex-1 transition-all  duration-300 ease-in-out ${mainContentMargin}`}
+        className={`flex-1 transition-all duration-300 ease-in-out ${mainContentMargin}`}
       >
         {/* Header */}
         <AppHeader />
+        
         {/* Page Content */}
-        <div className="p-4 mx-auto max-w-[var(--breakpoint-2xl)] md:p-6 bg-white text-black dark:bg-gray-900 dark:text-white">
-          {children}</div>
+        <div className="p-4 mx-auto max-w-[var(--breakpoint-2xl)] md:p-6">
+          <div className="p-4 md:p-6 transition-all duration-300 ">
+            {children}
+          </div>
+        </div>
       </div>
     </div>
   );

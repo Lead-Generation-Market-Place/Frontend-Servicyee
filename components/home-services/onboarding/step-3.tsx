@@ -4,21 +4,24 @@ import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import { ProgressBar } from "@/components/home-services/onboarding/ProgressBar";
 const ONBOARDING_STEPS = [
-    { id: 1, name: 'Services' },
-    { id: 2, name: 'Profile' },
-    { id: 3, name: 'Reviews' },
-    { id: 4, name: 'Preferences' },
+  { id: 1, name: 'Profile' },
+  { id: 2, name: 'Reviews' },
+  { id: 3, name: 'Preferences' },
+  { id: 4, name: 'Location' },
+  { id: 5, name: 'Payment' },
+  { id: 6, name: 'Background' },
 ];
+
 
 const BusinessName = () => {
     const router = useRouter()
     const [loading, setLoading] = useState(false);
 
-    const [currentStep] = useState(2);
+    const [currentStep] = useState(1);
     const HandleBusiness = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true)
-        router.push(`/home-services/services/step-4`);
+        router.push(`/home-services/dashboard/services/step-4`);
     }
     return (
         <div>

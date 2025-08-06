@@ -4,20 +4,22 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ProgressBar } from "@/components/home-services/onboarding/ProgressBar";
 const ONBOARDING_STEPS = [
-    { id: 1, name: 'Services' },
-    { id: 2, name: 'Profile' },
-    { id: 3, name: 'Reviews' },
-    { id: 4, name: 'Preferences' },
+  { id: 1, name: 'Profile' },
+  { id: 2, name: 'Reviews' },
+  { id: 3, name: 'Preferences' },
+  { id: 4, name: 'Location' },
+  { id: 5, name: 'Payment' },
+  { id: 6, name: 'Background' },
 ];
 
 
 export default function WorkControlCard() {
-  const [currentStep] = useState(4);
+  const [currentStep] = useState(3);
   const [isPending, setIsPending] = useState(false)
   const router = useRouter();
   const handleNext = () => {
     setIsPending(true);
-    router.push(`/home-services/services/step-7`);
+    router.push(`/home-services/dashboard/services/step-7`);
   };
 
   const handleBack = () => {

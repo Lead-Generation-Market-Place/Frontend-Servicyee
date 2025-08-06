@@ -3,7 +3,11 @@
 import dynamic from "next/dynamic";
 import React, { Suspense, FC } from "react";
 
-const Steps = dynamic(() => import("@/components/home-services/onboarding/step-8"));
+const Steps = dynamic(() => import("@/components/home-services/onboarding/step-5"),
+{
+    ssr: false
+
+});
 
 const SkeletonLoader: FC = () => (
   <div role="status" aria-live="polite" className="w-full max-w-4xl mx-auto p-6">

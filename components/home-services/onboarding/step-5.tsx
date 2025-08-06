@@ -9,16 +9,19 @@ import Link from 'next/link';
 import { ProgressBar } from "@/components/home-services/onboarding/ProgressBar";
 import Image from 'next/image';
 const ONBOARDING_STEPS = [
-    { id: 1, name: 'Services' },
-    { id: 2, name: 'Profile' },
-    { id: 3, name: 'Reviews' },
-    { id: 4, name: 'Preferences' },
+  { id: 1, name: 'Profile' },
+  { id: 2, name: 'Reviews' },
+  { id: 3, name: 'Preferences' },
+  { id: 4, name: 'Location' },
+  { id: 5, name: 'Payment' },
+  { id: 6, name: 'Background' },
 ];
+
 
 
 export default function ReviewRequest() {
   const router = useRouter();
-  const [currentStep] = useState(3);
+  const [currentStep] = useState(2);
   const businessName = 'Servicyee'
 
 
@@ -96,7 +99,7 @@ export default function ReviewRequest() {
   };
 
   const handleNext = () => {
-      router.push(`/home-services/services/step-6`);
+      router.push(`/home-services/dashboard/services/step-6`);
   };
 
   const handleBack = () => {

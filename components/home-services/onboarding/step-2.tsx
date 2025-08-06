@@ -4,23 +4,26 @@ import { ProgressBar } from "@/components/home-services/onboarding/ProgressBar";
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 const ONBOARDING_STEPS = [
-  { id: 1, name: 'Services' },
-  { id: 2, name: 'Profile' },
-  { id: 3, name: 'Reviews' },
-  { id: 4, name: 'Preferences' },
+  { id: 1, name: 'Profile' },
+  { id: 2, name: 'Reviews' },
+  { id: 3, name: 'Preferences' },
+  { id: 4, name: 'Location' },
+  { id: 5, name: 'Payment' },
+  { id: 6, name: 'Background' },
 ];
+
 
 export default function Onboarding() {
   const router = useRouter();
 
 
-  const [currentStep] = useState(2);
+  const [currentStep] = useState(1);
 
 
 
   const handleNext = () => {
 
-    router.push(`/home-services/services/step-3`);
+    router.push(`/home-services/dashboard/services/step-3`);
   };
 
   return (
