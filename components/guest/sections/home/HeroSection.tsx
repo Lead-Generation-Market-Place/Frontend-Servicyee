@@ -1,149 +1,227 @@
-'use client'
-import Image from 'next/image'
-import React, { useEffect } from 'react'
-import { motion, useAnimation, Variants } from 'framer-motion'
-import { useInView } from 'react-intersection-observer'
+"use client"
 
-const HeroSection = () => {
-    const controls = useAnimation()
-    const [ref, inView] = useInView({
-        threshold: 0.1,
-        triggerOnce: true
-    })
+import * as React from "react"
+import { Card, CardContent } from "@/components/ui/card"
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+  CarouselApi,
+} from "@/components/ui/carousel"
+import { Button } from "@/components/ui/button"
+import { ArrowRight, Wrench, Monitor, UtensilsCrossed, ShoppingCart, Sparkles, Car, Heart } from "lucide-react"
+import Image from "next/image"
 
-    useEffect(() => {
-        if (inView) {
-            controls.start('visible')
-        }
-    }, [controls, inView])
-
-    const containerVariants: Variants = {
-        hidden: { opacity: 0 },
-        visible: {
-            opacity: 1,
-            transition: {
-                staggerChildren: 0.2,
-                delayChildren: 0.3
-            }
-        }
-    }
-
-    const itemVariants: Variants = {
-        hidden: { y: 30, opacity: 0, filter: 'blur(4px)' },
-        visible: {
-            y: 0,
-            opacity: 1,
-            filter: 'blur(0px)',
-            transition: {
-                type: 'spring',
-                stiffness: 120,
-                damping: 12,
-                mass: 0.5
-            }
-        }
-    }
-
-    const imageVariants: Variants = {
-        hidden: { opacity: 0, x: 80, scale: 0.95 },
-        visible: {
-            opacity: 1,
-            x: 0,
-            scale: 1,
-            transition: {
-                type: 'spring',
-                stiffness: 70,
-                damping: 15,
-                mass: 0.8,
-                delay: 0.4
-            }
-        }
-    }
-
-    const buttonVariants: Variants = {
-        hidden: { opacity: 0, y: 20 },
-        visible: {
-            opacity: 1,
-            y: 0,
-            transition: {
-                type: 'spring',
-                stiffness: 100,
-                damping: 10,
-                delay: 0.6
-            }
-        },
-        hover: { scale: 1.05, transition: { type: 'spring', stiffness: 400, damping: 12 } },
-        tap: { scale: 0.98 }
-    }
-
-    return (
-        <section className=" pt-8 bg-white dark:bg-gray-900 overflow-hidden ">
-            <div className="px-6 mx-auto max-w-7xl lg:px-8">
-                <motion.div
-                    ref={ref}
-                    initial="hidden"
-                    animate={controls}
-                    variants={containerVariants}
-                    className="grid items-center lg:grid-cols-12 gap-6 text-center"
-                >
-                    <div className="lg:col-span-7">
-                        <motion.h1
-                            variants={itemVariants}
-                            className="text-2xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl lg:text-3xl dark:text-white"
-                        >
-                            Servicyee <span className="text-[#0077B6]">The Ultimate Solution</span> for All Your Home Needs
-                        </motion.h1>
-
-                        <motion.p
-                            variants={itemVariants}
-                            className="mt-4 mb-6  font-light text-gray-900 lg:text-[16px] dark:text-gray-400 max-w-lg mx-auto"
-                        >
-                            Transform Your Home with Expert Services, Delivered at Unbeatable Prices!
-                        </motion.p>
-
-                        <motion.div
-                            variants={itemVariants}
-                            className="flex flex-col space-y-4 sm:space-y-0 sm:flex-row sm:space-x-4 justify-center"
-                        >
-                            <motion.button
-                                variants={buttonVariants}
-                                whileHover="hover"
-                                whileTap="tap"
-                                className="inline-flex items-center justify-center px-8 py-3 text-base font-medium text-center text-white rounded-[4px] bg-[#0077B6] hover:bg-[#005D8F] focus:ring-4 focus:ring-[#0077B6]/50 dark:focus:ring-[#0077B6]/30 transition-all duration-200 shadow-lg"
-                            >
-                                Get started
-                                <svg className="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                    <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd"></path>
-                                </svg>
-                            </motion.button>
-
-                            <motion.button
-                                variants={buttonVariants}
-                                whileHover="hover"
-                                whileTap="tap"
-                                className="inline-flex items-center justify-center px-8 text-base font-medium text-center text-gray-900 border border-gray-300 rounded-[4px] hover:bg-gray-50 focus:ring-2 focus:ring-gray-100 dark:text-white dark:border-gray-700 dark:hover:bg-gray-700 dark:focus:ring-gray-800 transition-all duration-200 shadow-sm hover:shadow-md"
-                            >
-                                Deels
-                            </motion.button>
-                        </motion.div>
-                    </div>
-
-                    <motion.div
-                        variants={imageVariants}
-                        className="lg:col-span-5 lg:mt-0 lg:justify-end relative -mt-8" // Adjusted margin
-                    >
-                        <Image
-                            src="/assets/root/root.png"
-                            alt="Payment solution dashboard"
-                            width={350}  // Increased width
-                            height={350} // Increased height
-                            className="drop-shadow-xl rounded-lg"
-                            priority
-                        />
-                    </motion.div>
-                </motion.div>
-            </div>
-        </section>
-    )
+interface Service {
+  id: number
+  title: string
+  description: string
+  features: string[]
+  image: string
+  icon: React.ReactNode
+  gradient: string
 }
 
-export default HeroSection
+const services: Service[] = [
+  {
+    id: 1,
+    title: "HVAC Services",
+    description: "Professional heating, ventilation, and air conditioning solutions for your home and business. Our certified technicians ensure optimal comfort year-round.",
+    features: ["24/7 Emergency Service", "Energy Efficiency Audits", "Preventive Maintenance", "Smart Thermostat Installation"],
+    image: "https://images.pexels.com/photos/4484078/pexels-photo-4484078.jpeg?auto=compress&cs=tinysrgb&w=800",
+    icon: <Wrench className="w-8 h-8" />,
+    gradient: "from-blue-600 to-cyan-500"
+  },
+  {
+    id: 2,
+    title: "IT Services",
+    description: "Comprehensive technology solutions including network setup, cybersecurity, cloud services, and technical support for businesses of all sizes.",
+    features: ["Cloud Migration", "Cybersecurity Solutions", "24/7 Help Desk", "Network Infrastructure"],
+    image: "https://images.pexels.com/photos/1181677/pexels-photo-1181677.jpeg?auto=compress&cs=tinysrgb&w=800",
+    icon: <Monitor className="w-8 h-8" />,
+    gradient: "from-purple-600 to-blue-500"
+  },
+  {
+    id: 3,
+    title: "Food Services",
+    description: "Premium catering and food delivery services for events, offices, and special occasions. Fresh ingredients, diverse menus, and exceptional presentation.",
+    features: ["Custom Menu Planning", "Event Catering", "Corporate Lunch Programs", "Dietary Accommodations"],
+    image: "https://images.pexels.com/photos/958545/pexels-photo-958545.jpeg?auto=compress&cs=tinysrgb&w=800",
+    icon: <UtensilsCrossed className="w-8 h-8" />,
+    gradient: "from-orange-500 to-red-500"
+  },
+  {
+    id: 4,
+    title: "Grocery Services",
+    description: "Convenient grocery shopping and delivery service bringing fresh produce, pantry staples, and specialty items directly to your doorstep.",
+    features: ["Same-Day Delivery", "Fresh Produce Selection", "Bulk Order Discounts", "Subscription Plans"],
+    image: "https://images.pexels.com/photos/264636/pexels-photo-264636.jpeg?auto=compress&cs=tinysrgb&w=800",
+    icon: <ShoppingCart className="w-8 h-8" />,
+    gradient: "from-green-500 to-teal-500"
+  },
+  {
+    id: 5,
+    title: "Cleaning Services",
+    description: "Professional residential and commercial cleaning services using eco-friendly products. From regular maintenance to deep cleaning projects.",
+    features: ["Eco-Friendly Products", "Flexible Scheduling", "Deep Cleaning Specialists", "Post-Construction Cleanup"],
+    image: "https://images.pexels.com/photos/4239146/pexels-photo-4239146.jpeg?auto=compress&cs=tinysrgb&w=800",
+    icon: <Sparkles className="w-8 h-8" />,
+    gradient: "from-pink-500 to-purple-500"
+  },
+  {
+    id: 6,
+    title: "Transportation Services",
+    description: "Reliable transportation solutions including ride services, delivery, and logistics support for individuals and businesses throughout the region.",
+    features: ["Real-Time Tracking", "Fleet Management", "Express Delivery", "Corporate Accounts"],
+    image: "https://images.pexels.com/photos/3802510/pexels-photo-3802510.jpeg?auto=compress&cs=tinysrgb&w=800",
+    icon: <Car className="w-8 h-8" />,
+    gradient: "from-indigo-500 to-blue-600"
+  },
+  {
+    id: 7,
+    title: "Healthcare Services",
+    description: "Comprehensive healthcare support including home nursing, medical consultations, and wellness programs tailored to individual needs.",
+    features: ["Home Care Services", "Telemedicine Consultations", "Wellness Programs", "Emergency Response"],
+    image: "https://images.pexels.com/photos/4173123/pexels-photo-4173123.jpeg?auto=compress&cs=tinysrgb&w=800",
+    icon: <Heart className="w-8 h-8" />,
+    gradient: "from-red-500 to-pink-500"
+  }
+]
+
+export default function HeroSection() {
+  const [api, setApi] = React.useState<CarouselApi>()
+  const [current, setCurrent] = React.useState(0)
+  const [count, setCount] = React.useState(0)
+
+  React.useEffect(() => {
+    if (!api) {
+      return
+    }
+
+    setCount(api.scrollSnapList().length)
+    setCurrent(api.selectedScrollSnap())
+
+    api.on("select", () => {
+      setCurrent(api.selectedScrollSnap())
+    })
+  }, [api])
+
+  // Auto-play functionality
+  React.useEffect(() => {
+    if (!api) {
+      return
+    }
+
+    const interval = setInterval(() => {
+      api.scrollNext()
+    }, 5000)
+
+    return () => clearInterval(interval)
+  }, [api])
+
+  return (
+    <div className="relative w-full min-h-[60vh] bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+      <Carousel
+        setApi={setApi}
+        className="w-full h-[60vh] "
+        opts={{
+          align: "start",
+          loop: true,
+        }}
+      >
+        <CarouselContent>
+          {services.map((service) => (
+            <CarouselItem key={service.id} className="h-[60vh] ">
+              <Card className="border-0 rounded-none h-full bg-transparent">
+                <CardContent className="p-0 h-full">
+                  <div className="grid lg:grid-cols-2 h-full">
+                    {/* Left Side - Content */}
+                    <div className="flex flex-col justify-center px-8 sm:px-12 lg:px-16 xl:px-20 py-8 lg:py-0  backdrop-blur-sm">
+                      <div className="max-w-xl mx-auto lg:mx-0">
+                        <div className={`inline-flex items-center gap-3 px-4 py-2 rounded-full bg-gradient-to-r ${service.gradient} text-white mb-6 shadow-lg`}>
+                          {service.icon}
+                          <span className="text-sm font-medium">Premium Service</span>
+                        </div>
+                        
+                        <h1 className="text-3xl sm:text-4xl xl:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
+                          {service.title}
+                        </h1>
+                        
+                        <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">
+                          {service.description}
+                        </p>
+                        
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                          {service.features.map((feature, index) => (
+                            <div key={index} className="flex items-center gap-3 ">
+                              <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${service.gradient}`} />
+                              <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">
+                                {feature}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                        
+                        <div className="flex flex-col sm:flex-row gap-4">
+                          <Button 
+                            size="lg" 
+                            className={`bg-gradient-to-r ${service.gradient} hover:opacity-90 transition-all duration-300 text-white border-0 shadow-lg hover:shadow-xl transform hover:scale-105`}
+                          >
+                            Get Started
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="lg"
+                            className="border-2 hover:bg-gray-50 dark:hover:bg-slate-700 transition-all duration-300"
+                          >
+                            Learn More
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Right Side - Image */}
+                    <div className="relative lg:h-full h-48 overflow-hidden">
+                      <div className={`absolute inset-0 bg-gradient-to-r ${service.gradient} opacity-20`} />
+                      <Image
+                        src={service.image}
+                        alt={service.title}
+                        fill
+                        className="object-cover transition-transform duration-700 hover:scale-105"
+                        sizes="(max-width: 1024px) 100vw, 50vw"
+                        priority={service.id <= 2}
+                      />
+                      <div className="absolute inset-0 bg-black/20" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+        
+        {/* Navigation */}
+        <CarouselPrevious className="left-8 bg-white/90 border-0 shadow-lg hover:bg-white transition-all duration-300 hover:scale-110" />
+        <CarouselNext className="right-8 bg-white/90 border-0 shadow-lg hover:bg-white transition-all duration-300 hover:scale-110" />
+        
+        {/* Dots Indicator */}
+        <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-2">
+          {Array.from({ length: count }, (_, index) => (
+            <button
+              key={index}
+              className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                index === current 
+                  ? 'bg-white shadow-lg' 
+                  : 'bg-white/50 hover:bg-white/75'
+              }`}
+              onClick={() => api?.scrollTo(index)}
+            />
+          ))}
+        </div>
+      </Carousel>
+    </div>
+  )
+}

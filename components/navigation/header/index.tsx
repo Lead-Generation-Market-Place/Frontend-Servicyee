@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { FaSearch, FaRegHeart, FaShoppingBag } from 'react-icons/fa';
 import { Switch } from '@/components/ui/switch';
-import Location from '@/components/common/LocationDropDown';
 import MobileNavbar from "@/components/navigation/header/MobileNavbar";
 import MenuBar from "@/components/navigation/header/MenuBar";
 import TopBar from '@/components/navigation/TopBar';
@@ -78,9 +77,7 @@ const Header = () => {
               </Link>
             </div>
 
-            {/* Location, Search */}
-            <div className="hidden md:flex flex-1 max-w-md items-center gap-4 mx-8">
-              <Location />
+            <div className="hidden md:flex flex-1 max-w-2xl items-center gap-4 mx-8">
               <div className="flex-1 flex items-center relative bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
                 <input
                   type="text"
