@@ -6,7 +6,7 @@ export interface Service {
     title: string;
     subtitle: string;
     address: string;
-    distance: string;
+    distance: string | null;
     rating: number;
     reviews: number;
     oldPrice: string;
@@ -19,5 +19,5 @@ export interface Service {
         price: string;
         code: string;
     } | null;
-    promoColor:string;
+    promoColor?: string;
   }

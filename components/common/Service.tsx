@@ -6,10 +6,11 @@ import { Badge } from "@/components/ui/badge";
 import { Service as TypeService} from "@/types/services";
 import { Heart } from "lucide-react";
 import { useState } from "react";
+import Link from "next/link";
 
 const Service = ({offer}: {offer: TypeService}) =>{
   const [isFavorite, setIsFavorite] = useState(false);
-    return <Card  className="relative dark:bg-gray-800 flex-col h-full p-4 border-none shadow-none group overflow-hidden">
+    return <Card  className="relative dark:bg-gray-800 flex-col h-full  border-none shadow-none group overflow-hidden">
     {/* Badge and Favorite */}
     <div className="absolute top-6 left-5 z-10 flex items-center gap-2">
       <Badge variant="destructive" className="text-xs font-semibold px-3 py-1 ">{offer.badge}</Badge>
@@ -20,13 +21,18 @@ const Service = ({offer}: {offer: TypeService}) =>{
       </Button>
     </div>
     {/* Image */}
-    <div className="h-40 w-full bg-gray-100 flex items-center justify-center overflow-hidden">
+    <div className="h-40 w-full bg-gray-100 flex items-center justify-center overflow-hidden cursor-pointer">
+      <Link href={"/service-details-slug"}>
       <Image src={offer.image} alt={offer.title} width={400} height={160} className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300" />
+      </Link>
     </div>
     {/* Content */}
     <CardContent className="flex-1 flex flex-col px-0">
       <div className="text-xs font-semibold mb-1 min-h-[16px]">{offer.subtitle}</div>
-      <CardTitle className="text-base font-bold mb-1 leading-tight min-h-[40px]">{offer.title}</CardTitle>
+      <CardTitle className="text-base font-bold mb-1 leading-tight min-h-[40px] cursor-pointer">
+        <Link href={"/service-details-slug"}>
+        {offer.title}</Link>
+      </CardTitle>
       {offer.address && (
         <div className="text-xs flex items-center gap-2 mb-1 min-h-[16px]">
           <span>{offer.address}</span>
