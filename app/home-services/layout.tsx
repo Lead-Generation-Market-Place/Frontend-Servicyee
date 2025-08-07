@@ -58,10 +58,11 @@ export default function ConditionalLayout({
   }
 
   // Default layout (fallback)
-  return <>
-  <Header />
-  {children}
-  <Footer/>
-</>;
+  return (
+    <>
+      <Header />
+      {children}
+      <Footer />
+    </>
+  );
 }
-
