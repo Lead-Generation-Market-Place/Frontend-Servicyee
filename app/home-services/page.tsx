@@ -3,6 +3,7 @@ import Breadcrumbs from "@/components/home-services/homepage/Breadcrumbs";
 import PopularSearch from "@/components/home-services/homepage/PopularSearch";
 import dynamic from "next/dynamic";
 import { Skeleton } from "@/components/ui/skeleton";
+import PopularLocation from "@/components/home-services/homepage/PopularLocation";
 
 // Skeleton components
 const TitlePageSkeleton = () => (
@@ -79,6 +80,7 @@ const HomeServicesPage = () => {
       <FeaturedServices />
       <CategoryServices />
       <AllCategories />
+      <PopularLocation />
       <PopularSearch />
     </div>
   );
