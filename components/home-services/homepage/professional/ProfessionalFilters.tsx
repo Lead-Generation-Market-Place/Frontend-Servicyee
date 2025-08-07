@@ -10,7 +10,7 @@ import Link from "next/link";
 
 export default function ProfessionalFilters() {
   return (
-    <div className="flex-1 w-full p-4 rounded-lg shadow-md bg-white border border-gray-200">
+    <div className="flex-1 w-full p-4 bg-white">
       <div className="mb-6 mt-4 flex flex-row items-center justify-start gap-2 font-bold text-lg border-b border-gray-100">
         <ArrowDownWideNarrow className="w-5 h-5" />
         <p>Filters</p>
