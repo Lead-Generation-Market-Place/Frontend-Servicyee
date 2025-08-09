@@ -139,7 +139,7 @@ const SubCategories = () => {
               className="text-sm text-sky-600 hover:underline dark:text-sky-400 mt-2 sm:mt-0 flex items-center gap-1"
               aria-label="Explore all categories"
             >
-              Explore all categories
+              Explore all services
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-4 w-4"

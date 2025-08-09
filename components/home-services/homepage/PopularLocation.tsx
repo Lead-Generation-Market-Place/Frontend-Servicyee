@@ -61,7 +61,7 @@ const PopularLocation = () => {
               key={location.id}
               variants={itemVariants}
               whileHover={{ scale: 1.03 }}
-              className="group relative rounded-lg bg-white dark:bg-gray-800 p-3 shadow-xs hover:shadow-sm transition-all duration-200 border border-gray-100 dark:border-gray-700"
+              className="group relative rounded-lg bg-white dark:bg-gray-800 p-3 shadow-xs hover:shadow-sm transition-all duration-200 border border-gray-200 dark:border-gray-700"
             >
               <Link
                 href={`/home-services?location=${encodeURIComponent(
