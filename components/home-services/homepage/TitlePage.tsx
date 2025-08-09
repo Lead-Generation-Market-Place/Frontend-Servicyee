@@ -1,29 +1,195 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { motion, Variants, AnimatePresence } from "framer-motion";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Loader2, SquareMousePointer, Search, MapPin } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { SquareMousePointer } from "lucide-react";
+import NoMatchDialog from "@/components/home-services/homepage/titleComponents/NoMatchDialog";
+import LocationDialog from "@/components/home-services/homepage/titleComponents/LocationDialog";
+import SearchBar from "@/components/home-services/homepage/titleComponents//SearchBar";
 
-interface SearchBarProps {
-  serviceQuery: string;
-  /*eslint-disable no-unused-vars */
-  setServiceQuery: (value: string) => void;
-  setZipCode: (value: string) => void;
-  /*eslint-enable no-unused-vars */
-  zipCode: string;
-  handleSearch: () => void;
-  isLoading: boolean;
-  isCompact?: boolean;
-}
+// Function to calculate similarity between two strings
+const calculateSimilarity = (a: string, b: string): number => {
+  const str1 = a.toLowerCase();
+  const str2 = b.toLowerCase();
+
+  if (str1.includes(str2)) return 1;
+  if (str2.includes(str1)) return 1;
+
+  const set1 = new Set(str1.split(" "));
+  const set2 = new Set(str2.split(" "));
+  const intersection = new Set([...set1].filter((x) => set2.has(x)));
+  const union = new Set([...set1, ...set2]);
+  return intersection.size / union.size;
+};
+const MOCK_PROFESSIONALS = [
+  {
+    id: "1",
+    company: "John's Plumbing", // Changed from name to company
+    service: "Plumbing",
+    rating: 4.8,
+    services: ["Pipe Repair", "Leak Fixing", "Faucet Installation"],
+    zipCodes: ["90001", "90002", "90003"],
+    distance: 1.2,
+    guarantee: true,
+    employee_count: 24,
+    total_hires: 15,
+    founded: 2012,
+    background_check: true,
+    status: "Available",
+    description:
+      "Licensed plumbing services with 10 years of experience in residential and commercial properties.",
+    imageUrl: "/assets/home-service/service (1).jpg", // Added imageUrl
+  },
+  {
+    id: "2",
+    company: "Electric Solutions", // Changed from name to company
+    service: "Electrical",
+    rating: 4.5,
+    services: ["Wiring", "Outlet Installation", "Circuit Breaker"],
+    zipCodes: ["90001", "90005"],
+    distance: 0.8,
+    guarantee: true,
+    employee_count: 18,
+    total_hires: 22,
+    founded: 2015,
+    background_check: true,
+    status: "Available",
+    description:
+      "Certified electricians providing safe and efficient electrical solutions.",
+    imageUrl: "/assets/home-service/service (2).jpg", // Added imageUrl
+  },
+  {
+    id: "3",
+    company: "Clean Home Services", // Changed from name to company
+    service: "Cleaning",
+    rating: 4.9,
+    services: ["Deep Cleaning", "Carpet Cleaning", "Window Washing"],
+    zipCodes: ["90002", "90004"],
+    distance: 2.5,
+    guarantee: true,
+    employee_count: 42,
+    total_hires: 35,
+    founded: 2016,
+    background_check: true,
+    status: "Available",
+    description:
+      "Premium cleaning services using eco-friendly products and techniques.",
+    imageUrl: "/assets/home-service/service (3).jpg", // Added imageUrl
+  },
+  {
+    id: "4",
+    company: "Quick Fix Handyman", // Changed from name to company
+    service: "Handyman",
+    rating: 4.3,
+    services: ["Furniture Assembly", "Shelving", "Minor Repairs"],
+    zipCodes: ["90001", "90003", "90005"],
+    distance: 1.7,
+    guarantee: false,
+    employee_count: 8,
+    total_hires: 12,
+    founded: 2019,
+    background_check: true,
+    status: "Available",
+    description:
+      "Reliable handyman services for all your home maintenance needs.",
+    imageUrl: "/assets/home-service/service (4).jpg", // Added imageUrl
+  },
+  {
+    id: "5",
+    company: "Green Thumb Landscaping", // Changed from name to company
+    service: "Landscaping",
+    rating: 4.7,
+    services: ["Lawn Care", "Tree Trimming", "Garden Design"],
+    zipCodes: ["90002", "90004", "90006"],
+    distance: 3.1,
+    guarantee: true,
+    employee_count: 15,
+    total_hires: 28,
+    founded: 2014,
+    background_check: true,
+    status: "Available",
+    description:
+      "Professional landscaping services creating beautiful outdoor spaces.",
+    imageUrl: "/assets/home-service/service (5).jpg", // Added imageUrl
+  },
+  {
+    id: "6",
+    company: "Green World", // Changed from name to company
+    service: "Landscaping",
+    rating: 4.7,
+    services: ["Lawn Care", "Tree Trimming", "Garden Design"],
+    zipCodes: ["90002", "90004", "90006"],
+    distance: 3.1,
+    guarantee: false,
+    employee_count: 12,
+    total_hires: 18,
+    founded: 2017,
+    background_check: true,
+    status: "Available",
+    description:
+      "Sustainable landscaping solutions with native plants and eco-friendly practices.",
+    imageUrl: "/assets/home-service/service (6).jpg", // Added imageUrl
+  },
+  {
+    id: "7",
+    company: "Green and Clean Globe", // Changed from name to company
+    service: "Landscaping",
+    rating: 4.7,
+    services: ["Lawn Care", "Tree Trimming", "Garden Design"],
+    zipCodes: ["90002", "90004", "90006"],
+    distance: 3.1,
+    guarantee: true,
+    employee_count: 20,
+    total_hires: 32,
+    founded: 2013,
+    background_check: true,
+    status: "Available",
+    description:
+      "Full-service landscaping and garden maintenance with a focus on sustainability.",
+    imageUrl: "/assets/home-service/service (7).jpg", // Added imageUrl
+  },
+  {
+    id: "8",
+    company: "Clark Construction", // Changed from name to company
+    service: "Roofing",
+    rating: 4.7,
+    services: ["Roof installation", "Roof Repairing", "Roof Maintenance"],
+    zipCodes: ["90002", "90004", "90006"],
+    distance: 3.1,
+    guarantee: true,
+    employee_count: 20,
+    total_hires: 32,
+    founded: 2013,
+    background_check: true,
+    status: "Available",
+    description:
+      "Full-service landscaping and garden maintenance with a focus on sustainability.",
+    imageUrl: "/assets/home-service/service (7).jpg", // Added imageUrl
+  },
+  {
+    id: "9",
+    company: "Brand Construction", // Changed from name to company
+    service: "Roofing",
+    rating: 4.7,
+    services: ["Roof installation", "Roof Repairing", "Roof Maintenance"],
+    zipCodes: ["90002", "90004", "90006"],
+    distance: 3.1,
+    guarantee: true,
+    employee_count: 20,
+    total_hires: 32,
+    founded: 2013,
+    background_check: true,
+    status: "Available",
+    description:
+      "Full-service landscaping and garden maintenance with a focus on sustainability.",
+    imageUrl: "/assets/home-service/service (7).jpg", // Added imageUrl
+  },
+];
+
+// Extract all unique services for suggestions
+const ALL_SERVICES = Array.from(
+  new Set(MOCK_PROFESSIONALS.flatMap((pro) => pro.services))
+);
 
 const titleVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
@@ -39,149 +205,162 @@ const titleVariants: Variants = {
   },
 };
 
-const SearchBar: React.FC<SearchBarProps> = ({
-  serviceQuery,
-  setServiceQuery,
-  zipCode,
-  setZipCode,
-  handleSearch,
-  isLoading,
-  isCompact = false,
-}) => {
-  const sizeClasses = isCompact ? "h-12" : "h-14";
-  const iconSize = isCompact ? "h-4 w-4" : "h-5 w-5";
-
-  return (
-    <div
-      className={`flex flex-col sm:flex-row gap-2 w-full ${
-        !isCompact
-          ? "bg-white/10 dark:bg-gray-800/50 backdrop-blur-md rounded-lg p-1"
-          : ""
-      }`}
-    >
-      <div className="relative flex-1 min-w-[200px]">
-        <Input
-          placeholder="What service do you need?"
-          value={serviceQuery}
-          onChange={(e) => setServiceQuery(e.target.value)}
-          className={`w-full ${sizeClasses} pl-12 pr-4 ${
-            isCompact
-              ? "bg-white dark:bg-gray-900"
-              : "bg-white dark:bg-gray-900"
-          } focus-visible:ring-2 focus-visible:ring-sky-500 dark:focus-visible:ring-sky-600 border border-gray-200 dark:border-gray-700`}
-        />
-        <Search
-          className={`absolute left-4 top-1/2 transform -translate-y-1/2 ${iconSize} text-gray-500 dark:text-gray-400`}
-        />
-      </div>
-      <div className="relative w-full sm:w-[160px]">
-        <Input
-          placeholder="Zip code"
-          value={zipCode}
-          onChange={(e) => setZipCode(e.target.value)}
-          className={`w-full ${sizeClasses} pl-10 pr-4 bg-white dark:bg-gray-900
-          focus-visible:ring-2 focus-visible:ring-sky-500 dark:focus-visible:ring-sky-600 border border-gray-200 dark:border-gray-700`}
-        />
-        <MapPin
-          className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${iconSize} text-gray-500 dark:text-gray-400`}
-        />
-      </div>
-      <Button
-        onClick={handleSearch}
-        disabled={isLoading}
-        className={`${sizeClasses} px-6 bg-sky-600 hover:bg-sky-700 dark:bg-sky-700 dark:hover:bg-sky-800 w-full sm:w-auto`}
-      >
-        {isLoading ? <Loader2 className="animate-spin mr-2" /> : "Search"}
-      </Button>
-    </div>
-  );
-};
 const TitlePage = () => {
+  const router = useRouter();
   const [userLocation, setUserLocation] = useState<string | null>(null);
   const [zipCode, setZipCode] = useState("");
   const [serviceQuery, setServiceQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [isScrolled, setIsScrolled] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showNoMatchDialog, setShowNoMatchDialog] = useState(false);
+  const [suggestedServices, setSuggestedServices] = useState<string[]>([]);
+  const [isLocationDialogOpen, setIsLocationDialogOpen] = useState(false);
+  const [noServiceInZipCode, setNoServiceInZipCode] = useState(false);
+
+  // Filter services based on input
+  const filteredServices = ALL_SERVICES.filter((service) =>
+    service.toLowerCase().includes(serviceQuery.toLowerCase())
+  ).slice(0, 5);
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 100);
+      setIsScrolled(window.scrollY > 350);
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleSearch = () => {
+  const handleSearch = (selectedService?: string) => {
     setIsLoading(true);
-    console.log(`Searching for ${serviceQuery} in ${zipCode || userLocation}`);
-    setTimeout(() => {
+    setError("");
+    setShowSuggestions(false);
+    setNoServiceInZipCode(false);
+    setSuggestedServices([]);
+
+    const searchTerm = selectedService || serviceQuery;
+
+    // Validate inputs
+    if (!searchTerm.trim()) {
+      setError("Please enter a service");
       setIsLoading(false);
-    }, 1500);
+      return;
+    }
+
+    if (!zipCode.trim()) {
+      setError("Please enter a zip code");
+      setIsLoading(false);
+      return;
+    }
+
+    // Simulate API call
+    setTimeout(() => {
+      // 1. First check zip code validity
+      const validZipCode = MOCK_PROFESSIONALS.some((pro) =>
+        pro.zipCodes.includes(zipCode)
+      );
+
+      if (!validZipCode) {
+        setNoServiceInZipCode(true);
+        setShowNoMatchDialog(true);
+        setIsLoading(false);
+        return;
+      }
+
+      // 2. Check for exact service matches in this zip code
+      const exactMatches = MOCK_PROFESSIONALS.filter(
+        (pro) =>
+          pro.zipCodes.includes(zipCode) &&
+          pro.services.some((s) => s.toLowerCase() === searchTerm.toLowerCase())
+      );
+
+      if (exactMatches.length > 0) {
+        // Found exact matches - proceed to results
+        sessionStorage.setItem(
+          "searchResults",
+          JSON.stringify({
+            query: searchTerm,
+            zipCode,
+            professionals: exactMatches.slice(0, 5),
+          })
+        );
+        router.push(
+          `/home-services/search?query=${encodeURIComponent(
+            searchTerm
+          )}&zip=${encodeURIComponent(zipCode)}`
+        );
+        setIsLoading(false);
+        return;
+      }
+
+      // 3. No exact matches - find similar services
+      const similarServices = ALL_SERVICES.map((service) => ({
+        service,
+        similarity: calculateSimilarity(searchTerm, service),
+      }))
+        .filter((item) => item.similarity > 0.3)
+        .sort((a, b) => b.similarity - a.similarity)
+        .map((item) => item.service)
+        .slice(0, 5);
+
+      if (similarServices.length > 0) {
+        setSuggestedServices(similarServices);
+        setNoServiceInZipCode(false);
+        setShowNoMatchDialog(true);
+      } else {
+        setError("No matching services found");
+      }
+
+      setIsLoading(false);
+    }, 1000);
   };
 
-  const handleZipCodeChange = async (zip: string) => {
+  const handleZipCodeChange = (zip: string) => {
     setZipCode(zip);
     setError("");
-
-    if (zip.match(/^\d{5}$/)) {
-      setIsLoading(true);
-      try {
-        const response = await fetch(`https://api.zippopotam.us/us/${zip}`);
-        if (!response.ok) throw new Error("Location not found");
-
-        const data = await response.json();
-        const city = data.places[0]["place name"];
-        const state = data.places[0]["state abbreviation"];
-        setUserLocation(`${city}, ${state}`);
-      } catch (err) {
-        setError("Failed to find location for this zip code");
-        console.error(err);
-      } finally {
-        setIsLoading(false);
-      }
-    }
   };
 
   const setCurrentLocation = () => {
     setIsLoading(true);
     setError("");
 
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          try {
-            const { latitude, longitude } = position.coords;
-            const response = await fetch(
-              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
-            );
-            const data = await response.json();
-            const city = data.address.city || data.address.town;
-            const state = data.address.state;
-            setUserLocation(`${city}, ${state}`);
-          } catch (err) {
-            setError("Failed to determine your location");
-            console.error(err);
-          } finally {
-            setIsLoading(false);
-          }
-        },
-        (error) => {
-          setError("Please enable location permissions");
-          console.log(error);
-          setIsLoading(false);
-        }
-      );
-    } else {
-      setError("Geolocation is not supported by your browser");
+    setTimeout(() => {
+      setUserLocation("Los Angeles, CA");
+      setZipCode("90001");
       setIsLoading(false);
-    }
+      setIsLocationDialogOpen(false);
+    }, 800);
+  };
+
+  const handleServiceSuggestion = (service: string) => {
+    setServiceQuery(service);
+    setShowNoMatchDialog(false);
+    handleSearch(service);
   };
 
   const userDefaultLocation = "Los Angeles, CA";
 
   return (
     <>
+      <NoMatchDialog
+        open={showNoMatchDialog}
+        onOpenChange={setShowNoMatchDialog}
+        suggestedServices={suggestedServices}
+        onServiceSelect={handleServiceSuggestion}
+        noServiceInZipCode={noServiceInZipCode}
+        zipCode={zipCode}
+      />
+      <LocationDialog
+        open={isLocationDialogOpen}
+        onOpenChange={setIsLocationDialogOpen}
+        zipCode={zipCode}
+        onZipCodeChange={handleZipCodeChange}
+        onSetCurrentLocation={setCurrentLocation}
+        isLoading={isLoading}
+        error={error}
+      />
+
       {/* Persistent Search Bar */}
       <AnimatePresence>
         {isScrolled && (
@@ -201,6 +380,9 @@ const TitlePage = () => {
                 handleSearch={handleSearch}
                 isLoading={isLoading}
                 isCompact={true}
+                showSuggestions={showSuggestions}
+                setShowSuggestions={setShowSuggestions}
+                filteredServices={filteredServices}
               />
             </div>
           </motion.div>
@@ -208,7 +390,7 @@ const TitlePage = () => {
       </AnimatePresence>
 
       {/* Hero Section */}
-      <div className="w-full relative overflow-hidden min-h-[70vh] flex items-center justify-center pt-20">
+      <div className="w-full relative min-h-[80vh] flex items-center justify-center pt-20">
         {/* Gradient background */}
         <div className="absolute inset-0 bg-gradient-to-br from-sky-500 via-sky-800 to-sky-900 dark:from-sky-600 dark:via-sky-800 dark:to-sky-900"></div>
 
@@ -230,81 +412,19 @@ const TitlePage = () => {
               >
                 <div>
                   <span>Find the Best Home Service in </span>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <button className="cursor-pointer focus-visible:outline-none border-b-2 border-dashed border-white dark:border-gray-300">
-                        {userLocation ? (
-                          <span>{userLocation}</span>
-                        ) : (
-                          <span className="flex flex-row gap-2 justify-center items-center">
-                            <span>{userDefaultLocation}</span>
-                            <SquareMousePointer className="w-6 h-6" />
-                          </span>
-                        )}
-                      </button>
-                    </DialogTrigger>
-                    <DialogContent className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 max-w-md">
-                      <DialogHeader>
-                        <DialogTitle className="dark:text-white">
-                          Set Your Location
-                        </DialogTitle>
-                        <DialogDescription className="dark:text-gray-400">
-                          Enter your zip code or use your current location
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="space-y-4 py-4">
-                        <div className="space-y-2">
-                          <label
-                            htmlFor="zipcode"
-                            className="block text-sm font-medium dark:text-gray-300"
-                          >
-                            US Zip Code
-                          </label>
-                          <div className="flex gap-2">
-                            <Input
-                              id="zipcode"
-                              placeholder="Enter 5-digit zip code"
-                              value={zipCode}
-                              onChange={(e) =>
-                                handleZipCodeChange(e.target.value)
-                              }
-                              className="flex-1 focus-visible:ring-2 focus-visible:ring-sky-500 dark:focus-visible:ring-sky-600 dark:bg-gray-800 dark:border-gray-700"
-                            />
-                            {isLoading && (
-                              <Loader2 className="animate-spin h-5 w-5" />
-                            )}
-                          </div>
-                        </div>
-                        <div className="relative">
-                          <div className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-gray-200 dark:border-gray-700" />
-                          </div>
-                          <div className="relative flex justify-center text-xs uppercase">
-                            <span className="bg-white dark:bg-gray-900 px-2 text-gray-500 dark:text-gray-400">
-                              Or
-                            </span>
-                          </div>
-                        </div>
-                        <Button
-                          variant="outline"
-                          onClick={setCurrentLocation}
-                          disabled={isLoading}
-                          className="w-full bg-green-100 dark:bg-green-900/30 text-green-500 dark:text-green-400"
-                        >
-                          {isLoading ? (
-                            <Loader2 className="animate-spin mr-2" />
-                          ) : (
-                            <span>Use Current Location</span>
-                          )}
-                        </Button>
-                        {error && (
-                          <p className="text-sm text-red-500 dark:text-red-400">
-                            {error}
-                          </p>
-                        )}
-                      </div>
-                    </DialogContent>
-                  </Dialog>
+                  <button
+                    onClick={() => setIsLocationDialogOpen(true)}
+                    className="cursor-pointer focus-visible:outline-none border-b-2 border-dashed border-white dark:border-gray-300"
+                  >
+                    {userLocation ? (
+                      <span>{userLocation}</span>
+                    ) : (
+                      <span className="flex flex-row gap-2 justify-center items-center">
+                        <span>{userDefaultLocation}</span>
+                        <SquareMousePointer className="w-6 h-6" />
+                      </span>
+                    )}
+                  </button>
                 </div>
               </motion.h1>
             </motion.div>
@@ -320,10 +440,18 @@ const TitlePage = () => {
                 serviceQuery={serviceQuery}
                 setServiceQuery={setServiceQuery}
                 zipCode={zipCode}
-                setZipCode={(zip) => handleZipCodeChange(zip)}
+                setZipCode={handleZipCodeChange}
                 handleSearch={handleSearch}
                 isLoading={isLoading}
+                showSuggestions={showSuggestions}
+                setShowSuggestions={setShowSuggestions}
+                filteredServices={filteredServices}
               />
+              {error && (
+                <p className="text-sm text-red-500 dark:text-red-400 mt-2">
+                  {error}
+                </p>
+              )}
             </motion.div>
           </div>
         </div>
@@ -331,4 +459,5 @@ const TitlePage = () => {
     </>
   );
 };
+
 export default TitlePage;
