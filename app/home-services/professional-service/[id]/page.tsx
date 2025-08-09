@@ -74,7 +74,7 @@ export default function ProfessionalPage({
   ];
 
   return (
-    <div className="min-h-screen transition-colors duration-300 dark:bg-gray-900 dark:text-gray-100 bg-gray-50 text-gray-900">
+    <div className="relative bg-white dark:bg-gray-900 min-h-screen transition-colors duration-300 dark:text-gray-100 text-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <Breadcrumbs
           paths={[
@@ -90,7 +90,7 @@ export default function ProfessionalPage({
           transition={{ duration: 0.5 }}
           className="py-4"
         >
-          <h1 className="text-2xl md:text-3xl font-bold">
+          <h1 className="text-xl md:text-xl font-bold">
             Here are the top professionals we found in your area{id}
           </h1>
           <div className="flex items-center mt-2 text-sm">
@@ -99,12 +99,21 @@ export default function ProfessionalPage({
           </div>
         </motion.div>
 
-        <div className="flex flex-col lg:flex-row gap-2">
-          <ProfessionalFilters />
+        <div className="flex flex-col lg:flex-row gap-4">
+          {/* Filters - takes necessary width, doesn't stretch */}
+          <div className="lg:w-1/4">
+            <ProfessionalFilters />
+          </div>
 
-          <ProfessionalList professionals={ProfessionalDetails} />
+          {/* Professional List - takes remaining space */}
+          <div className="lg:w-2/4 flex-1">
+            <ProfessionalList professionals={ProfessionalDetails} />
+          </div>
 
-          <QuotationForm />
+          {/* Quotation Form - fixed width, height fits content */}
+          <div className="lg:w-1/4 self-start sticky top-4 h-fit">
+            <QuotationForm />
+          </div>
         </div>
       </div>
     </div>

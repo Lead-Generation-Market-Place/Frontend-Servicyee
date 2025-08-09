@@ -3,6 +3,7 @@ import Breadcrumbs from "@/components/home-services/homepage/Breadcrumbs";
 import PopularSearch from "@/components/home-services/homepage/PopularSearch";
 import dynamic from "next/dynamic";
 import { Skeleton } from "@/components/ui/skeleton";
+import PopularLocation from "@/components/home-services/homepage/PopularLocation";
 
 // Skeleton components
 const TitlePageSkeleton = () => (
@@ -27,17 +28,16 @@ const CategorySkeleton = () => (
   </div>
 );
 
-// Lazy-loaded components with custom loading skeletons
 const TitlePage = dynamic(
   () => import("@/components/home-services/homepage/TitlePage"),
   {
     loading: () => <TitlePageSkeleton />,
-    ssr: false,
+    // Remove ssr: false since component is already client-side
   }
 );
 
-const PopularSubCategories = dynamic(
-  () => import("@/components/home-services/homepage/PopularSubCategories"),
+const PopularServices = dynamic(
+  () => import("@/components/home-services/homepage/PopularServices"),
   {
     loading: () => <CategorySkeleton />,
     ssr: false,
@@ -70,16 +70,17 @@ const AllCategories = dynamic(
 
 const HomeServicesPage = () => {
   return (
-    <div className="relative">
+    <div className="relative bg-white dark:bg-gray-900 border border-white dark:border-gray-900">
       <Breadcrumbs
         paths={[{ name: "Home", href: "/" }, { name: "Home Services" }]}
       />
 
       <TitlePage />
-      <PopularSubCategories />
+      <PopularServices />
       <FeaturedServices />
       <CategoryServices />
       <AllCategories />
+      <PopularLocation />
       <PopularSearch />
     </div>
   );
