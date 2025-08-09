@@ -1,11 +1,12 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import ProfessionalList from "@/components/home-services/homepage/professional/ProfessionalList";
+import SearchLoading from "@/components/home-services/homepage/elements/SearchLoader"; // Create this component
 
 interface Professional {
   id: string;
-  company: string; // Changed from name to company
+  company: string;
   service: string;
   rating: number;
   services: string[];
@@ -18,10 +19,11 @@ interface Professional {
   background_check: boolean;
   status: string;
   description: string;
-  imageUrl: string; // Added imageUrl
+  imageUrl: string;
 }
 
-export default function SearchResults() {
+// This component needs to be wrapped in Suspense
+function SearchResultsContent() {
   const searchParams = useSearchParams();
   const [professionals, setProfessionals] = useState<Professional[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -41,11 +43,7 @@ export default function SearchResults() {
   }, []);
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-sky-500"></div>
-      </div>
-    );
+    return <SearchLoading />;
   }
 
   if (error) {
@@ -73,5 +71,14 @@ export default function SearchResults() {
         <ProfessionalList professionals={professionals} />
       )}
     </div>
+  );
+}
+
+// Main component that wraps the content in Suspense
+export default function SearchResults() {
+  return (
+    <Suspense fallback={<SearchLoading />}>
+      <SearchResultsContent />
+    </Suspense>
   );
 }
