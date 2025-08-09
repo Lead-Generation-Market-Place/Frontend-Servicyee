@@ -19,7 +19,7 @@ export type NavItem = {
 
 export const serviceProviderNavItems: NavItem[] = [
   { name: "My Services", path: "/home-services/dashboard/services", icon: <Layers size={18} /> },
-  { name: "Loads", path: "/offers", icon: <Briefcase size={18} /> },
+  { name: "Loads", path: "/home-services/dashboard/leads", icon: <Briefcase size={18} /> },
   { name: "Inbox", path: "/inbox", icon: <Mail size={18} /> },
   { name: "Performance", path: "/performance", icon: <Settings size={18} /> },
 ];

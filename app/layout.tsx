@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import { Poppins } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import React from "react";
 import { ThemeProvider } from "@/components/providers/theme/theme-provider";
 import QueryProvider from "@/components/providers/context/QueryProvider";
 import { SidebarProvider } from "@/components/providers/context/SidebarContext";
 
-// Configure Poppins font with all needed weights and subsets
-const poppins = Poppins({
+// Configure inter font with all needed weights and subsets
+const poppins = Inter({
   subsets: ["latin"],
   weight: ["100", "200", "300", "400", "500", "600", "700"],
   variable: "--font-poppins", // Optional: for using CSS variables
