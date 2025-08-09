@@ -7,6 +7,22 @@ import ProfessionalFilters from "@/components/home-services/homepage/professiona
 import QuotationForm from "@/components/home-services/homepage/professional/QuotationForm";
 import Breadcrumbs from "@/components/home-services/homepage/Breadcrumbs";
 
+// interface Professional {
+//   id: string;
+//   name: string;
+//   service: string;
+//   rating: number;
+//   services: string[];
+//   zipCodes: string[];
+//   distance?: number;
+//   guarantee: boolean;
+//   employee_count: number;
+//   total_hires: number;
+//   founded: number;
+//   background_check: boolean;
+//   status: string;
+//   description: string;
+// }
 export default function ProfessionalPage({
   params,
 }: {
@@ -14,62 +30,132 @@ export default function ProfessionalPage({
 }) {
   const { id } = use(params);
 
-  const ProfessionalDetails = [
+  const MOCK_PROFESSIONALS = [
     {
-      id: 1,
-      imageUrl: "/assets/home-service/service (1).jpg",
-      company: "Clean Globe",
-      rating: "4.3",
+      id: "1",
+      company: "John's Plumbing", // Changed from name to company
+      service: "Plumbing",
+      rating: 4.8,
+      services: ["Pipe Repair", "Leak Fixing", "Faucet Installation"],
+      zipCodes: ["90001", "90002", "90003"],
+      distance: 1.2,
       guarantee: true,
-      employee_count: 34,
+      employee_count: 24,
+      total_hires: 15,
+      founded: 2012,
+      background_check: true,
+      status: "Available",
+      description:
+        "Licensed plumbing services with 10 years of experience in residential and commercial properties.",
+      imageUrl: "/assets/home-service/service (1).jpg", // Added imageUrl
+    },
+    {
+      id: "2",
+      company: "Electric Solutions", // Changed from name to company
+      service: "Electrical",
+      rating: 4.5,
+      services: ["Wiring", "Outlet Installation", "Circuit Breaker"],
+      zipCodes: ["90001", "90005"],
+      distance: 0.8,
+      guarantee: true,
+      employee_count: 18,
+      total_hires: 22,
+      founded: 2015,
+      background_check: true,
+      status: "Available",
+      description:
+        "Certified electricians providing safe and efficient electrical solutions.",
+      imageUrl: "/assets/home-service/service (2).jpg", // Added imageUrl
+    },
+    {
+      id: "3",
+      company: "Clean Home Services", // Changed from name to company
+      service: "Cleaning",
+      rating: 4.9,
+      services: ["Deep Cleaning", "Carpet Cleaning", "Window Washing"],
+      zipCodes: ["90002", "90004"],
+      distance: 2.5,
+      guarantee: true,
+      employee_count: 42,
+      total_hires: 35,
+      founded: 2016,
+      background_check: true,
+      status: "Available",
+      description:
+        "Premium cleaning services using eco-friendly products and techniques.",
+      imageUrl: "/assets/home-service/service (3).jpg", // Added imageUrl
+    },
+    {
+      id: "4",
+      company: "Quick Fix Handyman", // Changed from name to company
+      service: "Handyman",
+      rating: 4.3,
+      services: ["Furniture Assembly", "Shelving", "Minor Repairs"],
+      zipCodes: ["90001", "90003", "90005"],
+      distance: 1.7,
+      guarantee: false,
+      employee_count: 8,
       total_hires: 12,
+      founded: 2019,
+      background_check: true,
+      status: "Available",
+      description:
+        "Reliable handyman services for all your home maintenance needs.",
+      imageUrl: "/assets/home-service/service (4).jpg", // Added imageUrl
+    },
+    {
+      id: "5",
+      company: "Green Thumb Landscaping", // Changed from name to company
+      service: "Landscaping",
+      rating: 4.7,
+      services: ["Lawn Care", "Tree Trimming", "Garden Design"],
+      zipCodes: ["90002", "90004", "90006"],
+      distance: 3.1,
+      guarantee: true,
+      employee_count: 15,
+      total_hires: 28,
       founded: 2014,
       background_check: true,
       status: "Available",
       description:
-        "Professional cleaning services with eco-friendly products and guaranteed satisfaction.",
+        "Professional landscaping services creating beautiful outdoor spaces.",
+      imageUrl: "/assets/home-service/service (5).jpg", // Added imageUrl
     },
     {
-      id: 2,
-      imageUrl: "/assets/home-service/service (2).jpg",
-      company: "Sun Shine",
-      rating: "3.8",
+      id: "6",
+      company: "Green World", // Changed from name to company
+      service: "Landscaping",
+      rating: 4.7,
+      services: ["Lawn Care", "Tree Trimming", "Garden Design"],
+      zipCodes: ["90002", "90004", "90006"],
+      distance: 3.1,
       guarantee: false,
-      employee_count: 43,
-      total_hires: 9,
-      founded: 2018,
-      background_check: true,
-      status: "Available",
-      description:
-        "Brightening your home with top-quality cleaning and maintenance services.",
-    },
-    {
-      id: 3,
-      imageUrl: "/assets/home-service/service (3).jpg",
-      company: "World Structure",
-      rating: "4.6",
-      guarantee: true,
-      employee_count: 54,
-      total_hires: 19,
-      founded: 2008,
-      background_check: true,
-      status: "Available",
-      description:
-        "Building maintenance and cleaning specialists with over a decade of experience.",
-    },
-    {
-      id: 4,
-      imageUrl: "/assets/home-service/service (4).jpg",
-      company: "Green World",
-      rating: "4.5",
-      guarantee: false,
-      employee_count: 100,
-      total_hires: 22,
+      employee_count: 12,
+      total_hires: 18,
       founded: 2017,
       background_check: true,
       status: "Available",
       description:
-        "Sustainable cleaning solutions for environmentally conscious homeowners.",
+        "Sustainable landscaping solutions with native plants and eco-friendly practices.",
+      imageUrl: "/assets/home-service/service (6).jpg", // Added imageUrl
+    },
+    {
+      id: "7",
+      company: "Green and Clean Globe", // Changed from name to company
+      service: "Landscaping",
+      rating: 4.7,
+      services: ["Lawn Care", "Tree Trimming", "Garden Design"],
+      zipCodes: ["90002", "90004", "90006"],
+      distance: 3.1,
+      guarantee: true,
+      employee_count: 20,
+      total_hires: 32,
+      founded: 2013,
+      background_check: true,
+      status: "Available",
+      description:
+        "Full-service landscaping and garden maintenance with a focus on sustainability.",
+      imageUrl: "/assets/home-service/service (7).jpg", // Added imageUrl
     },
   ];
 
@@ -107,7 +193,7 @@ export default function ProfessionalPage({
 
           {/* Professional List - takes remaining space */}
           <div className="lg:w-2/4 flex-1">
-            <ProfessionalList professionals={ProfessionalDetails} />
+            <ProfessionalList professionals={MOCK_PROFESSIONALS} />
           </div>
 
           {/* Quotation Form - fixed width, height fits content */}
