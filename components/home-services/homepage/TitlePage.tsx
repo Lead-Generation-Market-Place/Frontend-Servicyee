@@ -128,7 +128,7 @@ const MOCK_PROFESSIONALS = [
     status: "Available",
     description:
       "Sustainable landscaping solutions with native plants and eco-friendly practices.",
-    imageUrl: "/assets/home-service/service (6).jpg", // Added imageUrl
+    imageUrl: "/assets/home-service/service (1).jpg", // Added imageUrl
   },
   {
     id: "7",
@@ -146,7 +146,7 @@ const MOCK_PROFESSIONALS = [
     status: "Available",
     description:
       "Full-service landscaping and garden maintenance with a focus on sustainability.",
-    imageUrl: "/assets/home-service/service (7).jpg", // Added imageUrl
+    imageUrl: "/assets/home-service/service (2).jpg", // Added imageUrl
   },
   {
     id: "8",
@@ -164,7 +164,7 @@ const MOCK_PROFESSIONALS = [
     status: "Available",
     description:
       "Full-service landscaping and garden maintenance with a focus on sustainability.",
-    imageUrl: "/assets/home-service/service (7).jpg", // Added imageUrl
+    imageUrl: "/assets/home-service/service (5).jpg", // Added imageUrl
   },
   {
     id: "9",
@@ -182,7 +182,7 @@ const MOCK_PROFESSIONALS = [
     status: "Available",
     description:
       "Full-service landscaping and garden maintenance with a focus on sustainability.",
-    imageUrl: "/assets/home-service/service (7).jpg", // Added imageUrl
+    imageUrl: "/assets/home-service/service (3).jpg", // Added imageUrl
   },
 ];
 
@@ -226,7 +226,7 @@ const TitlePage = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 350);
+      setIsScrolled(window.scrollY > 500);
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
@@ -368,7 +368,7 @@ const TitlePage = () => {
             initial={{ y: -100 }}
             animate={{ y: 0 }}
             exit={{ y: -100 }}
-            transition={{ type: "spring", stiffness: 450, damping: 30 }}
+            transition={{ type: "spring", stiffness: 500, damping: 30 }}
             className="fixed top-0 left-0 right-0 bg-white dark:bg-gray-900 shadow-md z-50 py-3 px-4 border-b border-gray-200 dark:border-gray-700"
           >
             <div className="max-w-6xl mx-auto">
