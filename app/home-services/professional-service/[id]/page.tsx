@@ -3,9 +3,10 @@ import { MapPin } from "lucide-react";
 import { use } from "react";
 import { motion } from "framer-motion";
 import ProfessionalList from "@/components/home-services/homepage/professional/ProfessionalList";
-import ProfessionalFilters from "@/components/home-services/homepage/professional/ProfessionalFilters";
+// import ProfessionalFilters from "@/components/home-services/homepage/professional/ProfessionalFilters";
 import QuotationForm from "@/components/home-services/homepage/professional/QuotationForm";
 import Breadcrumbs from "@/components/home-services/homepage/Breadcrumbs";
+import ServiceQuestion from "@/components/home-services/question/ServiceQuestion";
 
 // interface Professional {
 //   id: string;
@@ -26,13 +27,13 @@ import Breadcrumbs from "@/components/home-services/homepage/Breadcrumbs";
 export default function ProfessionalPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: number }>;
 }) {
   const { id } = use(params);
 
   const MOCK_PROFESSIONALS = [
     {
-      id: "1",
+      id: 1,
       company: "John's Plumbing", // Changed from name to company
       service: "Plumbing",
       rating: 4.8,
@@ -50,7 +51,7 @@ export default function ProfessionalPage({
       imageUrl: "/assets/home-service/service (1).jpg", // Added imageUrl
     },
     {
-      id: "2",
+      id: 2,
       company: "Electric Solutions", // Changed from name to company
       service: "Electrical",
       rating: 4.5,
@@ -68,7 +69,7 @@ export default function ProfessionalPage({
       imageUrl: "/assets/home-service/service (2).jpg", // Added imageUrl
     },
     {
-      id: "3",
+      id: 3,
       company: "Clean Home Services", // Changed from name to company
       service: "Cleaning",
       rating: 4.9,
@@ -86,7 +87,7 @@ export default function ProfessionalPage({
       imageUrl: "/assets/home-service/service (3).jpg", // Added imageUrl
     },
     {
-      id: "4",
+      id: 4,
       company: "Quick Fix Handyman", // Changed from name to company
       service: "Handyman",
       rating: 4.3,
@@ -104,7 +105,7 @@ export default function ProfessionalPage({
       imageUrl: "/assets/home-service/service (4).jpg", // Added imageUrl
     },
     {
-      id: "5",
+      id: 5,
       company: "Green Thumb Landscaping", // Changed from name to company
       service: "Landscaping",
       rating: 4.7,
@@ -122,7 +123,7 @@ export default function ProfessionalPage({
       imageUrl: "/assets/home-service/service (5).jpg", // Added imageUrl
     },
     {
-      id: "6",
+      id: 6,
       company: "Green World", // Changed from name to company
       service: "Landscaping",
       rating: 4.7,
@@ -137,10 +138,10 @@ export default function ProfessionalPage({
       status: "Available",
       description:
         "Sustainable landscaping solutions with native plants and eco-friendly practices.",
-      imageUrl: "/assets/home-service/service (6).jpg", // Added imageUrl
+      imageUrl: "/assets/home-service/service (4).jpg", // Added imageUrl
     },
     {
-      id: "7",
+      id: 7,
       company: "Green and Clean Globe", // Changed from name to company
       service: "Landscaping",
       rating: 4.7,
@@ -155,7 +156,7 @@ export default function ProfessionalPage({
       status: "Available",
       description:
         "Full-service landscaping and garden maintenance with a focus on sustainability.",
-      imageUrl: "/assets/home-service/service (7).jpg", // Added imageUrl
+      imageUrl: "/assets/home-service/service (2).jpg", // Added imageUrl
     },
   ];
 
@@ -188,7 +189,8 @@ export default function ProfessionalPage({
         <div className="flex flex-col lg:flex-row gap-4">
           {/* Filters - takes necessary width, doesn't stretch */}
           <div className="lg:w-1/4">
-            <ProfessionalFilters />
+            {/* <ProfessionalFilters /> */}
+            <ServiceQuestion serviceId={id} />
           </div>
 
           {/* Professional List - takes remaining space */}
