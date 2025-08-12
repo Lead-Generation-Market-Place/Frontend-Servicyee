@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/select";
 import { useState } from "react";
 import { MapPin, Calendar, Clock } from "lucide-react";
+import Link from "next/link";
 
 interface Request {
   id: number;
@@ -123,9 +124,7 @@ export default function CustomerRequests() {
                     {req.timeAgo} 
                   </p>
                 </div>
-                <button className="px-4 py-1 text-sm font-medium bg-green-100 text-green-800 dark:bg-gray-700 dark:text-gray-200 rounded-[4px] hover:bg-gray-200 dark:hover:bg-gray-600 transition">
-                  <span className="">Accept</span>
-                </button>
+
               </div>
 
               {/* Discount */}
@@ -166,9 +165,9 @@ export default function CustomerRequests() {
 
               {/* Actions */}
               <div className="flex justify-end mt-4">
-                <button className="bg-[#0077B6] text-white px-4 py-2 rounded-[4px] text-sm font-medium hover:bg-[#005f8a] transition">
+                <Link href={`/home-services/dashboard/leads/${req.id}`} className="bg-[#0077B6] text-white px-4 py-2 rounded-[4px] text-sm font-medium hover:bg-[#005f8a] transition">
                   View Details
-                </button>
+                </Link>
               </div>
             </div>
           ))}
