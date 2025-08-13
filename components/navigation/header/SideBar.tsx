@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { useState } from 'react';
-import { FaRegUser } from 'react-icons/fa';
+import { User } from 'lucide-react';
 
 export default function SideBar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -16,7 +16,7 @@ export default function SideBar() {
           href="/"
           className="hidden md:flex flex-col items-center p-2 text-sm text-gray-800 dark:text-gray-300 hover:text-[#0096C7] dark:hover:text-[#0096C7] group"
         >
-          <FaRegUser className="text-lg mb-0.5" />
+          <User className="text-lg mb-0.5" />
           <span className="text-xs text-gray-900 dark:text-gray-300 group-hover:text-[#0096C7] dark:group-hover:text-[#0096C7]">
             Account
           </span>

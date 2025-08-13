@@ -2,8 +2,9 @@ import { useState } from 'react';
 import Preferences from './preferences';
 import NotInterested from './NotInterested';
 
-import { MapPin, Phone, Mail, CheckCircle, ChevronDown, ChevronUp, Clock, User, ShieldCheck, AlertCircle, CreditCard } from 'lucide-react';
+import { MapPin, Phone, Mail, CheckCircle, ChevronDown, ChevronUp, Clock, User, ShieldCheck, AlertCircle, CreditCard, Settings } from 'lucide-react';
 import ContactCustomer from './ContactCustomer';
+import Link from 'next/link';
 
 const ProfessionalCard = () => {
     const [expanded, setExpanded] = useState(false);
@@ -29,13 +30,13 @@ const ProfessionalCard = () => {
                                 <ShieldCheck className="h-3.5 w-3.5 text-white" />
                             </div>
                         </div>
-                        
+
                         <div>
                             <div className="flex items-center">
                                 <h1 className="text-lg font-medium text-gray-900">Khoa Elexia</h1>
 
                             </div>
-                            
+
                             <div className="mt-2">
                                 <div className="inline-flex items-center bg-[#0077B6]/5 border border-[#0077B6]/10 text-[#0077B6] text-sm font-normal text-[12px] px-6 py-1 rounded-sm">
                                     Home Insulation
@@ -45,13 +46,13 @@ const ProfessionalCard = () => {
                     </div>
 
                 </div>
-                
+
                 <div className="flex  font-normal  items-center mt-4 space-x-4">
                     <div className="flex items-center text-gray-700 text-sm">
                         <MapPin className="h-4 w-4 text-[#0077B6] mr-1.5" />
                         <span>Leeds, LS10</span>
                     </div>
-                    
+
                     <div className="flex items-center text-gray-500 text-sm">
                         <Clock className="h-4 w-4 text-gray-600 mr-1.5" />
                         <span className='text-gray-600'>Posted 19 hours ago</span>
@@ -73,7 +74,7 @@ const ProfessionalCard = () => {
                         </div>
                     </div>
                 </div>
-                
+
                 <div className="flex items-center">
                     <div className="bg-blue-100 p-2.5 rounded-lg mr-3">
                         <Mail className="h-5 w-5 text-[#0077B6]" />
@@ -89,8 +90,8 @@ const ProfessionalCard = () => {
                     <span className="text-[#0077B6] font-medium text-sm">3/5 professionals</span>
                 </div>
                 <div className="w-full bg-blue-200 rounded-full h-2">
-                    <div 
-                        className="bg-gradient-to-r from-[#0077B6] to-[#00B4D8] h-2 rounded-full transition-all duration-500" 
+                    <div
+                        className="bg-gradient-to-r from-[#0077B6] to-[#00B4D8] h-2 rounded-full transition-all duration-500"
                         style={{ width: '60%' }}
                     ></div>
                 </div>
@@ -102,7 +103,7 @@ const ProfessionalCard = () => {
             {/* Action Buttons */}
             <div className="p-5 flex space-x-3">
                 <span
-                onClick={()=> setContactIsModalOpen(true)}
+                    onClick={() => setContactIsModalOpen(true)}
                     className="flex-1 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 cursor-pointer hover:to-red-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 shadow-sm hover:shadow-red-200/50 flex items-center justify-center text-sm"
                 >
                     <AlertCircle className="h-4 w-4 mr-1.5" />
@@ -113,13 +114,13 @@ const ProfessionalCard = () => {
                     )}
                 </span>
                 <span
-                onClick={()=> setIsModalOpen(true)}
+                    onClick={() => setIsModalOpen(true)}
                     className="flex-1 border border-gray-300 text-gray-700 font-medium py-3 px-4 rounded-lg cursor-pointer hover:bg-gray-50 transition-all flex items-center justify-center text-sm"
                 >
                     Not interested
 
                     {IsModalOpen && (
-                        <NotInterested  onClose={() => setIsModalOpen(false)} />
+                        <NotInterested onClose={() => setIsModalOpen(false)} />
                     )}
                 </span>
             </div>
@@ -236,6 +237,16 @@ const ProfessionalCard = () => {
                 )}
             </div>
             <Preferences></Preferences>
+            <div className="max-w-md p-4">
+                <p className="font-semibold text-gray-800">Not seeing the right leads?</p>
+                <p className="text-sm text-gray-600">
+                    Stop seeing leads with specific answers by customising your settings.
+                </p>
+                <Link href="/home-services/dashboard/leads/leadSetting" className="flex items-center text-[#0077B6]] hover:underline mt-2 text-sm">
+                    <Settings className="w-4 h-4 mr-1 text-[#0077B6] " />
+                    Update lead settings
+                </Link>
+            </div>
         </div>
     );
 };

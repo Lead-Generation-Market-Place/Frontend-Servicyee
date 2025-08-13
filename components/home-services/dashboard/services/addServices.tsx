@@ -71,7 +71,7 @@ export default function Services() {
     setLoading(true);
 
     setLoading(false);
-    router.push('/home-services/services/step-2')
+    router.push('/home-services/dashboard/services/step-2')
   };
 
   return (
