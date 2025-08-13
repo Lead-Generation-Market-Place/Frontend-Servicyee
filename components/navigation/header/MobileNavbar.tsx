@@ -1,6 +1,7 @@
 "use client";
 
-import { FaBars, FaSearch, FaTimes } from "react-icons/fa";
+import { Menu, Search, X } from "lucide-react";
+
 import React, { useState } from "react";
 import Link from "next/link";
 
@@ -60,9 +61,9 @@ const MobileNavbar = ({
             aria-expanded={mobileMenuOpen}
           >
             {mobileMenuOpen ? (
-              <FaTimes className="text-lg text-gray-600 dark:text-gray-400" />
+              <X className="text-lg text-gray-600 dark:text-gray-400" />
             ) : (
-              <FaBars className="text-lg text-gray-600 dark:text-gray-400" />
+              <Menu className="text-lg text-gray-600 dark:text-gray-400" />
             )}
           </button>
         </div>
@@ -76,7 +77,7 @@ const MobileNavbar = ({
               className="w-full px-4 py-3 text-sm text-gray-700 dark:text-gray-300 bg-transparent focus:outline-none"
             />
             <button className="absolute right-3 text-gray-500 dark:text-gray-400 hover:text-[#0077B6] dark:hover:text-[#48CAE4]">
-              <FaSearch />
+              <Search />
             </button>
           </div>
         </div>
