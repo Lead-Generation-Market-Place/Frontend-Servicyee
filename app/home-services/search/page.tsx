@@ -8,6 +8,7 @@ import ServiceQuestion from "@/components/home-services/question/ServiceQuestion
 interface Professional {
   id: number;
   company: string;
+  type: string;
   service: string;
   rating: number;
   services: string[];
@@ -76,7 +77,7 @@ function SearchResultsContent() {
             )}
           </div>
           <div className="flex-1">
-            <ServiceQuestion serviceId={2} />
+            <ServiceQuestion serviceId={"house_cleaning"} />
           </div>
         </div>
       </div>

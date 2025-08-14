@@ -15,6 +15,7 @@ import {
 interface PopularSubCategory {
   id: number;
   name: string;
+  slug: string;
   Icon: React.ComponentType<{ className?: string }>;
   color: string;
   iconColor: string;
@@ -53,6 +54,7 @@ const SubCategories = () => {
     {
       id: 1,
       name: "Roof Repair or Maintenance",
+      slug: "roof_repair",
       Icon: Home,
       color: "bg-sky-100 dark:bg-sky-900/50",
       iconColor: "text-sky-600 dark:text-sky-400",
@@ -61,6 +63,7 @@ const SubCategories = () => {
     {
       id: 2,
       name: "General Contracting",
+      slug: "general_contracting",
       Icon: Construction,
       color: "bg-purple-100 dark:bg-purple-900/50",
       iconColor: "text-purple-600 dark:text-purple-400",
@@ -69,6 +72,7 @@ const SubCategories = () => {
     {
       id: 3,
       name: "Interior Design",
+      slug: "interior_design",
       Icon: DraftingCompass,
       color: "bg-amber-100 dark:bg-amber-900/50",
       iconColor: "text-amber-600 dark:text-amber-400",
@@ -77,6 +81,7 @@ const SubCategories = () => {
     {
       id: 4,
       name: "Construction Services",
+      slug: "construction_services",
       Icon: Hammer,
       color: "bg-emerald-100 dark:bg-emerald-900/50",
       iconColor: "text-emerald-600 dark:text-emerald-400",
@@ -85,6 +90,7 @@ const SubCategories = () => {
     {
       id: 5,
       name: "Door Installation",
+      slug: "door_installation",
       Icon: DoorOpen,
       color: "bg-rose-100 dark:bg-rose-900/50",
       iconColor: "text-rose-600 dark:text-rose-400",
@@ -93,6 +99,7 @@ const SubCategories = () => {
     {
       id: 6,
       name: "Floor Repair",
+      slug: "floor_repair",
       Icon: School,
       color: "bg-indigo-100 dark:bg-indigo-900/50",
       iconColor: "text-indigo-600 dark:text-indigo-400",
@@ -101,6 +108,7 @@ const SubCategories = () => {
     {
       id: 7,
       name: "Junk Removal",
+      slug: "junk_removal",
       Icon: Trash2,
       color: "bg-orange-100 dark:bg-orange-900/50",
       iconColor: "text-orange-600 dark:text-orange-400",
@@ -109,6 +117,7 @@ const SubCategories = () => {
     {
       id: 8,
       name: "Kitchen Remodel",
+      slug: "kitchen_remodel",
       Icon: Heater,
       color: "bg-pink-100 dark:bg-pink-900/50",
       iconColor: "text-pink-600 dark:text-pink-400",
@@ -166,10 +175,10 @@ const SubCategories = () => {
           className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-3"
         >
           {subcategories.map(
-            ({ id, name, Icon, color, iconColor, hoverColor }) => (
+            ({ id, name, slug, Icon, color, iconColor, hoverColor }) => (
               <motion.div key={id} variants={item} className="col-span-1">
                 <Link
-                  href={`/home-services/professional-service/${id}`}
+                  href={`/home-services/professional-service/${slug}`}
                   className="group block h-full"
                   aria-label={`Browse ${name} services`}
                 >

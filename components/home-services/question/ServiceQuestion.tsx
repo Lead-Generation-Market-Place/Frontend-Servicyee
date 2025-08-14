@@ -19,7 +19,7 @@ interface Answers {
 }
 
 interface ServiceQuestionProps {
-  serviceId: number; // Changed to number type
+  serviceId: string; // Changed to number type
 }
 
 const ServiceQuestion: React.FC<ServiceQuestionProps> = ({ serviceId }) => {
@@ -31,7 +31,7 @@ const ServiceQuestion: React.FC<ServiceQuestionProps> = ({ serviceId }) => {
 
   // Find the service data based on the numeric serviceId prop
   useEffect(() => {
-    const service = data.find((item) => item.service_id == serviceId);
+    const service = data.find((item) => item.slug == serviceId);
     if (service) {
       setSelectedServiceData(service);
     }

@@ -17,6 +17,7 @@ const FeaturedServices = () => {
     {
       id: 1,
       title: "House cleaning",
+      slug: "house_cleaning",
       text: "Cleaning kitchen and rooms with yard and lawn",
       season: "summer",
       imageUrl: "/assets/home-service/service (1).jpg",
@@ -24,6 +25,7 @@ const FeaturedServices = () => {
     {
       id: 2,
       title: "Carpet cleaning",
+      slug: "carpet_cleaning",
       text: "Cleaning carpet with providing extra service on housing",
       season: "summer",
       imageUrl: "/assets/home-service/service (2).jpg",
@@ -31,6 +33,7 @@ const FeaturedServices = () => {
     {
       id: 3,
       title: "Lawn triming & cleaning",
+      slug: "lawn_triming",
       text: "Maintianing lawn with triming and beautification",
       season: "spring",
       imageUrl: "/assets/home-service/service (3).jpg",
@@ -38,6 +41,7 @@ const FeaturedServices = () => {
     {
       id: 4,
       title: "Interior painting",
+      slug: "interior_painting",
       text: "Design with paint and color mixing according to your desire",
       season: "fall",
       imageUrl: "/assets/home-service/service (4).jpg",
@@ -45,6 +49,7 @@ const FeaturedServices = () => {
     {
       id: 5,
       title: "Roofing",
+      slug: "roofing",
       text: "Maintain and installing quality roof to keep you safe and warm",
       season: "winter",
       imageUrl: "/assets/home-service/service (5).jpg",

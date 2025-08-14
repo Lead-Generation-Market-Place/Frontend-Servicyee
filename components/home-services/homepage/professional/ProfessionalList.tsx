@@ -15,6 +15,7 @@ import { motion } from "framer-motion";
 interface Professional {
   id: number;
   company: string;
+  type: string;
   service: string;
   rating: number;
   services: string[];
@@ -32,11 +33,14 @@ interface Professional {
 
 interface ProfessionalListProps {
   professionals: Professional[];
+  selectedType?: string;
 }
 
 export default function ProfessionalList({
   professionals,
+  selectedType,
 }: ProfessionalListProps) {
+  console.log(selectedType);
   return (
     <div className="grid gap-4 bg-white dark:bg-gray-900">
       {professionals.map((professional) => (
@@ -70,9 +74,14 @@ export default function ProfessionalList({
             <div className="flex-1 flex flex-col justify-between min-w-0">
               <div className="flex justify-between items-start gap-2">
                 <div className="min-w-0">
-                  <h2 className="text-md font-semibold truncate">
-                    {professional.company}
-                  </h2>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-medium px-2 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full">
+                      {professional.type}
+                    </span>
+                    <h2 className="text-md font-semibold truncate">
+                      {professional.company}
+                    </h2>
+                  </div>
                   <div className="flex items-center mt-1">
                     {[...Array(5)].map((_, i) => (
                       <Star

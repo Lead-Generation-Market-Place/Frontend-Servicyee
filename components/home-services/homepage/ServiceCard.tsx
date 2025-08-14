@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import { Heart, Tags } from "lucide-react";
 import Image from "next/image";
@@ -7,6 +6,7 @@ import Link from "next/link";
 interface ServiceCardProps {
   id: number;
   title: string;
+  slug: string;
   text: string;
   season: string;
   imageUrl: string;
@@ -19,20 +19,22 @@ interface ServiceCardProps {
 export function ServiceCard({
   id,
   title,
+  slug,
   text,
   season,
   imageUrl,
   className = "",
   showFavorite = true,
   showSeason = true,
-  href = `/home-services/professional-service/${id}`,
+  href = `/home-services/professional-service/${slug}`,
 }: ServiceCardProps) {
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: "spring", stiffness: 100, damping: 10 }}
       className={`flex-shrink-0 ${className}`}
+      key={id}
     >
       <Link href={href}>
         <div className="group relative rounded overflow-hidden shadow hover:shadow-lg transition-shadow duration-300 bg-white dark:bg-gray-800 h-full">
@@ -52,7 +54,7 @@ export function ServiceCard({
           <div className="p-4">
             {/* Season badge */}
             {showSeason && (
-              <motion.div 
+              <motion.div
                 whileHover={{ scale: 1.05 }}
                 className="absolute top-3 left-3 z-10"
               >
@@ -90,7 +92,7 @@ export function ServiceCard({
             </p>
 
             {/* Animated underline */}
-            <motion.div 
+            <motion.div
               initial={{ width: 0 }}
               whileHover={{ width: "100%" }}
               className="h-0.5 bg-sky-500 origin-left"

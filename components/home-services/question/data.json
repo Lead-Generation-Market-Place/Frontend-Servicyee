@@ -2,6 +2,7 @@
   {
     "service_id": 1,
     "service": "House Cleaning",
+    "slug": "house_cleaning",
     "questions": [
       {
         "id": 1,
@@ -30,6 +31,7 @@
   {
     "service_id": 2,
     "service": "Personal Training",
+    "slug": "carpet_cleaning",
     "questions": [
       {
         "id": 5,
@@ -53,6 +55,7 @@
   {
     "service_id": 3,
     "service": "Wedding Photography",
+    "slug": "lawn_triming",
     "questions": [
       {
         "id": 8,
@@ -80,6 +83,7 @@
   {
     "service_id": 4,
     "service": "Web Design",
+    "slug": "interior_painting",
     "questions": [
       {
         "id": 12,

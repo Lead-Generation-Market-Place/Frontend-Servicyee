@@ -9,10 +9,12 @@ const categoriesWithServices = [
   {
     id: "cleaning",
     name: "Cleaning Services",
+
     services: [
       {
         id: 1,
         title: "House Cleaning",
+        slug: "house_cleaning",
         text: "Professional cleaning for your entire home",
         season: "all",
         imageUrl: "/assets/home-service/service (1).jpg",
@@ -20,6 +22,7 @@ const categoriesWithServices = [
       {
         id: 2,
         title: "Carpet Cleaning",
+        slug: "carpet_cleaning",
         text: "Deep cleaning for carpets and rugs",
         season: "all",
         imageUrl: "/assets/home-service/service (2).jpg",
@@ -27,6 +30,7 @@ const categoriesWithServices = [
       {
         id: 3,
         title: "Yard Cleaning",
+        slug: "yard_cleaning",
         text: "Professional cleaning for your entire home",
         season: "all",
         imageUrl: "/assets/home-service/service (1).jpg",
@@ -34,6 +38,7 @@ const categoriesWithServices = [
       {
         id: 4,
         title: "Roof Cleaning",
+        slug: "roof_cleaning",
         text: "Deep cleaning for carpets and rugs",
         season: "all",
         imageUrl: "/assets/home-service/service (2).jpg",
@@ -47,6 +52,7 @@ const categoriesWithServices = [
       {
         id: 5,
         title: "Lawn Trimming",
+        slug: "lawn_triming",
         text: "Professional lawn maintenance",
         season: "spring",
         imageUrl: "/assets/home-service/service (3).jpg",
@@ -54,6 +60,7 @@ const categoriesWithServices = [
       {
         id: 6,
         title: "Lawn Care",
+        slug: "lwan_care",
         text: "Professional lawn maintenance",
         season: "spring",
         imageUrl: "/assets/home-service/service (3).jpg",
@@ -61,6 +68,7 @@ const categoriesWithServices = [
       {
         id: 7,
         title: "Garden Design",
+        slug: "garden design",
         text: "Professional lawn maintenance",
         season: "spring",
         imageUrl: "/assets/home-service/service (3).jpg",
@@ -74,6 +82,7 @@ const categoriesWithServices = [
       {
         id: 8,
         title: "Interior Painting",
+        slug: "interior_painting",
         text: "High-quality interior painting services",
         season: "fall",
         imageUrl: "/assets/home-service/service (4).jpg",
@@ -81,6 +90,7 @@ const categoriesWithServices = [
       {
         id: 9,
         title: "Interior Design",
+        slug: "interior_design",
         text: "High-quality interior painting services",
         season: "fall",
         imageUrl: "/assets/home-service/service (4).jpg",
@@ -206,6 +216,7 @@ export default function ExploreCategoriesPage() {
                         >
                           <ServiceCard
                             id={service.id}
+                            slug={service.slug}
                             title={service.title}
                             text={service.text}
                             season={service.season}
