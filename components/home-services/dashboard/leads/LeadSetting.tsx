@@ -4,7 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@radix-ui/react-switch';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import LeadLocation from './LeadLocation';
+import LeadLocation from './LeadAddLocation';
 import { useState } from 'react';
 import { FiChevronRight, FiPlus, FiMapPin, FiX, FiEdit } from 'react-icons/fi';
 import LocationModal from './LocationModal';

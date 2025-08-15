@@ -6,10 +6,10 @@ import { useRouter } from "next/navigation";
 
 
 const Leads = dynamic(() => import("@/components/home-services/dashboard/leads/LocationModal"),
-{
+  {
     ssr: false
 
-});
+  });
 
 const SkeletonLoader: FC = () => (
   <div role="status" aria-live="polite" className="w-full max-w-4xl mx-auto p-6">
@@ -27,6 +27,8 @@ const SkeletonLoader: FC = () => (
 const ParentComponent: FC = () => {
   const router = useRouter();
   const [showModal, setShowModal] = React.useState(true);
+
+
   const locations = [
     {
       id: 1,
@@ -44,11 +46,12 @@ const ParentComponent: FC = () => {
       <Suspense fallback={<SkeletonLoader />}>
         {showModal && (
           <Leads
-            onClose={() => {setShowModal(false);router.back()}}
-            onContinue={() => {setShowModal(false); router.back();}}
+            onClose={() => { setShowModal(false); router.back() }}
+            onContinue={() => { setShowModal(false); router.back(); }}
             zip={locations[0].zip}
             milesRadius={locations[0].milesRadius}
             center={locations[0].center}
+
           />
         )}
       </Suspense>

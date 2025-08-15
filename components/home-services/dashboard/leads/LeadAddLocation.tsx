@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { ChevronDown, ChevronUp, X } from "lucide-react";
+import { ChevronDown, ChevronUp,  X } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 type AddLocationModalProps = {
   onClose: () => void;
@@ -7,7 +8,15 @@ type AddLocationModalProps = {
 
 export default function AddLocationModal({ onClose }: AddLocationModalProps) {
   const [activeOption, setActiveOption] = useState<string | null>(null);
+  const router = useRouter();
 
+ const HandleLocationSelect =()=>{
+  const selectedOptions = options.find((option)=> option.key === activeOption);
+  if (!selectedOptions) return;
+  router.push(`/home-services/dashboard/leads/leadLocation/${selectedOptions.key}`);
+  onClose();
+
+ }
   const toggleOption = (option: string) => {
     setActiveOption(activeOption === option ? null : option);
   };
@@ -176,10 +185,11 @@ export default function AddLocationModal({ onClose }: AddLocationModalProps) {
                 {activeOption === option.key && (
                   <div
                     id={`${option.key}-content`}
-                    className="px-4 pb-4 text-gray-700 dark:text-gray-300 text-[11px] bg-blue-50 dark:bg-blue-900/20"
+                    className="px-4 pb-4 text-gray-700 pt-4 dark:text-gray-300 text-[11px] bg-blue-50 dark:bg-blue-900/20"
                   >
                     {option.details}
                     <button
+                    onClick={HandleLocationSelect}
                       className="mt-3 w-full bg-[#0077B6] hover:bg-[#005f8e] text-white text-center font-normal py-2 px-4 rounded-[4px] transition-colors focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-[#0077B6]"
                       type="button"
                     >

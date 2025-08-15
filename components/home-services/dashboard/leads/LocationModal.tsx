@@ -57,6 +57,11 @@ const LocationModal: React.FC<LocationModalProps> = ({
       }
     });
   }, [postalCode, isLoaded]);
+  if (!process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY) {
+  throw new Error("NEXT_PUBLIC_GOOGLE_MAPS_API_KEY is not set!");
+} else {
+  console.log("Google Maps API key is present for build.");
+}
 
   const onPlaceChanged = () => {
     if (autoCompleteRef.current !== null) {
@@ -70,6 +75,7 @@ const LocationModal: React.FC<LocationModalProps> = ({
   };
 
   if (!isLoaded) return null;
+  
 
   return (
     <div
