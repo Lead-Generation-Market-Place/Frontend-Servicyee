@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Preferences from './preferences';
 import NotInterested from './NotInterested';
+import PurchaseCredits from './PurchaseCredits';
 
 import { MapPin, Phone, Mail, CheckCircle, ChevronDown, ChevronUp, Clock, User, ShieldCheck, AlertCircle, CreditCard, Settings } from 'lucide-react';
 import ContactCustomer from './ContactCustomer';
@@ -9,12 +10,12 @@ import Link from 'next/link';
 const ProfessionalCard = () => {
     const [expanded, setExpanded] = useState(false);
     const [creditsVisible, setCreditsVisible] = useState(false);
+    const [IsModalOpen, setIsModalOpen] = useState(false);
+    const [IsContactModalOpen, setContactIsModalOpen] = useState(false);
+    const [isPurchaseCreditsOpen, setIsPurchaseCreditsOpen] = useState(false);
 
     const toggleExpanded = () => setExpanded(!expanded);
     const toggleCredits = () => setCreditsVisible(!creditsVisible);
-    const [IsModalOpen, setIsModalOpen] = useState(false);
-    const [IsContactModalOpen, setContactIsModalOpen] = useState(false);
-
 
     return (
         <div className="">
@@ -109,8 +110,13 @@ const ProfessionalCard = () => {
                     <AlertCircle className="h-4 w-4 mr-1.5" />
                     Contact
                     {IsContactModalOpen && (
-                        <ContactCustomer onClose={() => setContactIsModalOpen(false)} />
-
+                        <ContactCustomer 
+                            onClose={() => setContactIsModalOpen(false)}
+                            onBuyCredits={() => {
+                                setContactIsModalOpen(false);
+                                setIsPurchaseCreditsOpen(true);
+                            }}
+                        />
                     )}
                 </span>
                 <span
@@ -124,6 +130,15 @@ const ProfessionalCard = () => {
                     )}
                 </span>
             </div>
+            {/* PurchaseCredits Modal */}
+            {isPurchaseCreditsOpen && (
+                <PurchaseCredits
+                    pricePerCredit={1.4}
+                    credits={100}
+                    creditsUsed={0}
+                    onClose={() => setIsPurchaseCreditsOpen(false)}
+                />
+            )}
 
             {/* Expandable Credits Section */}
             <div
