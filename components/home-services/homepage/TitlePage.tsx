@@ -392,7 +392,7 @@ const TitlePage = () => {
       {/* Hero Section */}
       <div
         className="w-full relative min-h-[20vh] md:min-h-[50vh] flex items-center justify-center 
-                pt-8 pb-5 md:pt-16 md:pb-20 overflow-hidden"
+                pt-8 pb-5 md:pt-16 md:pb-20"
       >
         {" "}
         {/* Animated Background */}

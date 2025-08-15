@@ -1,9 +1,10 @@
 "use client";
-import { MapPin } from "lucide-react";
+// import { MapPin } from "lucide-react";
 import { use, useState } from "react";
 import { motion } from "framer-motion";
+import { Dialog } from "@headlessui/react";
 import ProfessionalList from "@/components/home-services/homepage/professional/ProfessionalList";
-import QuotationForm from "@/components/home-services/homepage/professional/QuotationForm";
+// import QuotationForm from "@/components/home-services/homepage/professional/QuotationForm";
 import Breadcrumbs from "@/components/home-services/homepage/Breadcrumbs";
 import ServiceQuestion from "@/components/home-services/question/ServiceQuestion";
 
@@ -14,12 +15,12 @@ function ProfessionalTypeFilter({
   selectedType: string;
   /*eslint-disable no-unused-vars */
   onTypeChange: (type: string) => void;
-  /* eslint-enable no-unused-vars */
+  /*eslint-enable no-unused-vars */
 }) {
   return (
     <div className="flex flex-wrap gap-2 mb-4">
       <button
-        className={`px-4 py-1 rounded-full text-sm font-medium transition-colors ${
+        className={`px-4 py-1 rounded-full text-xs font-medium transition-colors ${
           selectedType === "All"
             ? "bg-sky-600 text-white"
             : "bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200"
@@ -59,6 +60,7 @@ export default function ProfessionalPage({
 }) {
   const { slug } = use(params);
   const [selectedType, setSelectedType] = useState<string>("All");
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const MOCK_PROFESSIONALS = [
     {
@@ -196,38 +198,66 @@ export default function ProfessionalPage({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           className="py-4"
-        >
-          <h1 className="text-2xl md:text-3xl font-bold">
-            Top {displayService} Professionals in Your Area
-          </h1>
-          <div className="flex items-center mt-2 text-sm">
-            <MapPin className="w-4 h-4 mr-1" />
-            <span>Chicago, IL</span>
-          </div>
+        ></motion.div>
 
-          <ProfessionalTypeFilter
-            selectedType={selectedType}
-            onTypeChange={setSelectedType}
-          />
-        </motion.div>
+        {/* Mobile Filter Button - Only shows on small screens */}
+        <div className="lg:hidden mb-4">
+          <button
+            onClick={() => setIsFilterOpen(true)}
+            className="w-full py-2 px-4 bg-sky-600 text-white rounded-md shadow hover:bg-sky-700 transition-colors"
+          >
+            Filter Professionals
+          </button>
+        </div>
 
-        <div className="flex flex-col lg:flex-row gap-6">
-          <div className="lg:w-1/4">
+        <div className="flex flex-col lg:flex-row gap-6 order-3">
+          {/* Sidebar Filter - Hidden on mobile, shown on lg+ */}
+          <div className="hidden lg:block lg:w-1/4">
             <ServiceQuestion serviceId={slug} />
           </div>
 
           <div className="lg:w-2/4 flex-1">
+            <h1 className="text-md md:text-md font-bold">
+              Top 5 {displayService} Professionals in Your Area
+            </h1>
+            <ProfessionalTypeFilter
+              selectedType={selectedType}
+              onTypeChange={setSelectedType}
+            />
             <ProfessionalList
               professionals={filteredProfessionals}
               selectedType={selectedType}
             />
           </div>
-
-          <div className="lg:w-1/4 self-start sticky top-4 h-fit">
-            <QuotationForm />
-          </div>
         </div>
       </div>
+
+      {/* Mobile Filter Dialog */}
+      <Dialog
+        open={isFilterOpen}
+        onClose={() => setIsFilterOpen(false)}
+        className="fixed inset-0 z-50 overflow-y-auto"
+      >
+        <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+        <div className="flex items-center justify-center min-h-screen">
+          <Dialog.Panel className="relative bg-white dark:bg-gray-800 rounded-lg max-w-md w-full mx-4 p-6 shadow-xl">
+            <Dialog.Title className="text-lg font-bold mb-4">
+              Filter Professionals
+            </Dialog.Title>
+
+            <ServiceQuestion serviceId={slug} />
+
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={() => setIsFilterOpen(false)}
+                className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </Dialog.Panel>
+        </div>
+      </Dialog>
     </div>
   );
 }
