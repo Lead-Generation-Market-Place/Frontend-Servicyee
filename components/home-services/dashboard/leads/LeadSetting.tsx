@@ -7,11 +7,9 @@ import { useRouter } from 'next/navigation';
 import LeadLocation from './LeadAddLocation';
 import { useState } from 'react';
 import { FiChevronRight, FiPlus, FiMapPin, FiX, FiEdit } from 'react-icons/fi';
-import LocationModal from './LocationModal';
 
 const LeadSettings = () => {
   const router = useRouter();
-  const [showLocationModal, setShowLocationModal] = useState<null | typeof locations[0]>(null);
   const [showAddLocationModal, setShowAddLocationModal] = useState(false);
 
   const [services, setServices] = useState([
@@ -150,7 +148,7 @@ const LeadSettings = () => {
 
               {/* Edit Icon */}
               <button
-                onClick={() => setShowLocationModal(location)}
+                onClick={() => {}}
                 className="absolute top-4 right-4 text-gray-400 hover:text-[#0077B6]"
               >
                 <FiEdit size={16} />
@@ -158,15 +156,7 @@ const LeadSettings = () => {
             </div>
           ))}
 
-          {showLocationModal && (
-            <LocationModal
-              onClose={() => setShowLocationModal(null)}
-              onContinue={() => setShowLocationModal(null)}
-              zip={showLocationModal.zip}
-              center={showLocationModal.center}
-              milesRadius={showLocationModal.milesRadius}
-            />
-          )}
+         
 
           <span
             onClick={() => setShowAddLocationModal(true)}
