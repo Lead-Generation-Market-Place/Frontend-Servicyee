@@ -4,7 +4,7 @@ interface CloseProps {
   onClose: () => void;
 }
 
-export default function LeadFeedbackModal({ onClose }: CloseProps) {
+export default function NotInterested({ onClose }: CloseProps) {
   const [selectedOption, setSelectedOption] = useState<string>('Location is too far away');
   const [otherText, setOtherText] = useState<string>('');
 

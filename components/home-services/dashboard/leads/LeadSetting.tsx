@@ -7,10 +7,13 @@ import { useRouter } from 'next/navigation';
 import LeadLocation from './LeadLocation';
 import { useState } from 'react';
 import { FiChevronRight, FiPlus, FiMapPin, FiX, FiEdit } from 'react-icons/fi';
+import LocationModal from './LocationModal';
 
 const LeadSettings = () => {
   const router = useRouter();
+  const [showLocationModal, setShowLocationModal] = useState<null | typeof locations[0]>(null);
   const [showAddLocationModal, setShowAddLocationModal] = useState(false);
+
   const [services, setServices] = useState([
     {
       id: 1,
@@ -32,14 +35,18 @@ const LeadSettings = () => {
     {
       id: 1,
       address: 'Within 150 miles of LL21 9RG',
+      zip: 'LL21 9RG',
+      milesRadius: 150,
       selected: false,
-      servicesCount: 2
+      servicesCount: 2,
+      center: { lat: 53.02252, lng: -3.45073 } // Example coordinates for LL21 9RG
     }
   ]);
 
   const HandleLead = () => {
     router.push('/home-services/dashboard/leads/Leads');
   };
+
   const [onlineLeadsEnabled, setOnlineLeadsEnabled] = useState(false);
 
   const toggleServiceExpand = (index: number) => {
@@ -95,7 +102,6 @@ const LeadSettings = () => {
               className="flex items-center text-sm text-[#0077B6] hover:text-[#005f8f] mt-2"
             >
               <FiPlus className="mr-1" size={14} />
-
               Add a service
             </Link>
           </div>
@@ -128,7 +134,7 @@ const LeadSettings = () => {
 
                 <div className="flex flex-wrap items-center mt-2 text-xs text-gray-500 dark:text-gray-400 space-x-4">
                   <Link
-                    href="/home-services/dashboard/services/step-9"
+                    href="/home-services/dashboard/leads/leadLocation"
                     className="flex items-center text-[#0077B6] hover:text-[#005f8f]"
                   >
                     <FiMapPin className="mr-1" size={12} /> View on map
@@ -143,13 +149,29 @@ const LeadSettings = () => {
               </div>
 
               {/* Edit Icon */}
-              <button className="absolute top-4 right-4 text-gray-400 hover:text-[#0077B6]">
+              <button
+                onClick={() => setShowLocationModal(location)}
+                className="absolute top-4 right-4 text-gray-400 hover:text-[#0077B6]"
+              >
                 <FiEdit size={16} />
               </button>
             </div>
           ))}
 
-          <span onClick={() => setShowAddLocationModal(true)} className="flex items-center cursor-pointer text-sm text-[#0077B6] hover:text-[#005f8f] mt-2">
+          {showLocationModal && (
+            <LocationModal
+              onClose={() => setShowLocationModal(null)}
+              onContinue={() => setShowLocationModal(null)}
+              zip={showLocationModal.zip}
+              center={showLocationModal.center}
+              milesRadius={showLocationModal.milesRadius}
+            />
+          )}
+
+          <span
+            onClick={() => setShowAddLocationModal(true)}
+            className="flex items-center cursor-pointer text-sm text-[#0077B6] hover:text-[#005f8f] mt-2"
+          >
             <FiPlus className="mr-1" size={14} />
             {showAddLocationModal && (
               <LeadLocation onClose={() => setShowAddLocationModal(false)} />
@@ -192,7 +214,10 @@ const LeadSettings = () => {
         </div>
 
         <div className="pt-4 border-t border-gray-200 dark:border-gray-700 mt-6">
-          <button onClick={HandleLead} className="w-full py-3 bg-[#0077B6] hover:bg-[#005f8f] text-white text-sm font-medium rounded transition-colors">
+          <button
+            onClick={HandleLead}
+            className="w-full py-3 bg-[#0077B6] hover:bg-[#005f8f] text-white text-sm font-medium rounded transition-colors"
+          >
             View leads
           </button>
         </div>

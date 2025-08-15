@@ -1,14 +1,13 @@
 import { useState } from "react";
 import { ChevronDown, ChevronUp, X } from "lucide-react";
-import PurchaseCredits from "./PurchaseCredits";
 
 type CreditPurchaseModalProps = {
   onClose: () => void;
+  onBuyCredits?: () => void;
 };
 
-export default function CreditPurchaseModal({ onClose }: CreditPurchaseModalProps) {
+export default function CreditPurchaseModal({ onClose, onBuyCredits }: CreditPurchaseModalProps) {
   const [activeSection, setActiveSection] = useState<string | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const toggleSection = (section: string) => {
     setActiveSection(activeSection === section ? null : section);
@@ -125,7 +124,11 @@ export default function CreditPurchaseModal({ onClose }: CreditPurchaseModalProp
 
             {/* Buy credits button */}
             <div
-              onClick={() => setIsModalOpen(true)}
+              onClick={() => {
+                if (onBuyCredits) {
+                  onBuyCredits();
+                }
+              }}
               className="w-full bg-[#0077B6] hover:bg-[#005f8e] text-white text-center cursor-pointer font-normal py-2.5  px-4 rounded-[4px] transition-colors focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-[#0077B6]"
             >
               Buy 100 credits
@@ -149,16 +152,6 @@ export default function CreditPurchaseModal({ onClose }: CreditPurchaseModalProp
           </div>
         </div>
       </div>
-
-      {/* PurchaseCredits modal outside the main modal and button */}
-      {isModalOpen && (
-        <PurchaseCredits
-          pricePerCredit={1.4}
-          credits={100}
-          creditsUsed={0}
-          onClose={() => setIsModalOpen(false)}
-        />
-      )}
     </>
   );
 }
