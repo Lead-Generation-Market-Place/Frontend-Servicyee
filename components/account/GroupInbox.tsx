@@ -1,25 +1,15 @@
 "use client";
 import Link from "next/link";
 
-// Define types for our data
-// type Message = {
-//   id: string;
-//   sender: string;
-//   content: string;
-//   timestamp: Date;
-//   read: boolean;
-// };
-
 type MessageGroup = {
   id: string;
   name: string;
-  slug: "restaurant" | "homeService" | "it" | "other";
+  slug: "restaurant" | "home_service" | "it" | "other";
   icon: string;
   unreadCount: number;
 };
 
 const InboxGroup = () => {
-  // Sample data - in a real app, this would come from an API
   const groups: MessageGroup[] = [
     {
       id: "1",
@@ -31,61 +21,79 @@ const InboxGroup = () => {
     {
       id: "2",
       name: "Home Services",
-      slug: "homeService",
+      slug: "home_service",
       icon: "🏠",
-      unreadCount: 0,
+      unreadCount: 20,
     },
     {
       id: "3",
       name: "IT Support",
       slug: "it",
       icon: "💻",
-      unreadCount: 1,
+      unreadCount: 13,
     },
   ];
 
-  const getGroupColor = (slug: string) => {
+  const getGroupColors = (slug: string) => {
     switch (slug) {
       case "restaurant":
-        return "bg-orange-100 border-orange-300";
-      case "homeService":
-        return "bg-blue-100 border-blue-300";
+        return {
+          light: "bg-orange-100 border-orange-300 hover:bg-orange-50",
+          dark: "dark:bg-orange-900/30 dark:border-orange-700 dark:hover:bg-orange-900/40",
+        };
+      case "home_service":
+        return {
+          light: "bg-blue-100 border-blue-300 hover:bg-blue-50",
+          dark: "dark:bg-blue-900/30 dark:border-blue-700 dark:hover:bg-blue-900/40",
+        };
       case "it":
-        return "bg-purple-100 border-purple-300";
+        return {
+          light: "bg-purple-100 border-purple-300 hover:bg-purple-50",
+          dark: "dark:bg-purple-900/30 dark:border-purple-700 dark:hover:bg-purple-900/40",
+        };
       default:
-        return "bg-gray-100 border-gray-300";
+        return {
+          light: "bg-gray-100 border-gray-300 hover:bg-gray-50",
+          dark: "dark:bg-gray-700/30 dark:border-gray-600 dark:hover:bg-gray-700/40",
+        };
     }
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-4 bg-white rounded-lg shadow">
+    <div className="max-w-2xl mx-auto p-4 bg-white rounded-lg shadow-sm dark:bg-gray-800">
       <div>
-        <h1 className="text-2xl font-bold mb-6 text-gray-800">Group Inbox</h1>
+        <h1 className="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-100">
+          Group Inbox
+        </h1>
 
-        <div className="space-y-3">
-          {groups.map((group) => (
-            <Link href={`/account/inbox/${group.slug}`} key={group.id}>
-              <div
-                className={`p-4 border rounded-lg cursor-pointer hover:shadow-md transition-shadow flex justify-between items-center ${getGroupColor(
-                  group.slug
-                )}`}
-              >
-                <div className="flex items-center space-x-3">
-                  <span className="text-2xl">{group.icon}</span>
-                  <div>
-                    <h3 className="font-semibold text-gray-800">
-                      {group.name}
-                    </h3>
+        <div className="space-y-2">
+          {groups.map((group) => {
+            const colors = getGroupColors(group.slug);
+            return (
+              <Link href={`/account/inbox/${group.slug}`} key={group.id}>
+                <div
+                  className={`p-4 border rounded-lg mt-2 cursor-pointer transition-all 
+                  ${colors.light} ${colors.dark}
+                  hover:shadow-md dark:hover:shadow-gray-700/30
+                  flex justify-between items-center`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <span className="text-2xl">{group.icon}</span>
+                    <div>
+                      <h3 className="font-semibold text-gray-800 dark:text-gray-200">
+                        {group.name}
+                      </h3>
+                    </div>
                   </div>
+                  {group.unreadCount > 0 && (
+                    <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full dark:bg-red-600">
+                      {group.unreadCount}
+                    </span>
+                  )}
                 </div>
-                {group.unreadCount > 0 && (
-                  <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                    {group.unreadCount}
-                  </span>
-                )}
-              </div>
-            </Link>
-          ))}
+              </Link>
+            );
+          })}
         </div>
       </div>
     </div>
