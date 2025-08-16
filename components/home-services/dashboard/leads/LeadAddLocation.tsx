@@ -1,6 +1,11 @@
 import { useState } from "react";
-import { ChevronDown, ChevronUp,  X } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { ChevronDown, ChevronUp, X } from "lucide-react";
+import TravelModal from "./TravelModal";
+import DrawOnMapModal from "./DrawModal";
+import LocationModal from "./LocationModal";
+import NationWide from "./NationWide";
+
+
 
 type AddLocationModalProps = {
   onClose: () => void;
@@ -8,15 +13,49 @@ type AddLocationModalProps = {
 
 export default function AddLocationModal({ onClose }: AddLocationModalProps) {
   const [activeOption, setActiveOption] = useState<string | null>(null);
-  const router = useRouter();
+  const [showTravelModal, setShowTravelModal] = useState(false);
+  const [showDistanceModal, setShowDistanceModal] = useState(false);
+  const [showDrawModal, setShowDrawModal] = useState(false);
+  const [showNationWideModal, setShowNationWideModal] = useState(false);
 
- const HandleLocationSelect =()=>{
-  const selectedOptions = options.find((option)=> option.key === activeOption);
-  if (!selectedOptions) return;
-  router.push(`/home-services/dashboard/leads/leadLocation/${selectedOptions.key}`);
-  onClose();
 
- }
+  const [locations] = useState([
+    {
+      id: 1,
+      address: 'Within 150 miles of LL21 9RG',
+      zip: 'LL21 9RG',
+      milesRadius: 150,
+      selected: false,
+      servicesCount: 2,
+      center: { lat: 53.02252, lng: -3.45073 } // Example coordinates for LL21 9RG
+    }
+  ]);
+
+
+  const HandleLocationSelect = () => {
+    const selectedOptions = options.find((option) => option.key === activeOption);
+    if (!selectedOptions) return;
+    if (selectedOptions.key === "travel") {
+      setShowTravelModal(true);
+      return;
+    }
+    if (selectedOptions.key === "draw") {
+      setShowDrawModal(true);
+      return;
+    }
+    if (selectedOptions.key === "distance") {
+      setShowDistanceModal(true);
+      return;
+    }
+
+    if (selectedOptions.key === "nationwide") {
+      setShowNationWideModal(true);
+      return;
+    }
+
+
+  }
+
   const toggleOption = (option: string) => {
     setActiveOption(activeOption === option ? null : option);
   };
@@ -189,7 +228,7 @@ export default function AddLocationModal({ onClose }: AddLocationModalProps) {
                   >
                     {option.details}
                     <button
-                    onClick={HandleLocationSelect}
+                      onClick={HandleLocationSelect}
                       className="mt-3 w-full bg-[#0077B6] hover:bg-[#005f8e] text-white text-center font-normal py-2 px-4 rounded-[4px] transition-colors focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-[#0077B6]"
                       type="button"
                     >
@@ -213,6 +252,34 @@ export default function AddLocationModal({ onClose }: AddLocationModalProps) {
           </div>
         </div>
       </div>
+      {showTravelModal && (
+        <TravelModal
+          onClose={() => setShowTravelModal(false)}
+          onContinue={() => setShowTravelModal(false)}
+        />
+      )}
+      {showDrawModal && (
+        <DrawOnMapModal
+          onClose={() => setShowDrawModal(false)}
+          onContinue={() => setShowDrawModal(false)}
+        />
+      )}
+      {showDistanceModal && (
+        <LocationModal
+          onClose={() => { setShowDistanceModal(false) }}
+          onContinue={() => { setShowDistanceModal(false); }}
+          zip={locations[0].zip}
+          milesRadius={locations[0].milesRadius}
+          center={locations[0].center}
+        />
+      )}
+
+      {showNationWideModal && (
+        <NationWide
+          onClose={() => setShowNationWideModal(false)}
+          onContinue={() => setShowNationWideModal(false)}
+        />
+      )}
     </>
   );
 }
