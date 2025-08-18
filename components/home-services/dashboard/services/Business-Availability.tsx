@@ -30,26 +30,26 @@ const HideBusinessDatePicker = () => {
     if (!selectedDate) return;
     setIsLoading(true);
     // Simulate API call
-      setIsHidden(true);
-      setIsLoading(false);
+    setIsHidden(true);
+    setIsLoading(false);
   };
 
   return (
-    <div className="w-full mx-auto rounded-sm p-5 dark:bg-gray-900 border dark:border-gray-300 transition-all duration-200">
+    <div className="w-full mx-auto rounded-sm p-5 dark:bg-gray-900 border dark:border-gray-300 transition-all duration-200 max-w-full sm:max-w-md">
       {isHidden ? (
-        <div className="text-center py-8 animate-fade-in">
+        <div className="text-center py-8 animate-fade-in px-2 sm:px-0">
           <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 dark:bg-green-900/50 mb-4">
             <svg className="h-8 w-8 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
           <span className="mt-2 text-[13px] font-semibold text-gray-900 dark:text-white">Your business is now hidden</span>
-          <p className="mt-2 text-gray-600 dark:text-gray-300">
+          <p className="mt-2 text-gray-600 dark:text-gray-300 text-sm sm:text-[13px]">
             Will be visible again on <span className="font-medium text-[#0077B6] dark:text-[#48CAE4]">
               {selectedDate && format(selectedDate, 'MMMM d, yyyy')}
             </span>
           </p>
-          <div className="mt-6 flex justify-center gap-3">
+          <div className="mt-6 flex flex-col sm:flex-row justify-center gap-3">
             <button
               onClick={() => setIsHidden(false)}
               className="px-5 py-2.5 border border-transparent text-sm font-medium rounded-sm shadow-sm text-white bg-[#0077B6] dark:bg-[#48CAE4] hover:bg-[#005b8c] dark:hover:bg-[#3aa8d0] transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0077B6] dark:focus:ring-[#48CAE4]"
@@ -57,8 +57,7 @@ const HideBusinessDatePicker = () => {
               Change Date
             </button>
             <button
-            onClick={() => {
-              router.push('/home-services/dashboard');}}
+              onClick={() => router.push('/home-services/dashboard')}
               className="px-5 py-2.5 text-sm font-medium rounded-sm border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               View Dashboard
@@ -67,7 +66,7 @@ const HideBusinessDatePicker = () => {
         </div>
       ) : (
         <>
-          <div className="mb-6">
+          <div className="mb-6 px-2 sm:px-0">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">Hide your business</h2>
             <p className="text-gray-600 text-[13px] dark:text-gray-300 mt-2">
               You will not receive new leads until the date you select. You can hide your business for up to 30 days.
@@ -80,15 +79,15 @@ const HideBusinessDatePicker = () => {
             </a>
           </div>
 
-          <div className="border-t border-gray-200 dark:border-gray-700 pt-5">
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-5 px-2 sm:px-0">
             <h3 className="text-base font-medium text-gray-700 dark:text-gray-300 mb-4">Select an end date</h3>
-            
+
             <div className="mb-6">
-              <div className="flex  items-center justify-between px-2 mb-4">
+              <div className="flex items-center justify-between px-1 sm:px-2 mb-4">
                 <button
                   onClick={prevMonth}
                   disabled={isBefore(startOfMonth(currentMonth), startOfMonth(today))}
-                  className="p-2 rounded-sm text-gray-500  hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  className="p-2 rounded-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 >
                   <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -100,7 +99,7 @@ const HideBusinessDatePicker = () => {
                 <button
                   onClick={nextMonth}
                   disabled={isAfter(startOfMonth(currentMonth), startOfMonth(maxDate))}
-                  className="p-2 rounded-sm text-gray-500 hover:text-gray-700  dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  className="p-2 rounded-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 >
                   <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
@@ -114,7 +113,7 @@ const HideBusinessDatePicker = () => {
                 ))}
               </div>
 
-              <div className="grid grid-cols-7 gap-1 text-sm">
+              <div className="grid grid-cols-7 gap-1 text-sm sm:text-[12px]">
                 {Array.from({ length: monthStart.getDay() }).map((_, index) => (
                   <div key={`empty-start-${index}`} className="py-2" />
                 ))}
@@ -131,10 +130,10 @@ const HideBusinessDatePicker = () => {
                       onClick={() => handleDateClick(day)}
                       disabled={isDisabled}
                       className={`py-2 rounded-[4px] text-[12px] relative transition-colors
-                        ${isSelected ? 'bg-[#0077B6] text-white dark:bg-[#48CAE4] dark:text-gray-900 font-medium' : ''}
-                        ${isToday ? 'font-normal' : ''}
-                        ${isDisabled ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed' : 'hover:bg-[#0077B6] hover:text-white dark:hover:bg-gray-700'}
-                      `}
+                    ${isSelected ? 'bg-[#0077B6] text-white dark:bg-[#48CAE4] dark:text-gray-900 font-medium' : ''}
+                    ${isToday ? 'font-normal' : ''}
+                    ${isDisabled ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed' : 'hover:bg-[#0077B6] hover:text-white dark:hover:bg-gray-700'}
+                  `}
                     >
                       <time dateTime={format(day, 'yyyy-MM-dd')}>
                         {format(day, 'd')}
@@ -148,24 +147,23 @@ const HideBusinessDatePicker = () => {
               </div>
             </div>
 
-            <div className="flex justify-between items-center mt-8 pt-5 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex flex-col sm:flex-row justify-between items-center mt-8 pt-5 border-t border-gray-200 dark:border-gray-700 gap-3">
               <button
                 type="button"
-                onClick={()=>router.back()}
-                className="px-5 py-2.5 text-sm font-medium rounded-sm border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                onClick={() => router.back()}
+                className="px-5 py-2.5 text-sm font-medium rounded-sm border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors w-full sm:w-auto"
               >
                 Cancel
               </button>
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-0 sm:space-x-3 w-full sm:w-auto">
                 <button
                   type="button"
                   onClick={hideBusiness}
                   disabled={!selectedDate || isLoading}
-                  className={`px-5 py-2.5 text-sm font-medium rounded-sm text-white ${
-                    selectedDate 
-                      ? 'bg-[#0077B6] dark:bg-[#48CAE4] hover:bg-[#005b8c] dark:hover:bg-[#3aa8d0]' 
+                  className={`px-5 py-2.5 text-sm font-medium rounded-sm text-white w-full sm:w-auto ${selectedDate
+                      ? 'bg-[#0077B6] dark:bg-[#48CAE4] hover:bg-[#005b8c] dark:hover:bg-[#3aa8d0]'
                       : 'bg-[#8acff5] dark:bg-gray-600 cursor-not-allowed'
-                  } transition-colors flex items-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0077B6] dark:focus:ring-[#48CAE4]`}
+                    } transition-colors flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0077B6] dark:focus:ring-[#48CAE4]`}
                 >
                   {isLoading ? (
                     <>
@@ -185,6 +183,7 @@ const HideBusinessDatePicker = () => {
         </>
       )}
     </div>
+
   );
 };
 

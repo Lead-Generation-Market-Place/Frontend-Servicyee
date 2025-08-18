@@ -14,7 +14,6 @@ const ONBOARDING_STEPS = [
   { id: 6, name: 'Background' },
 ];
 
-
 const defaultSchedule = [
   { dayOfWeek: 0, day: 'Sunday', shifts: [{ openTime: '00:00', closeTime: '00:00', isClosed: true }] },
   { dayOfWeek: 1, day: 'Monday', shifts: [{ openTime: '09:00', closeTime: '17:00', isClosed: false }] },
@@ -51,7 +50,6 @@ export default function AvailabilityForm() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
-
 
   const handleTimeChange = (
     dayIndex: number,
@@ -111,7 +109,8 @@ export default function AvailabilityForm() {
         shifts: [{ openTime: '00:00', closeTime: '23:59', isClosed: false }],
       }));
     }
-    router.push('/home-services/dashboard/services/step-8')
+
+    router.push('/home-services/dashboard/services/step-8');
     formData.set('schedule', JSON.stringify(finalSchedule));
     setIsLoading(false);
   };
@@ -121,16 +120,17 @@ export default function AvailabilityForm() {
   };
 
   return (
-    <div>
+    <div className="">
       <ProgressBar
         currentStep={currentStep}
         totalSteps={ONBOARDING_STEPS.length}
         steps={ONBOARDING_STEPS}
         className="mb-8"
       />
-      <div className="flex items-center justify-center text-[13px] bg-white dark:bg-gray-900">
-        <div className="w-full max-w-4xl border border-gray-200 dark:border-gray-700 shadow-sm rounded-[7px] overflow-hidden">
-          <form ref={formRef} onSubmit={handleSubmit} className="p-8 md:p-10 bg-white dark:bg-gray-900">
+
+      <div className="flex justify-center text-[13px]  dark:bg-gray-900">
+        <div className="w-full max-w-4xl dark:border-gray-700  overflow-hidden">
+          <form ref={formRef} onSubmit={handleSubmit} className=" sm:p-6 md:p-10  dark:bg-gray-900">
             <h2 className="text-2xl font-bold text-[#023E8A] dark:text-white mb-3">
               Set your availability for <span className="italic">{businessName || 'your business'}</span>
             </h2>
@@ -141,7 +141,9 @@ export default function AvailabilityForm() {
             <div className="space-y-4">
               {/* Business Hours Option */}
               <div
-                className={`border rounded-[4px] cursor-pointer p-4 ${selectedOption === 'business' ? 'border-[#0077B6]' : 'border-gray-300 dark:border-gray-700'
+                className={`border rounded-[4px] cursor-pointer p-4 ${selectedOption === 'business'
+                  ? 'border-[#0077B6]'
+                  : 'border-gray-300 dark:border-gray-700'
                   }`}
                 onClick={() => setSelectedOption('business')}
               >
@@ -160,7 +162,7 @@ export default function AvailabilityForm() {
                     {schedule.map((day, dayIndex) => (
                       <div
                         key={day.dayOfWeek}
-                        className="flex items-center gap-4 border-b py-2 last:border-none border-gray-200 dark:border-gray-700"
+                        className="flex flex-col sm:flex-row sm:items-center gap-4 border-b py-2 last:border-none border-gray-200 dark:border-gray-700"
                       >
                         <label
                           className="flex items-center text-gray-700 dark:text-gray-300 cursor-pointer min-w-[80px]"
@@ -181,7 +183,7 @@ export default function AvailabilityForm() {
                         </span>
 
                         {!day.shifts[0].isClosed && (
-                          <div className="flex items-center gap-2">
+                          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2">
                             <select
                               value={day.shifts[0].openTime}
                               onChange={(e) => handleTimeChange(dayIndex, 0, 'openTime', e.target.value)}
@@ -217,7 +219,9 @@ export default function AvailabilityForm() {
 
               {/* Available Any Time Option */}
               <div
-                className={`border rounded-[4px] cursor-pointer p-4 ${selectedOption === 'string' ? 'border-[#0077B6]' : 'border-gray-300 dark:border-gray-700'
+                className={`border rounded-[4px] cursor-pointer p-4 ${selectedOption === 'string'
+                  ? 'border-[#0077B6]'
+                  : 'border-gray-300 dark:border-gray-700'
                   }`}
                 onClick={() => setSelectedOption('string')}
               >
@@ -240,8 +244,9 @@ export default function AvailabilityForm() {
             </div>
           </form>
         </div>
+      </div>
 
-        {/* Navigation Buttons */}
+      {/* Navigation Buttons */}
         <div className="fixed bottom-6 right-6 flex gap-4 text-[13px] ">
           <button
             onClick={handleBack}
@@ -264,7 +269,6 @@ export default function AvailabilityForm() {
             <span>Next</span>
           </button>
         </div>
-      </div>
     </div>
   );
 }

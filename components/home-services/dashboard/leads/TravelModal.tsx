@@ -1,22 +1,24 @@
-/// <reference types="@types/google.maps" />
+/// <reference types="@types/google.maps" /> 
 /* global google */
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import {
-  GoogleMap,
-  Circle,
-  Autocomplete,
-} from "@react-google-maps/api";
+import { GoogleMap, Circle, Autocomplete } from "@react-google-maps/api";
 import { X } from "lucide-react";
 import { useGoogleMaps } from "./GoogleMapProvider";
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"; // Update path according to your project
 
 interface TravelModalProps {
   onClose: () => void;
   onContinue: () => void;
 }
-
 
 const staticData = {
   zip: "Wrexham",
@@ -37,7 +39,6 @@ const TravelModal: React.FC<TravelModalProps> = ({ onClose, onContinue }) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const { isLoaded } = useGoogleMaps();
-
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -120,41 +121,44 @@ const TravelModal: React.FC<TravelModalProps> = ({ onClose, onContinue }) => {
             {/* Travel Time */}
             <div>
               <label className="block font-medium mb-1">Travel time</label>
-              <select
-                value={travelTime}
-                onChange={(e) => setTravelTime(e.target.value)}
-                className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 rounded-sm px-3 py-2 text-[11px] focus:outline-none focus:ring-1 focus:ring-[#0077B6]"
-              >
-                {[
-                  "15 minutes",
-                  "30 minutes",
-                  "45 minutes",
-                  "1 hour",
-                  "1.5 hours",
-                  "2 hours",
-                ].map((option) => (
-                  <option key={option}>{option}</option>
-                ))}
-              </select>
+              <Select value={travelTime} onValueChange={setTravelTime}>
+                <SelectTrigger className="w-full text-[11px]">
+                  <SelectValue placeholder="Select travel time" />
+                </SelectTrigger>
+                <SelectContent>
+                  {[
+                    "15 minutes",
+                    "30 minutes",
+                    "45 minutes",
+                    "1 hour",
+                    "1.5 hours",
+                    "2 hours",
+                  ].map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Transport Mode */}
             <div>
               <label className="block font-medium mb-1">Travelling by</label>
-              <select
-                value={transportMode}
-                onChange={(e) => setTransportMode(e.target.value)}
-                className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 rounded-sm px-3 py-2 text-[11px] focus:outline-none focus:ring-1 focus:ring-[#0077B6]"
-              >
-                {[
-                  "Driving",
-                  "Walking",
-                  "Cycling",
-                  "Public transport",
-                ].map((option) => (
-                  <option key={option}>{option}</option>
-                ))}
-              </select>
+              <Select value={transportMode} onValueChange={setTransportMode}>
+                <SelectTrigger className="w-full text-[11px]">
+                  <SelectValue placeholder="Select transport mode" />
+                </SelectTrigger>
+                <SelectContent>
+                  {["Driving", "Walking", "Cycling", "Public transport"].map(
+                    (option) => (
+                      <SelectItem key={option} value={option}>
+                        {option}
+                      </SelectItem>
+                    )
+                  )}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </div>
