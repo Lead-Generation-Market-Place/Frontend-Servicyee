@@ -40,7 +40,7 @@ const ParentComponent: FC = () => {
   ];
 
   return (
-    <main className="dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-6">
+    <main className="dark:bg-gray-900 text-gray-900 dark:text-gray-100 ">
       <Suspense fallback={<SkeletonLoader />}>
         {showModal && (
           <Leads
