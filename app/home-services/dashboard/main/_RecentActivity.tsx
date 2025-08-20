@@ -7,10 +7,8 @@ import {
   Key, 
   ChevronDown, 
   ChevronUp, 
-  Search, 
   Filter,
-  Calendar,
-  Clock,
+
   X
 } from "lucide-react";
 
@@ -34,26 +32,10 @@ const activities: Activity[] = [
 ];
 
 const activityIcons: Record<string, { icon: JSX.Element; bgColor: string; color: string }> = {
-  lead: { 
-    icon: <CheckCircle className="w-4 h-4" />, 
-    bgColor: "bg-green-100", 
-    color: "text-green-700" 
-  },
-  service: { 
-    icon: <PlusCircle className="w-4 h-4" />, 
-    bgColor: "bg-blue-100", 
-    color: "text-blue-700" 
-  },
-  map: { 
-    icon: <MapPin className="w-4 h-4" />, 
-    bgColor: "bg-amber-100", 
-    color: "text-amber-700" 
-  },
-  password: { 
-    icon: <Key className="w-4 h-4" />, 
-    bgColor: "bg-red-100", 
-    color: "text-red-700" 
-  },
+  lead: { icon: <CheckCircle className="w-4 h-4" />, bgColor: "bg-green-100", color: "text-green-700" },
+  service: { icon: <PlusCircle className="w-4 h-4" />, bgColor: "bg-blue-100", color: "text-blue-700" },
+  map: { icon: <MapPin className="w-4 h-4" />, bgColor: "bg-amber-100", color: "text-amber-700" },
+  password: { icon: <Key className="w-4 h-4" />, bgColor: "bg-red-100", color: "text-red-700" },
 };
 
 const priorityColors: Record<string, string> = {
@@ -61,16 +43,6 @@ const priorityColors: Record<string, string> = {
   medium: "bg-yellow-500",
   low: "bg-green-500",
 };
-
-function formatDate(dateStr: string) {
-  const date = new Date(dateStr);
-  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-}
-
-function formatTime(dateStr: string) {
-  const date = new Date(dateStr);
-  return date.toLocaleTimeString("en-US", { hour: '2-digit', minute: '2-digit' });
-}
 
 function formatDateTime(dateStr: string) {
   const date = new Date(dateStr);
@@ -116,10 +88,11 @@ export default function ProfessionalUserActivityCard() {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 w-full max-w-md">
-      <div className="flex items-center justify-between mb-6">
-        <h4 className="text-lg font-semibold text-gray-900">Recent Activity</h4>
-        <div className="flex items-center gap-2">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 w-full ">
+      {/* Header */}
+      <div className="flex flex-wrap items-center justify-between mb-6 gap-2">
+        <h4 className="text-lg font-semibold text-gray-900 flex-1 min-w-[150px]">Recent Activity</h4>
+        <div className="flex gap-2">
           <div className="relative">
             <button 
               onClick={() => setShowFilters(!showFilters)}
@@ -128,19 +101,15 @@ export default function ProfessionalUserActivityCard() {
               <Filter className="w-4 h-4 mr-1" />
               Filter
             </button>
-            
+
             {showFilters && (
               <div className="absolute right-0 top-full mt-2 bg-white rounded-lg shadow-lg border border-gray-200 p-4 z-10 min-w-[180px]">
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-sm font-medium text-gray-700">Filter by</span>
-                  <button 
-                    onClick={() => setShowFilters(false)}
-                    className="text-gray-400 hover:text-gray-600"
-                  >
+                  <button onClick={() => setShowFilters(false)} className="text-gray-400 hover:text-gray-600">
                     <X className="w-4 h-4" />
                   </button>
                 </div>
-                
                 <div className="space-y-2">
                   <button
                     onClick={() => setActiveFilter("all")}
@@ -148,7 +117,6 @@ export default function ProfessionalUserActivityCard() {
                   >
                     All Activities
                   </button>
-                  
                   {activityTypes.map(type => (
                     <button
                       key={type}
@@ -165,19 +133,11 @@ export default function ProfessionalUserActivityCard() {
         </div>
       </div>
 
-      <div className="relative mb-4">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-        <input
-          type="text"
-          placeholder="Search activities..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-sm focus:ring-1 focus:ring-[#0077B6] focus:border-[#0077B6] outline-none transition-colors"
-        />
-      </div>
 
+
+      {/* Filter summary */}
       {(searchQuery || activeFilter !== "all") && (
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
           <span className="text-sm text-gray-500">
             {filteredActivities.length} result{filteredActivities.length !== 1 ? 's' : ''} found
             {searchQuery && ` for "${searchQuery}"`}
@@ -193,6 +153,7 @@ export default function ProfessionalUserActivityCard() {
         </div>
       )}
 
+      {/* No results */}
       {filteredActivities.length === 0 ? (
         <div className="py-8 text-center">
           <div className="text-gray-400 mb-2">No activities found</div>
@@ -200,11 +161,12 @@ export default function ProfessionalUserActivityCard() {
         </div>
       ) : (
         <>
+          {/* Activity list */}
           <div className="flex flex-col divide-y divide-gray-100">
             {displayedActivities.map((act) => (
               <div
                 key={act.id}
-                className="flex items-start justify-between py-4 hover:bg-gray-50 px-2 rounded-lg transition-colors duration-200 group"
+                className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-4 hover:bg-gray-50 px-2 rounded-lg transition-colors duration-200"
               >
                 <div className="flex items-start gap-3">
                   <span className={`p-2 rounded-full mt-0.5 ${activityIcons[act.type].bgColor} ${activityIcons[act.type].color}`}>
@@ -212,16 +174,10 @@ export default function ProfessionalUserActivityCard() {
                   </span>
                   <div>
                     <span className="text-sm font-medium text-gray-800 block">{act.action}</span>
-                    <div className="flex items-center mt-1 text-xs text-gray-500">
-                      <Calendar className="w-3 h-3 mr-1" />
-                      <span>{formatDate(act.date)}</span>
-                      <Clock className="w-3 h-3 ml-2 mr-1" />
-                      <span>{formatTime(act.date)}</span>
-                    </div>
                   </div>
                 </div>
-                <div className="flex flex-col items-end">
-                  <span className="text-xs text-gray-400 mb-2">{formatDateTime(act.date)}</span>
+                <div className="flex flex-row sm:flex-col items-end mt-2 sm:mt-0 gap-2 sm:gap-1">
+                  <span className="text-xs text-gray-400">{formatDateTime(act.date)}</span>
                   {act.priority && (
                     <span className={`inline-block w-2 h-2 rounded-full ${priorityColors[act.priority]}`}></span>
                   )}
@@ -230,6 +186,7 @@ export default function ProfessionalUserActivityCard() {
             ))}
           </div>
 
+          {/* Expand / Collapse */}
           {filteredActivities.length > 3 && (
             <div className="mt-4 pt-3 border-t border-gray-100 text-center">
               <button

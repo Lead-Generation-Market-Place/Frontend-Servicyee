@@ -2,7 +2,8 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { Users, Package, CreditCard, Star, DollarSign, Wallet } from "lucide-react";
+import { Users, Package, CreditCard, Wallet, DollarSign, Eye } from "lucide-react";
+
 
 // Import your split components
 import MetricCardSmall from "./_MetricCardSmall";
@@ -12,7 +13,7 @@ import ReviewsCard from "./_ReviewsCard";
 import MonthlyLeadsChart from "./_MonthlyLeads";
 import MonthlyTarget from "./_MonthlyTarget";
 import RecentActivity from "./_RecentActivity";
-import CurrentPlans from "./_CurrentPlans";
+import LeadsMonthly from "./CreditsMonthly";
 
 
 // Animation Variants
@@ -38,12 +39,12 @@ export default function Dashboard() {
         }}
       >
         {[
-          { title: "Customers", value: "82", icon: <Users className="w-4 h-4" />, color: "bg-[#023E8A]" },
-          { title: "Leads", value: "30", icon: <Package className="w-4 h-4" />, color: "bg-[#0077B6]" },
-          { title: "Spent Credits", value: "320", icon: <CreditCard className="w-4 h-4" />, color: "bg-[#0096C7]" },
-          { title: "Purchased", value: "600", icon: <Wallet className="w-4 h-4" />, color: "bg-[#90E0EF]" },
-          { title: "Total Cost", value: "600$", icon: <DollarSign className="w-4 h-4" />, color: "bg-[#023E8A]" },
-          { title: "Rating", value: "4.8", icon: <Star className="w-4 h-4" />, color: "bg-[#0077B6]" },
+          { title: "Customers", value: "82", icon: <Users className="w-5 h-5" />, color: "bg-[#023E8A]" },
+          { title: "Leads", value: "30", icon: <Package className="w-5 h-5" />, color: "bg-[#0077B6]" },
+          { title: "Spent Credits", value: "320", icon: <CreditCard className="w-5 h-5" />, color: "bg-[#0096C7]" },
+          { title: "Purchased", value: "600", icon: <Wallet className="w-5 h-5" />, color: "bg-[#90E0EF]" },
+          { title: "Total Cost", value: "600$", icon: <DollarSign className="w-5 h-5" />, color: "bg-[#023E8A]" },
+          { title: "Profile Views", value: "1.2K", icon: <Eye className="w-5 h-5" />, color: "bg-[#48CAE4]" },
         ].map((item, i) => (
           <motion.div key={i} variants={fadeUp} whileHover={{ scale: 1.05 }}>
             <MetricCardSmall {...item} />
@@ -108,9 +109,11 @@ export default function Dashboard() {
         }}
       >
         <motion.div variants={fadeUp}><ReviewsCard /></motion.div>
-        <div className="py-2 grid grid-cols-1 lg:grid-cols-2 gap-2">
-        <motion.div variants={fadeUp}><RecentActivity  /></motion.div>
-        <motion.div variants={fadeUp}><CurrentPlans  /></motion.div>
+        <div className="py-2">
+          <motion.div variants={fadeUp}><LeadsMonthly /></motion.div>
+        </div>
+        <div className="py-2 ">
+          <motion.div variants={fadeUp}><RecentActivity /></motion.div>
 
 
 
