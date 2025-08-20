@@ -1,66 +1,122 @@
 "use client";
 
 import React from "react";
-import { Badge } from "@/components/ui/badge";
-import { ArrowDown, ArrowUp, Users, Package } from "lucide-react";
-import MonthlyTarget from "@/components/home-services/dashboard/MonthlyTarget";
-import MonthlyLeads from "@/components/home-services/dashboard/MonthlyLeads";
+import { motion } from "framer-motion";
+import { Users, Package, CreditCard, Star, DollarSign, Wallet } from "lucide-react";
+
+// Import your split components
+import MetricCardSmall from "./_MetricCardSmall";
+import LeadsSummary from "./_LeadsSummary";
+import CreditsCard from "./_CreditsCard";
+import ReviewsCard from "./_ReviewsCard";
+import MonthlyLeadsChart from "./_MonthlyLeads";
+import MonthlyTarget from "./_MonthlyTarget";
+import RecentActivity from "./_RecentActivity";
+import CurrentPlans from "./_CurrentPlans";
 
 
-export default function dashboard() {
-  return (
-    <>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6">
-        {/* Metric Item - Customers */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
-          <div className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl dark:bg-gray-800">
-            <Users className="text-gray-800 size-6 dark:text-white/90" />
-          </div>
-          <div className="flex items-end justify-between mt-5">
-            <div>
-              <span className="text-sm text-gray-500 dark:text-gray-400">
-                Customers
-              </span>
-              <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
-                82
-              </h4>
-            </div>
-            <Badge color="success">
-              <ArrowUp className="w-4 h-4" />
-              11.01%
-            </Badge>
-          </div>
-        </div>
-
-        {/* Metric Item - Orders */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
-          <div className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl dark:bg-gray-800">
-            <Package className="text-gray-800 size-6 dark:text-white/90" />
-          </div>
-          <div className="flex items-end justify-between mt-5">
-            <div>
-              <span className="text-sm text-gray-500 dark:text-gray-400">
-                Leads
-              </span>
-              <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
-                35
-              </h4>
-            </div>
-            <Badge color="error">
-              <ArrowDown className="text-error-500 w-4 h-4" />
-              9.05%
-            </Badge>
-          </div>
-        </div>
-      </div>
-      <span className="px-2">
-        <MonthlyLeads></MonthlyLeads>
-
-      </span>
-      <span className="px-2">
-        <MonthlyTarget></MonthlyTarget>
-
-      </span>
-    </>
-  );
+// Animation Variants
+const fadeUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0 },
 };
+
+export default function Dashboard() {
+  return (
+    <div className="space-y-4 p-3 sm:p-6">
+      {/* ===== Top small metrics ===== */}
+      <motion.div
+        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3"
+        initial="hidden"
+        animate="visible"
+        variants={{
+          hidden: { opacity: 0 },
+          visible: {
+            opacity: 1,
+            transition: { staggerChildren: 0.1 },
+          },
+        }}
+      >
+        {[
+          { title: "Customers", value: "82", icon: <Users className="w-4 h-4" />, color: "bg-[#023E8A]" },
+          { title: "Leads", value: "30", icon: <Package className="w-4 h-4" />, color: "bg-[#0077B6]" },
+          { title: "Spent Credits", value: "320", icon: <CreditCard className="w-4 h-4" />, color: "bg-[#0096C7]" },
+          { title: "Purchased", value: "600", icon: <Wallet className="w-4 h-4" />, color: "bg-[#90E0EF]" },
+          { title: "Total Cost", value: "600$", icon: <DollarSign className="w-4 h-4" />, color: "bg-[#023E8A]" },
+          { title: "Rating", value: "4.8", icon: <Star className="w-4 h-4" />, color: "bg-[#0077B6]" },
+        ].map((item, i) => (
+          <motion.div key={i} variants={fadeUp} whileHover={{ scale: 1.05 }}>
+            <MetricCardSmall {...item} />
+          </motion.div>
+        ))}
+      </motion.div>
+
+      {/* ===== Leads / Response / Conversion ===== */}
+      <motion.div
+        className="grid grid-cols-1"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+        variants={fadeUp}
+        transition={{ duration: 0.6 }}
+      >
+        <LeadsSummary />
+      </motion.div>
+
+      {/* ===== Recent Leads, Credits, Reviews ===== */}
+      <motion.div
+        className="grid grid-cols-1 lg:grid-cols-2 gap-2"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+        variants={{
+          hidden: { opacity: 0 },
+          visible: {
+            opacity: 1,
+            transition: { staggerChildren: 0.2 },
+          },
+        }}
+      >
+        <motion.div variants={fadeUp}><MonthlyTarget /></motion.div>
+        <motion.div variants={fadeUp}><CreditsCard /></motion.div>
+      </motion.div>
+
+      {/* ===== Charts Section ===== */}
+      <motion.div
+        className="space-y-3"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+        variants={fadeUp}
+        transition={{ duration: 0.7 }}
+      >
+        <MonthlyLeadsChart />
+      </motion.div>
+
+      {/* ===== Services Performance ===== */}
+      <motion.div
+        className=""
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+        variants={{
+          hidden: { opacity: 0 },
+          visible: {
+            opacity: 1,
+            transition: { staggerChildren: 0.2 },
+          },
+        }}
+      >
+        <motion.div variants={fadeUp}><ReviewsCard /></motion.div>
+        <div className="py-2 grid grid-cols-1 lg:grid-cols-2 gap-2">
+        <motion.div variants={fadeUp}><RecentActivity  /></motion.div>
+        <motion.div variants={fadeUp}><CurrentPlans  /></motion.div>
+
+
+
+        </div>
+
+      </motion.div>
+    </div>
+  );
+}
