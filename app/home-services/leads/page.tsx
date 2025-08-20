@@ -3,8 +3,7 @@
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { ArrowDown, ArrowUp, Users, Package } from "lucide-react";
-import MonthlyTarget from "@/components/home-services/dashboard/MonthlyTarget";
-import MonthlyLeads from "@/components/home-services/dashboard/MonthlyLeads";
+
 
 
 export default function dashboard() {
@@ -53,14 +52,7 @@ export default function dashboard() {
           </div>
         </div>
       </div>
-      <span className="px-2">
-        <MonthlyLeads></MonthlyLeads>
 
-      </span>
-      <span className="px-2">
-        <MonthlyTarget></MonthlyTarget>
-
-      </span>
     </>
   );
 };
