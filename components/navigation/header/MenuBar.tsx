@@ -8,6 +8,7 @@ const MenuBar = () => {
           <Link href="/homeservices" className="whitespace-nowrap text-gray-800 dark:text-gray-300 hover:text-[#0077B6] dark:hover:text-[#48CAE4] font-normal">Todays Deals</Link>
           <Link href="/beauty" className="whitespace-nowrap text-gray-800 dark:text-gray-300 hover:text-[#0077B6] dark:hover:text-[#48CAE4] font-normal">Beauty & Spas</Link>
           <Link href="https://marketplace-vhbe.onrender.com/" className="whitespace-nowrap text-gray-800 dark:text-gray-300 hover:text-[#0077B6] dark:hover:text-[#48CAE4] font-normal">Home Services</Link>
+          <Link href="/it-services" className="whitespace-nowrap text-gray-800 dark:text-gray-300 hover:text-[#0077B6] dark:hover:text-[#48CAE4] font-normal">IT Services</Link>
           <Link href="/food" className="whitespace-nowrap text-gray-800 dark:text-gray-300 hover:text-[#0077B6] dark:hover:text-[#48CAE4] font-normal">Food & Grocery</Link>
           <Link href="/beauty" className="whitespace-nowrap text-gray-800 dark:text-gray-300 hover:text-[#0077B6] dark:hover:text-[#48CAE4] font-normal">Travel</Link>
           <Link href="/beauty" className="whitespace-nowrap text-gray-800 dark:text-gray-300 hover:text-[#0077B6] dark:hover:text-[#48CAE4] font-normal">Goods</Link>
