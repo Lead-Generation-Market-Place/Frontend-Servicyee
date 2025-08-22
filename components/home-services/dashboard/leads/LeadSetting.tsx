@@ -14,7 +14,6 @@ const LeadSettings = () => {
   const [showAddLocationModal, setShowAddLocationModal] = useState(false);
   const [locationModal, setLocationModal] = useState(false);
 
-
   const [services, setServices] = useState([
     {
       id: 1,
@@ -35,12 +34,12 @@ const LeadSettings = () => {
   const [locations, setLocations] = useState([
     {
       id: 1,
-      address: 'Within 150 miles of LL21 9RG',
+      address: '150 miles of LL21 9RG',
       zip: 'LL21 9RG',
       milesRadius: 150,
       selected: false,
       servicesCount: 2,
-      center: { lat: 53.02252, lng: -3.45073 } // Example coordinates for LL21 9RG
+      center: { lat: 53.02252, lng: -3.45073 }
     }
   ]);
 
@@ -64,12 +63,12 @@ const LeadSettings = () => {
   };
 
   return (
-    <div className="px-4 text-sm text-gray-800 dark:text-gray-200">
-      <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Lead settings</h1>
+    <div className="px-4 sm:px-6 lg:px-8 text-sm text-gray-800 dark:text-gray-200 max-w-5xl mx-auto">
+      <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900 dark:text-white mb-6">Lead settings</h1>
 
       {/* Services */}
       <section className="mb-10">
-        <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-2">
+        <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-2">
           Leads you can choose to contact
         </h2>
 
@@ -84,16 +83,16 @@ const LeadSettings = () => {
               <Link href={`/home-services/dashboard/leads/leadSetting/${service.id}`} key={index}>
                 <div
                   onClick={() => toggleServiceExpand(index)}
-                  className="group flex justify-between items-center p-4 border rounded-sm cursor-pointer 
-                  border-gray-200 dark:border-gray-700 hover:border-[#0077B6] transition"
+                  className="group flex justify-between items-center p-4 border rounded-md cursor-pointer mt-2
+                  border-gray-200 dark:border-gray-700 hover:border-[#0077B6] transition flex-wrap sm:flex-nowrap gap-2"
                 >
-                  <div>
+                  <div className="flex-1 min-w-[200px]">
                     <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">{service.name}</h4>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                       {service.leads}  -  {service.locations} location
                     </p>
                   </div>
-                  <FiChevronRight className="text-gray-400 group-hover:text-[#0077B6]" />
+                  <FiChevronRight className="text-gray-400 group-hover:text-[#0077B6] flex-shrink-0" />
                 </div>
               </Link>
             ))}
@@ -120,7 +119,7 @@ const LeadSettings = () => {
           {locations.map((location) => (
             <div
               key={location.id}
-              className="flex items-start p-4 border border-gray-200 dark:border-gray-700 rounded-sm bg-white dark:bg-gray-800 relative"
+              className="flex flex-col sm:flex-row sm:items-start p-2 border border-gray-200 dark:border-gray-700 rounded-sm bg-white dark:bg-gray-800 relative gap-3"
             >
               <input
                 type="checkbox"
@@ -128,12 +127,12 @@ const LeadSettings = () => {
                 onChange={() => toggleLocationSelect(location.id)}
                 className="mt-1 h-4 w-4 text-[#0077B6] rounded border-gray-300 dark:border-gray-600 focus:ring-[#0077B6]"
               />
-              <div className="ml-3 flex-1">
+              <div className="flex-1">
                 <label className="block text-sm text-gray-900 dark:text-gray-100 font-medium">
                   {location.address}
                 </label>
 
-                <div className="flex flex-wrap items-center mt-2 text-xs text-gray-500 dark:text-gray-400 space-x-4">
+                <div className="flex flex-wrap items-center mt-2 text-xs text-gray-500 dark:text-gray-400 gap-3">
                   <Link
                     href="/home-services/dashboard/leads/leadLocation"
                     className="flex items-center text-[#0077B6] hover:text-[#005f8f]"
@@ -149,27 +148,24 @@ const LeadSettings = () => {
                 </div>
               </div>
 
-              {/* Edit Icon */}
               <button
                 onClick={() => { setLocationModal(true) }}
                 className="absolute top-4 right-4 text-gray-400 hover:text-[#0077B6]"
               >
                 <FiEdit size={16} />
-
               </button>
-                              {locationModal && (
-                  <LocationModal
-                    onClose={() => { setLocationModal(false); router.back() }}
-                    onContinue={() => { setLocationModal(false); router.back(); }}
-                    zip={locations[0].zip}
-                    milesRadius={locations[0].milesRadius}
-                    center={locations[0].center}
-                  />
-                )}
+
+              {locationModal && (
+                <LocationModal
+                  onClose={() => { setLocationModal(false); router.back() }}
+                  onContinue={() => { setLocationModal(false); router.back(); }}
+                  zip={locations[0].zip}
+                  milesRadius={locations[0].milesRadius}
+                  center={locations[0].center}
+                />
+              )}
             </div>
           ))}
-
-
 
           <span
             onClick={() => setShowAddLocationModal(true)}
@@ -191,7 +187,7 @@ const LeadSettings = () => {
           Customers tell us if they are happy to receive services online or remotely.
         </p>
 
-        <div className="flex items-center space-x-3">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
           <Switch
             id="online-mode"
             checked={onlineLeadsEnabled}
@@ -219,7 +215,7 @@ const LeadSettings = () => {
         <div className="pt-4 border-t border-gray-200 dark:border-gray-700 mt-6">
           <button
             onClick={HandleLead}
-            className="w-full py-3 bg-[#0077B6] hover:bg-[#005f8f] text-white text-sm font-medium rounded transition-colors"
+            className="w-full py-3 bg-[#0077B6] hover:bg-[#005f8f] text-white text-sm font-medium rounded-md transition-colors"
           >
             View leads
           </button>

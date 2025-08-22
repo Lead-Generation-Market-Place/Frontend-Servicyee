@@ -111,7 +111,7 @@ export default function CustomerRequests() {
 
   return (
     <div className="w-full">
-      <div className="w-full max-w-6xl mx-auto p-4 md:p-6 transition-colors duration-300 dark:bg-gray-900 min-h-screen">
+      <div className="w-full max-w-6xl mx-auto sm:p-4 md:p-6 transition-colors duration-300 dark:bg-gray-900 min-h-screen">
 
         {/* Controls */}
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-6">

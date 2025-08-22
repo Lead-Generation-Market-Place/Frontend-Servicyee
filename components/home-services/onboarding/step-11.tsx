@@ -122,7 +122,7 @@ export default function BackgroundCheckSelection() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
-                    className="w-full bg-white dark:bg-gray-800 dark:border-gray-700 rounded-[6px] p-8 md:p-10"
+                    className="w-full  dark:bg-gray-800 dark:border-gray-700 rounded-[6px] md:p-8"
                 >
                     {showForm ? (
                         <form onSubmit={handleFormSubmit} className="space-y-4">
