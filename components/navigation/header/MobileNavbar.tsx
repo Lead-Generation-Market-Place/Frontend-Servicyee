@@ -1,42 +1,45 @@
-'use client';
+"use client";
 
-import { FaBars, FaSearch, FaTimes } from 'react-icons/fa';
-import React, { useState } from 'react';
-import Link from 'next/link';
+import { Menu, Search, X } from "lucide-react";
+
+import React, { useState } from "react";
+import Link from "next/link";
 
 interface MobileNavbarProps {
   mobileMenuOpen: boolean;
   setMobileMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const MobileNavbar = ({ mobileMenuOpen, setMobileMenuOpen }: MobileNavbarProps) => {
-  
-  const [searchQuery, setSearchQuery] = useState('');
+const MobileNavbar = ({
+  mobileMenuOpen,
+  setMobileMenuOpen,
+}: MobileNavbarProps) => {
+  const [searchQuery, setSearchQuery] = useState("");
   // Close menu when clicking outside
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (mobileMenuOpen) {
         const target = event.target as HTMLElement;
-        if (!target.closest('.mobile-nav-container')) {
+        if (!target.closest(".mobile-nav-container")) {
           setMobileMenuOpen(false);
         }
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [mobileMenuOpen, setMobileMenuOpen]);
 
   // Close menu on escape key press
   React.useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && mobileMenuOpen) {
+      if (event.key === "Escape" && mobileMenuOpen) {
         setMobileMenuOpen(false);
       }
     };
 
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
   }, [mobileMenuOpen, setMobileMenuOpen]);
 
   return (
@@ -44,7 +47,10 @@ const MobileNavbar = ({ mobileMenuOpen, setMobileMenuOpen }: MobileNavbarProps) 
       <div className="container max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between py-3">
           {/* Logo or brand name can go here */}
-          <Link href="/" className="font-bold text-lg text-[#0066CC] dark:text-[#48CAE4]">
+          <Link
+            href="/"
+            className="font-bold text-lg text-[#0066CC] dark:text-[#48CAE4]"
+          >
             Servicyee
           </Link>
 
@@ -55,9 +61,9 @@ const MobileNavbar = ({ mobileMenuOpen, setMobileMenuOpen }: MobileNavbarProps) 
             aria-expanded={mobileMenuOpen}
           >
             {mobileMenuOpen ? (
-              <FaTimes className="text-lg text-gray-600 dark:text-gray-400" />
+              <X className="text-lg text-gray-600 dark:text-gray-400" />
             ) : (
-              <FaBars className="text-lg text-gray-600 dark:text-gray-400" />
+              <Menu className="text-lg text-gray-600 dark:text-gray-400" />
             )}
           </button>
         </div>
@@ -71,14 +77,14 @@ const MobileNavbar = ({ mobileMenuOpen, setMobileMenuOpen }: MobileNavbarProps) 
               className="w-full px-4 py-3 text-sm text-gray-700 dark:text-gray-300 bg-transparent focus:outline-none"
             />
             <button className="absolute right-3 text-gray-500 dark:text-gray-400 hover:text-[#0077B6] dark:hover:text-[#48CAE4]">
-              <FaSearch />
+              <Search />
             </button>
           </div>
         </div>
 
         <div
           className={`overflow-hidden transition-all duration-300 ease-in-out ${
-            mobileMenuOpen ? 'max-h-screen py-2' : 'max-h-0 py-0'
+            mobileMenuOpen ? "max-h-screen py-2" : "max-h-0 py-0"
           }`}
         >
           <div className="space-y-4 pb-4">
@@ -98,7 +104,7 @@ const MobileNavbar = ({ mobileMenuOpen, setMobileMenuOpen }: MobileNavbarProps) 
                 Beauty & Spas
               </Link>
               <Link
-                href="/homeservices"
+                href="/home-services"
                 className="block py-2 px-2 rounded-md text-gray-700 dark:text-gray-300 hover:text-[#0066CC] dark:hover:text-[#48CAE4] hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200 text-sm"
                 onClick={() => setMobileMenuOpen(false)}
               >

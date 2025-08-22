@@ -1,66 +1,40 @@
-'use client'
-
-import React, { useState, useCallback, FormEvent } from 'react'
+import { useState, useCallback, FormEvent } from 'react'
 import { useDropzone } from 'react-dropzone'
 import Image from 'next/image'
 import { ImagePlus, Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { toast } from 'sonner'
-
 import { ProgressBar } from "@/components/home-services/onboarding/ProgressBar";
 
 const ONBOARDING_STEPS = [
-  { id: 1, name: 'Services' },
-  { id: 2, name: 'Profile' },
-  { id: 3, name: 'Reviews' },
-  { id: 4, name: 'Preferences' },
+  { id: 1, name: 'Profile' },
+  { id: 2, name: 'Reviews' },
+  { id: 3, name: 'Preferences' },
+  { id: 4, name: 'Location' },
+  { id: 5, name: 'Payment' },
+  { id: 6, name: 'Background' },
 ];
 
+
 const DEFAULT_LOGO = '/service_profile.jpg'
-const MAX_LOGO_SIZE = 2 * 1024 * 1024 // 2MB
 
 const BusinessInfo = () => {
-  const [isPending, setIsPending] = useState(false)
+  const [isPending, setPending] = useState(false)
   const router = useRouter()
-  const [currentStep] = useState(2);
+  const [currentStep] = useState(1);
 
-  const [formData, setFormData] = useState({
-    businessName: 'Acme Services',
-    founded: '2015',
-    employees: '10',
-    businessType: 'company' as 'company' | 'handyman' | 'Sub-Contractor',
-    streetAddress: '123 Main St',
-    suite: 'Suite 200',
-    state: 'CA',
-    postalCode: '90210',
-    about: 'We have been providing quality services for over 8 years with a team of skilled professionals dedicated to customer satisfaction.'
-  })
-  console.log(setFormData)
+  // Track selected businessType in local state
+  const [businessType, setBusinessType] = useState<'company' | 'handyman' | 'Sub-Contractor'>('company')
 
+  // Local state for Dropzone
   const [logoFile, setLogoFile] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
-  const [errors, setErrors] = useState<Record<string, string>>({})
 
+  // Dropzone callback
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length === 0) return
     const file = acceptedFiles[0]
-
-    if (file.size > MAX_LOGO_SIZE) {
-      setErrors(prev => ({
-        ...prev,
-        image: 'Logo must be smaller than 2MB'
-      }))
-      return
-    }
-
     setLogoFile(file)
     setPreview(URL.createObjectURL(file))
-
-    setErrors(prev => {
-      const updated = { ...prev }
-      delete updated.image
-      return updated
-    })
   }, [])
 
   const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
@@ -74,39 +48,13 @@ const BusinessInfo = () => {
   const handleRemove = () => {
     setLogoFile(null)
     setPreview(null)
-    setErrors(prev => {
-      const updated = { ...prev }
-      delete updated.image
-      return updated
-    })
   }
 
-
-
-  const handleBusiness = async (e: FormEvent<HTMLFormElement>) => {
+  const handleBusiness = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setIsPending(true)
-    setErrors({})
-
-    const newErrors: Record<string, string> = {}
-    if (!formData.businessName) newErrors.businessName = 'Business Name is required'
-    if (formData.about && formData.about.length < 40) newErrors.about = 'Please enter at least 40 characters'
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors)
-      setIsPending(false)
-      return
-    }
-
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      toast.success("Business Profile Successfully added.")
-      router.push('/home-services/services/step-5')
-    } catch  {
-      toast.error("Failed to save business info. Please try again.")
-    } finally {
-      setIsPending(false)
-    }
+    // For demo purposes only - no validation or backend integration
+    setPending(true)
+    router.push('/home-services/dashboard/services/step-5')
   }
 
   return (
@@ -139,9 +87,9 @@ const BusinessInfo = () => {
               {...getRootProps()}
               id="logoUpload"
               className={`
-                relative w-36 h-36 border-2 border-dashed rounded-full bg-gray-50 dark:bg-gray-800
-                flex items-center justify-center cursor-pointer transition-colors
-                ${isDragActive
+              relative w-36 h-36 border-2 border-dashed rounded-full bg-gray-50 dark:bg-gray-800
+              flex items-center justify-center cursor-pointer transition-colors
+              ${isDragActive
                   ? 'border-blue-500 bg-blue-100 dark:bg-blue-900'
                   : 'border-gray-300 dark:border-gray-600 hover:border-[#0077B6]'
                 }`}
@@ -185,16 +133,120 @@ const BusinessInfo = () => {
                 </button>
               </div>
             </div>
-
-            {errors.image && (
-              <p className="mt-1 text-red-600 text-[12px]">{errors.image}</p>
-            )}
           </div>
 
-          {/* ...Rest of your form remains unchanged... */}
-          {/* ...Business name, address, about, and action buttons are already correct... */}
+          {/* Form Fields */}
+          <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6 text-[13px]">
+            {/* Business Type */}
+            <div className="sm:col-span-3">
+              <label
+                htmlFor="business-type"
+                className="block text-sm font-medium text-gray-900 dark:text-gray-200"
+              >
+                Business Type
+              </label>
+              <select
+                id="business-type"
+                name="businessType"
+                value={businessType}
+                onChange={(e) =>
+                  setBusinessType(e.target.value as 'company' | 'handyman' | 'Sub-Contractor')
+                }
+                className="mt-2 block w-full appearance-none rounded-[4px] bg-white dark:bg-gray-900 py-1.5 pl-3 pr-8 text-base text-gray-900 dark:text-white placeholder:text-[13px] dark:placeholder-gray-500 outline-1 outline-gray-300 dark:outline-gray-600 focus:outline-1 focus:outline-[#0077B6] focus:outline-offset-2 sm:text-sm"
+              >
+                <option value="company">Company</option>
+                <option value="handyman">Handyman</option>
+                <option value="Sub-Contractor">Sub-Contractor</option>
+              </select>
+            </div>
+
+            {/* Conditionally render “Number of Employees” only if businessType === "company" */}
+            {businessType === 'company' && (
+              <div className="sm:col-span-3">
+                <label
+                  htmlFor="employees"
+                  className="block text-sm font-medium text-gray-900 dark:text-gray-200"
+                >
+                  Number of Employees
+                </label>
+                <input
+                  id="employees"
+                  name="employees"
+                  type="number"
+                  min={0}
+                  placeholder="Ex: 14"
+                  className="mt-2 block w-full rounded-[4px] bg-white dark:bg-gray-900 px-3 py-1.5 text-base text-gray-900 dark:text-white placeholder:text-[13px] dark:placeholder-gray-500 outline-1 outline-gray-300 dark:outline-gray-600 focus:outline-1 focus:outline-[#0077B6] focus:outline-offset-2 sm:text-sm"
+                />
+
+              </div>
+            )}
+
+            {businessType === 'Sub-Contractor' && (
+              <div className="sm:col-span-3">
+                <label
+                  htmlFor="employees"
+                  className="block text-sm font-medium text-gray-900 dark:text-gray-200"
+                >
+                  Number of Employees
+                </label>
+                <input
+                  id="employees"
+                  name="employees"
+                  type="number"
+                  min={0}
+                  placeholder="Ex: 14"
+                  className="mt-2 block w-full rounded-[4px] bg-white dark:bg-gray-900 px-3 py-1.5 text-base text-gray-900 dark:text-white placeholder:text-[13px] dark:placeholder-gray-500 outline-1 outline-gray-300 dark:outline-gray-600 focus:outline-1 focus:outline-[#0077B6] focus:outline-offset-2 sm:text-sm"
+                />
+
+              </div>
+            )}
+
+
+            <div className="sm:col-span-full">
+              <label
+                htmlFor="founded"
+                className="block text-sm font-medium text-gray-900 dark:text-gray-200"
+              >
+                Founded Year
+              </label>
+              <input
+                id="founded"
+                name="founded"
+                type="number"
+                min={1800}
+                placeholder="Ex: 2014"
+                className="mt-2 block w-full rounded-[4px] bg-white dark:bg-gray-900 px-3 py-1.5 text-base text-gray-900 dark:text-white placeholder:text-[13px] dark:placeholder-gray-500 outline-1 outline-gray-300 dark:outline-gray-600 focus:outline-1 focus:outline-[#0077B6] focus:outline-offset-2 sm:text-sm"
+              />
+            </div>
+
+            {/* Why Hire Section */}
+            <div className="sm:col-span-6 mt-6">
+              <label
+                htmlFor="why-hire"
+                className="block text-sm font-medium text-gray-900 dark:text-gray-200 text-[13px]"
+              >
+                Why should customers hire you?
+              </label>
+              <textarea
+                id="why-hire"
+                name="about"
+                rows={4}
+                placeholder="Explain what makes your business stand out and why you'll do a great job."
+                className="mt-2 block w-full rounded-[4px] bg-white dark:bg-gray-900 px-3 py-1.5 text-[13px] text-gray-900 dark:text-white placeholder:text-[13px] dark:placeholder-gray-500 outline-1 outline-gray-300 dark:outline-gray-600 focus:outline-1 focus:outline-[#0077B6] focus:outline-offset-1"
+              />
+              <div className="mt-2 text-gray-600 dark:text-gray-400 text-[13px]">
+                <p>You can mention:</p>
+                <ul className="list-disc list-inside ml-4 mt-1">
+                  <li>Years in business</li>
+                  <li>What you are passionate about</li>
+                  <li>Special skills or equipment</li>
+                </ul>
+              </div>
+            </div>
+          </div>
         </section>
 
+        {/* Form Actions */}
         <div className="fixed bottom-6 right-6 flex gap-4 text-[13px] ">
           <button
             type="button"
@@ -206,14 +258,11 @@ const BusinessInfo = () => {
           <button
             type="submit"
             disabled={isPending}
-            className={`
-              text-white text-[13px] py-2 px-6 rounded-[4px]
-              transition duration-300 flex items-center justify-center gap-2
-              ${isPending ? 'bg-[#0077B6]/70 cursor-not-allowed' : 'bg-[#0077B6] hover:bg-[#005f8e]'}
-            `}
+            className="text-white text-[13px] py-2 px-6 rounded-[4px] bg-[#0077B6] hover:bg-[#005f8e] transition"
           >
-            {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-            <span>Next</span>
+            {isPending && <Loader2 className="h-4 w-4 animate-spin inline-block mr-2" />}
+
+            Next
           </button>
         </div>
       </form>

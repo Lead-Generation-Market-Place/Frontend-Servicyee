@@ -251,8 +251,8 @@ export default function ProfessionalProfile({
                         <h3 className="text-sm font-semibold text-gray-700 mb-3 dark:text-gray-200">
                           Business Hours
                         </h3>
-                        <div className="flex flex-col sm:flex-row">
-                          <div className="w-full sm:w-1/4 space-y-2 text-gray-600 font-medium">
+                        <div className="flex flex-row">
+                          <div className="w-full space-y-2 text-gray-600 font-medium">
                             <div>Sunday</div>
                             <div>Monday</div>
                             <div>Tuesday</div>
@@ -261,7 +261,7 @@ export default function ProfessionalProfile({
                             <div>Friday</div>
                             <div>Saturday</div>
                           </div>
-                          <div className="w-full sm:w-3/4 space-y-2 text-gray-700">
+                          <div className="w-full space-y-2 text-gray-700 dark:text-gray-500">
                             <div className="text-red-500">Closed</div>
                             <div>05:00 AM - 11:30 PM</div>
                             <div>05:00 AM - 11:30 PM</div>
@@ -697,12 +697,6 @@ export default function ProfessionalProfile({
               <div className="p-4 space-y-1 flex flex-col">
                 <MessageCircle className="w-4 h-4 text-gray-400 dark:text-gray-600" />
                 <QuestionModal />
-                {/* <Link
-                  href={"/price-details"}
-                  className="text-xs text-gray-400 dark:text-gray-600"
-                >
-                  Contact for price
-                </Link> */}
                 <Link
                   href={"/view-details"}
                   className="text-xs text-sky-500 dark:text-sky-400"
@@ -710,96 +704,12 @@ export default function ProfessionalProfile({
                   View Details
                 </Link>
               </div>
-              {/* <div className="p-2 space-y-4">
-                <div>
-                  <label
-                    htmlFor="service"
-                    className="block text-sm font-medium mb-1"
-                  >
-                    Zip Code
-                  </label>
-                  <Input type="text" id="service" value="22034" readOnly />
-                </div>
-                <div>
-                  <label
-                    htmlFor="service"
-                    className="block text-sm font-medium mb-1"
-                  >
-                    Frequency
-                  </label>
-                  <Select>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select Answer" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="once">Just once</SelectItem>
-                      <SelectItem value="every_week">Every week</SelectItem>
-                      <SelectItem value="every_two_week">
-                        Every two week
-                      </SelectItem>
-                      <SelectItem value="once_a_month">Once a month</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <label
-                    htmlFor="service"
-                    className="block text-sm font-medium mb-1"
-                  >
-                    Number of bedrooms
-                  </label>
-                  <Select>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select Answer" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1">1 bedroom</SelectItem>
-                      <SelectItem value="2">2 bedrooms</SelectItem>
-                      <SelectItem value="3">3 bedrooms</SelectItem>
-                      <SelectItem value="4">4 bedrooms</SelectItem>
-                      <SelectItem value="5">5 bedrooms</SelectItem>
-                      <SelectItem value="6">6 bedrooms</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <label
-                    htmlFor="service"
-                    className="block text-sm font-medium mb-1"
-                  >
-                    Cleaning type
-                  </label>
-                  <Select>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select Answer" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="standard">
-                        Standard cleaning
-                      </SelectItem>
-                      <SelectItem value="deep">Deep cleaning</SelectItem>
-                      <SelectItem value="move_out">
-                        Move out cleaning
-                      </SelectItem>
-                      <SelectItem value="vacation">
-                        Vacation rental cleaning
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div> */}
 
               <div className="p-4 text-center">
                 <QuestionModal
                   triggerText="Request Quotation"
                   triggerClassName="bg-sky-500 dark:bg-sky-400 px-4 py-2 text-white rounded hover:bg-sky-600 dark:hover:bg-sky-500 transition-colors"
                 />
-                {/* <Link
-                  href={"/"}
-                  className="bg-sky-500 dark:bg-sky-400 px-4 py-2 text-white rounded hover:bg-sky-600 dark:hover:bg-sky-500 transition-colors"
-                >
-                  Request Quotation
-                </Link> */}
               </div>
               <div className="flex flex-row gap-2 justify-center items-center text-xs text-green-500 mt-4">
                 <span className="relative flex size-3">

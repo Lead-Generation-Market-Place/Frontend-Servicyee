@@ -1,11 +1,11 @@
-import React from 'react';
+import React from "react";
 
 import { motion, Variants } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import Link from "next/link";
 import { useRef, useState } from "react";
-import { ServiceCard } from './ServiceCard';
+import { ServiceCard } from "./ServiceCard";
 
 const FeaturedServices = () => {
   const carouselRef = useRef<HTMLDivElement>(null);
@@ -15,40 +15,45 @@ const FeaturedServices = () => {
 
   const featured_service = [
     {
-      id:1,
+      id: 1,
       title: "House cleaning",
+      slug: "house_cleaning",
       text: "Cleaning kitchen and rooms with yard and lawn",
       season: "summer",
-      imageUrl: "/assets/home-service/service (1).jpg"
+      imageUrl: "/assets/home-service/service (1).jpg",
     },
     {
-      id:2,
+      id: 2,
       title: "Carpet cleaning",
+      slug: "carpet_cleaning",
       text: "Cleaning carpet with providing extra service on housing",
       season: "summer",
-      imageUrl: "/assets/home-service/service (2).jpg"
+      imageUrl: "/assets/home-service/service (2).jpg",
     },
     {
-      id:3,
+      id: 3,
       title: "Lawn triming & cleaning",
+      slug: "lawn_triming",
       text: "Maintianing lawn with triming and beautification",
       season: "spring",
-      imageUrl: "/assets/home-service/service (3).jpg"
+      imageUrl: "/assets/home-service/service (3).jpg",
     },
     {
-      id:4,
+      id: 4,
       title: "Interior painting",
+      slug: "interior_painting",
       text: "Design with paint and color mixing according to your desire",
       season: "fall",
-      imageUrl: "/assets/home-service/service (4).jpg"
+      imageUrl: "/assets/home-service/service (4).jpg",
     },
     {
-      id:5,
+      id: 5,
       title: "Roofing",
+      slug: "roofing",
       text: "Maintain and installing quality roof to keep you safe and warm",
       season: "winter",
-      imageUrl: "/assets/home-service/service (5).jpg"
-    }
+      imageUrl: "/assets/home-service/service (5).jpg",
+    },
   ];
 
   // Properly typed variants
@@ -58,34 +63,34 @@ const FeaturedServices = () => {
       opacity: 1,
       transition: {
         staggerChildren: 0.1,
-        delayChildren: 0.2
-      }
-    }
+        delayChildren: 0.2,
+      },
+    },
   };
 
   // const item: Variants = {
   //   hidden: { opacity: 0, y: 20 },
-  //   show: { 
-  //     opacity: 1, 
-  //     y: 0, 
-  //     transition: { 
+  //   show: {
+  //     opacity: 1,
+  //     y: 0,
+  //     transition: {
   //       type: "spring" as const,
   //       stiffness: 100,
   //       damping: 10
-  //     } 
+  //     }
   //   }
   // };
 
   // Carousel controls
   const handlePrev = () => {
     if (carouselRef.current) {
-      carouselRef.current.scrollBy({ left: -300, behavior: 'smooth' });
+      carouselRef.current.scrollBy({ left: -300, behavior: "smooth" });
     }
   };
 
   const handleNext = () => {
     if (carouselRef.current) {
-      carouselRef.current.scrollBy({ left: 300, behavior: 'smooth' });
+      carouselRef.current.scrollBy({ left: 300, behavior: "smooth" });
     }
   };
 
@@ -113,7 +118,7 @@ const FeaturedServices = () => {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
-          <motion.h2 
+          <motion.h2
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
@@ -126,7 +131,10 @@ const FeaturedServices = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <Link href="/home-services/all-services" className="text-sm text-sky-600 hover:underline dark:text-sky-400 mt-2 sm:mt-0 flex items-center gap-1">
+            <Link
+              href="/home-services/all-services"
+              className="text-sm text-sky-600 hover:underline dark:text-sky-400 mt-2 sm:mt-0 flex items-center gap-1"
+            >
               See all services
               <ChevronRight className="w-4 h-4" />
             </Link>
@@ -136,15 +144,15 @@ const FeaturedServices = () => {
         {/* Carousel Container */}
         <div className="relative">
           {/* Navigation Arrows */}
-          <button 
+          <button
             onClick={handlePrev}
             className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-white dark:bg-gray-800 shadow-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors hidden md:block"
             aria-label="Previous services"
           >
             <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-gray-300" />
           </button>
-          
-          <button 
+
+          <button
             onClick={handleNext}
             className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-white dark:bg-gray-800 shadow-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors hidden md:block"
             aria-label="Next services"
@@ -153,7 +161,7 @@ const FeaturedServices = () => {
           </button>
 
           {/* Carousel */}
-          <motion.div 
+          <motion.div
             ref={carouselRef}
             variants={container}
             initial="hidden"
@@ -163,7 +171,7 @@ const FeaturedServices = () => {
             onMouseUp={endDrag}
             onMouseLeave={endDrag}
             className="flex overflow-x-auto scrollbar-hide snap-x snap-mandatory gap-6 pb-4 -mx-4 px-4"
-            style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+            style={{ cursor: isDragging ? "grabbing" : "grab" }}
           >
             {featured_service.map((service) => (
               <ServiceCard
@@ -176,14 +184,14 @@ const FeaturedServices = () => {
         </div>
 
         {/* View all button */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
           className="flex justify-center items-center mt-5"
         >
-          <Link 
-            href="/home-services/all-services" 
+          <Link
+            href="/home-services/all-services"
             className="relative w-56 h-10 text-sm flex justify-center border border-gray-200 dark:border-gray-700 hover:text-sky-500 hover:border-sky-500 dark:hover:border-sky-400 items-center text-center rounded-full overflow-hidden group"
           >
             <span className="relative flex items-center gap-2">
