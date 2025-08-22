@@ -35,7 +35,7 @@ export default function ConditionalLayout({
   // Return the special HomeLayout if route matches
   if (isDashboardRoute) {
     return (
-      <div className="xl:flex min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+      <div className="xl:flex  bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
         {/* Sidebar and Backdrop */}
         <AppSidebar isServiceProvider />
 
@@ -48,7 +48,7 @@ export default function ConditionalLayout({
 
           {/* Page Content */}
           <div className="p-4 mx-auto max-w-[var(--breakpoint-2xl)] md:p-6">
-            <div className="p-4 md:p-6 transition-all duration-300">
+            <div className=" transition-all duration-300">
               {children}
             </div>
           </div>
