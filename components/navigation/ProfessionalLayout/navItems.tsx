@@ -21,7 +21,7 @@ export const serviceProviderNavItems: NavItem[] = [
   { name: "Dashboard", path: "/home-services/dashboard/main", icon: <LayoutDashboard  size={18} /> },
   { name: "My Services", path: "/home-services/dashboard/services", icon: <Layers size={18} /> },
   { name: "Loads", path: "/home-services/dashboard/leads", icon: <Briefcase size={18} /> },
-  { name: "Inbox", path: "/inbox", icon: <Mail size={18} /> },
+  { name: "Inbox", path: "/home-services/dashboard/inbox", icon: <Mail size={18} /> },
   { name: "Performance", path: "/home-services/dashboard/performance", icon: <Settings size={18} /> },
 
 ];
