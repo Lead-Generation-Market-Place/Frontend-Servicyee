@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import React, { Suspense, FC } from "react";
 
-const Steps = dynamic(() => import("@/app/home-services/dashboard/main/page"),
+const Steps = dynamic(() => import("@/components/home-services/dashboard/reviews/page"),
 {
     ssr: false
 

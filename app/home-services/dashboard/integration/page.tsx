@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import React, { Suspense, FC } from "react";
 
-const Steps = dynamic(() => import("@/app/home-services/dashboard/main/page"),
+const Integration = dynamic(() => import("@/components/home-services/dashboard/integration/page"),
 {
     ssr: false
 
@@ -26,7 +26,7 @@ const ParentComponent: FC = () => {
   return (
     <main className="  dark:bg-gray-900 text-gray-900 dark:text-gray-100 ">
       <Suspense fallback={<SkeletonLoader />}>
-        <Steps />
+        <Integration />
       </Suspense>
     </main>
   );

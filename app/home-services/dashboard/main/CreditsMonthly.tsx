@@ -18,7 +18,13 @@ const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
 });
 
-// Example raw data for multiple services, months, years
+// ✅ Define months outside so we don’t depend on options inside useMemo
+const MONTHS = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+];
+
+// Example raw data
 const rawData = [
   {
     service: "Plumbing",
@@ -72,10 +78,7 @@ export default function MonthlyCreditsUsageAdvanced() {
     dataLabels: { enabled: false },
     stroke: { show: true, width: 2, colors: ["#fff"] },
     xaxis: {
-      categories: [
-        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-      ],
+      categories: MONTHS, // ✅ use MONTHS constant
       axisBorder: { show: false },
       axisTicks: { show: false },
     },
@@ -94,7 +97,7 @@ export default function MonthlyCreditsUsageAdvanced() {
     },
   };
 
-  // Filter data based on selected service, month, and year
+  // ✅ Now MONTHS is stable, no warning
   const filteredSeries = useMemo(() => {
     let filteredData = rawData;
 
@@ -106,7 +109,6 @@ export default function MonthlyCreditsUsageAdvanced() {
       filteredData = filteredData.filter(d => d.year === selectedYear);
     }
 
-    // Aggregate series for chart
     let creditsUsed = new Array(12).fill(0);
     let creditsRemaining = new Array(12).fill(0);
 
@@ -115,9 +117,8 @@ export default function MonthlyCreditsUsageAdvanced() {
       d.creditsRemaining.forEach((val, idx) => { creditsRemaining[idx] += val });
     });
 
-    // Filter by selected month
     if (selectedMonth !== "All Months") {
-      const monthIndex = options.xaxis?.categories?.indexOf(selectedMonth) ?? 0;
+      const monthIndex = MONTHS.indexOf(selectedMonth);
       creditsUsed = creditsUsed.map((v, idx) => (idx === monthIndex ? v : 0));
       creditsRemaining = creditsRemaining.map((v, idx) => (idx === monthIndex ? v : 0));
     }
@@ -126,7 +127,7 @@ export default function MonthlyCreditsUsageAdvanced() {
       { name: "Credits Used", data: creditsUsed },
       { name: "Credits Remaining", data: creditsRemaining },
     ];
-  }, [selectedService, selectedMonth, selectedYear]);
+  }, [selectedService, selectedMonth, selectedYear]); // ✅ no options dependency
 
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-5 pt-5 sm:px-6 sm:pt-6">
@@ -177,7 +178,7 @@ export default function MonthlyCreditsUsageAdvanced() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="All Months">All Months</SelectItem>
-            {options.xaxis?.categories?.map((month: string) => (
+            {MONTHS.map(month => (
               <SelectItem key={month} value={month}>{month}</SelectItem>
             ))}
           </SelectContent>

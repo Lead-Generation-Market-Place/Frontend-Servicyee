@@ -10,12 +10,13 @@ import {
 import { useMemo, useState } from "react";
 import { MapPin, Calendar, Clock } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 const ACCENT = "#0066B7";
 
 interface Request {
   id: number;
-  customerName: string;        // ✅ real customer name (e.g., "AM")
+  customerName: string;        // ✅ real customer name
   leadResponse: string;        // ✅ e.g., "1st to respond (83)"
   timeAgo: string;
   location: string;
@@ -25,6 +26,7 @@ interface Request {
   tags: string[];
   createdAt: string;           // ISO for sorting
   avatarUrl?: string;          // optional
+  distanceMiles?: number;      // added distance for miles filter
 }
 
 const requests: Request[] = [
@@ -36,6 +38,7 @@ const requests: Request[] = [
     location: "Arlington, VA 22201",
     dateRange: "Aug 5–7",
     openDates: true,
+    distanceMiles: 50,
     tags: [
       "Wall mount",
       "Need pro to determine",
@@ -52,12 +55,48 @@ const requests: Request[] = [
   },
   {
     id: 2,
-    customerName: "Morgan McKenzie",
+    customerName: "Ghiran ",
     leadResponse: "1st to respond (83)",
     timeAgo: "about 20 hours ago",
     location: "Alexandria, VA 22310",
     dateRange: "Aug 5–11",
     openDates: true,
+    distanceMiles: 100,
+    tags: ["Fixture/outlet issue", "Lights", "10–14 ft ceiling", "House", "22310"],
+    createdAt: "2025-08-12T14:00:00Z",
+  },
+  {
+    id: 3,
+    customerName: "McKenzie ",
+    leadResponse: "1st to respond (83)",
+    timeAgo: "about 15 hours ago",
+    location: "Arlington, VA 22201",
+    dateRange: "Aug 5–7",
+    openDates: true,
+    distanceMiles: 50,
+    tags: [
+      "Wall mount",
+      "Need pro to determine",
+      "TV ≤ 60 inches",
+      "Outlet nearby",
+      "No cable concealment",
+      "Have mount/stand",
+      "Flat wall (fixed)",
+      "Not sure",
+      "None",
+      "22201",
+    ],
+    createdAt: "2025-08-12T19:00:00Z",
+  },
+  {
+    id: 4,
+    customerName: "Morgan ",
+    leadResponse: "1st to respond (83)",
+    timeAgo: "about 20 hours ago",
+    location: "Alexandria, VA 22310",
+    dateRange: "Aug 5–11",
+    openDates: true,
+    distanceMiles: 100,
     tags: ["Fixture/outlet issue", "Lights", "10–14 ft ceiling", "House", "22310"],
     createdAt: "2025-08-12T14:00:00Z",
   },
@@ -71,6 +110,8 @@ const RESPONSE_OPTIONS = [
   "4th to respond (56)",
   "5th to respond (98)",
 ] as const;
+
+const MILES_OPTIONS = ["All", "50", "100", "150", "200", "250", "300"] as const;
 
 type SortKey = "relevant" | "newest" | "oldest";
 
@@ -86,28 +127,30 @@ export default function CustomerRequests() {
   const [responseFilter, setResponseFilter] =
     useState<(typeof RESPONSE_OPTIONS)[number]>("All Leads");
   const [sortBy, setSortBy] = useState<SortKey>("relevant");
+  const [milesFilter, setMilesFilter] = useState<(typeof MILES_OPTIONS)[number]>("All");
 
   const visibleRequests = useMemo(() => {
     let data = [...requests];
 
-    // filter by lead response rank
+    // Filter by lead response rank
     if (responseFilter !== "All Leads") {
       data = data.filter((r) => r.leadResponse === responseFilter);
     }
 
-    // sort
-    if (sortBy === "newest") {
-      data.sort(
-        (a, b) => +new Date(b.createdAt) - +new Date(a.createdAt)
-      );
-    } else if (sortBy === "oldest") {
-      data.sort(
-        (a, b) => +new Date(a.createdAt) - +new Date(b.createdAt)
-      );
+    // Filter by miles
+    if (milesFilter !== "All") {
+      const milesNum = parseInt(milesFilter);
+      data = data.filter((r) => r.distanceMiles && r.distanceMiles <= milesNum);
     }
-    // "relevant" keeps predefined order
+
+    // Sort
+    if (sortBy === "newest") {
+      data.sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt));
+    } else if (sortBy === "oldest") {
+      data.sort((a, b) => +new Date(a.createdAt) - +new Date(b.createdAt));
+    }
     return data;
-  }, [responseFilter, sortBy]);
+  }, [responseFilter, sortBy, milesFilter]);
 
   return (
     <div className="w-full">
@@ -116,6 +159,7 @@ export default function CustomerRequests() {
         {/* Controls */}
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-6">
           <div className="flex flex-col sm:flex-row gap-3">
+
             {/* Response Filter */}
             <Select
               value={responseFilter}
@@ -136,6 +180,26 @@ export default function CustomerRequests() {
               </SelectContent>
             </Select>
 
+            {/* Miles Filter */}
+            <Select
+              value={milesFilter}
+              onValueChange={(val) =>
+                setMilesFilter(val as (typeof MILES_OPTIONS)[number])
+              }
+            >
+              <SelectTrigger className="w-full sm:w-[150px] rounded-sm border dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 focus:ring-[var(--accent)]"
+                style={{ ["--accent" as any]: ACCENT }}>
+                <SelectValue placeholder="Miles" />
+              </SelectTrigger>
+              <SelectContent>
+                {MILES_OPTIONS.map((opt) => (
+                  <SelectItem key={opt} value={opt}>
+                    {opt === "All" ? "Select Miles" : `${opt} miles`}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
             {/* Sort */}
             <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortKey)}>
               <SelectTrigger className="w-full sm:w-[200px] rounded-sm border dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 focus:ring-[var(--accent)]"
@@ -148,23 +212,6 @@ export default function CustomerRequests() {
                 <SelectItem value="oldest">Oldest</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-
-          {/* Quick Pills */}
-          <div className="flex flex-wrap gap-2">
-            <Link
-              href="#"
-              className="text-xs sm:text-sm font-medium py-2 px-4 rounded-sm bg-[rgba(0,102,183,0.12)] text-[color:var(--accent)] hover:bg-[rgba(0,102,183,0.18)] transition"
-              style={{ ["--accent" as any]: ACCENT }}
-            >
-              Free Leads (19)
-            </Link>
-            <Link
-              href="#"
-              className="text-xs sm:text-sm font-medium py-2 px-4 rounded-sm bg-red-100 text-red-600 hover:bg-red-200 transition"
-            >
-              Urgent (82)
-            </Link>
           </div>
         </div>
 
@@ -181,14 +228,11 @@ export default function CustomerRequests() {
                   {/* Avatar */}
                   <div
                     className="w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center font-semibold text-white shadow-sm"
-                    style={{
-                      background: ACCENT,
-                    }}
+                    style={{ background: ACCENT }}
                     aria-label={`Customer ${req.customerName}`}
                   >
                     {req.avatarUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
+                      <Image
                         src={req.avatarUrl}
                         alt={req.customerName}
                         className="w-full h-full object-cover rounded-sm"
@@ -204,7 +248,6 @@ export default function CustomerRequests() {
                       <span className="text-base md:text-lg font-semibold text-gray-900 dark:text-gray-100 truncate">
                         {req.customerName}
                       </span>
-                      {/* Lead Response Badge */}
                       <span
                         className="inline-flex items-center text-[11px] md:text-xs font-medium px-2.5 py-1 rounded-full bg-[rgba(0,102,183,0.10)] text-[color:var(--accent)] ring-1 ring-[rgba(0,102,183,0.20)]"
                         style={{ ["--accent" as any]: ACCENT }}
@@ -279,15 +322,6 @@ export default function CustomerRequests() {
           ))}
         </div>
 
-
-      </div>
-      <div className="px-6">
-        <Link
-          href="/home-services/dashboard/Opportunities"
-          className="text-[#0077B6] font-medium px-4 py-2 rounded-lg hover:bg-[#E0F2FF] transition-colors duration-200"
-        >
-          Opportunities
-        </Link>
       </div>
 
     </div>
