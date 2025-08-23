@@ -9,7 +9,7 @@ export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const [imageError, setImageError] = useState(false);
 
-  const userName = "Musharof"; // you can dynamically set this based on your app's data
+  const userName = "Liaqat Paindah"; // you can dynamically set this based on your app's data
 
   function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     e.stopPropagation();
@@ -80,7 +80,7 @@ export default function UserDropdown() {
             {userName}
           </span>
           <span className="mt-0.5 block text-theme-xs text-gray-500 dark:text-gray-400">
-            {`${userName}@gmail.com`}
+            {`Liaqat.Paindah@gmail.com`}
           </span>
         </div>
 
@@ -89,11 +89,11 @@ export default function UserDropdown() {
             <DropdownItem
               onItemClick={closeDropdown}
               tag="a"
-              href="/profile"
+              href="/home-services/dashboard/integration"
               className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
             >
               {/* Your icon and text */}
-              Edit profile
+             Integrations
             </DropdownItem>
           </li>
           <li>
@@ -104,9 +104,45 @@ export default function UserDropdown() {
               className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
             >
               {/* Your icon and text */}
-              Account settings
+              Insights
             </DropdownItem>
           </li>
+                    <li>
+            <DropdownItem
+              onItemClick={closeDropdown}
+              tag="a"
+              href="/home-services/dashboard/reviews"
+              className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
+            >
+              {/* Your icon and text */}
+              Reviews
+            </DropdownItem>
+          </li>
+
+                              <li>
+            <DropdownItem
+              onItemClick={closeDropdown}
+              tag="a"
+              href="/profile"
+              className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
+            >
+              {/* Your icon and text */}
+              Payments
+            </DropdownItem>
+          </li>
+
+                              <li>
+            <DropdownItem
+              onItemClick={closeDropdown}
+              tag="a"
+              href="/profile"
+              className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
+            >
+              {/* Your icon and text */}
+              Earnings
+            </DropdownItem>
+          </li>
+
           <li>
             <DropdownItem
               onItemClick={closeDropdown}
@@ -115,12 +151,18 @@ export default function UserDropdown() {
               className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
             >
               {/* Your icon and text */}
-              Support
+              Setting
             </DropdownItem>
           </li>
         </ul>
 
         <Link
+          href="/signin"
+          className="flex items-center gap-3 px-3 py-2 mt-3 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
+        >
+          Refer pros. Get up to 100$.
+        </Link>
+                <Link
           href="/signin"
           className="flex items-center gap-3 px-3 py-2 mt-3 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
         >
