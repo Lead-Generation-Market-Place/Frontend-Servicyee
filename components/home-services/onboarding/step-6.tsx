@@ -1,6 +1,6 @@
 'use client';
 import { Loader2 } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ProgressBar } from "@/components/home-services/onboarding/ProgressBar";
 const ONBOARDING_STEPS = [
@@ -17,15 +17,10 @@ export default function WorkControlCard() {
   const [currentStep] = useState(3);
   const [isPending, setIsPending] = useState(false)
   const router = useRouter();
-  // Get service Id
-  const params = useSearchParams()
-  const serviceId = params.get('id')
+
   const handleNext = () => {
     setIsPending(true);
-    if (serviceId) {
-      setIsPending(true)
-      router.back()
-    }
+
     router.push(`/home-services/dashboard/services/step-7`);
   };
   const handleBack = () => {
@@ -33,14 +28,12 @@ export default function WorkControlCard() {
   };
   return (
     <div>
-      {!serviceId && (
         <ProgressBar
           currentStep={currentStep}
           totalSteps={ONBOARDING_STEPS.length}
           steps={ONBOARDING_STEPS}
           className="mb-8"
         />
-      )}
       <div className="dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col justify-between">
         <div className="max-w-xl mx-auto py-12 px-4">
           <div className="flex flex-col items-center text-center">
