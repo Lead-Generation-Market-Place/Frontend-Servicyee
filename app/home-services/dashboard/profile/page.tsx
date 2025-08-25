@@ -21,7 +21,7 @@ const initialTasks: Task[] = [
   { id: 1, text: "Business Profile", key: "business", completed: true, icon: UserCheck, href: "/home-services/dashboard/services/step-4", description: "Basic business information and contact details" },
   { id: 2, text: "Availability", key: "dub", completed: true, icon: Clock, href: "/home-services/dashboard/services/step-7", description: "Set your working hours and availability" },
   { id: 3, text: "Pricing & Budget", key: "service", completed: true, icon: DollarSign, href: "/home-services/dashboard/services/step-10", description: "Define your service rates and budget" },
-  { id: 4, text: "Customer Reviews", key: "review", completed: false, icon: Award, href: "/home-services/dashboard/services/step-6", description: "Add testimonials from past clients" },
+  { id: 4, text: "Customer Reviews", key: "review", completed: false, icon: Award, href: "/home-services/dashboard/services/step-5", description: "Add testimonials from past clients" },
   { id: 5, text: "Background Check", key: "background", completed: false, icon: Target, href: "/home-services/dashboard/services/step-11", description: "Verify your credentials and trustworthiness" },
 ];
 
