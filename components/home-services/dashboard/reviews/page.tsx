@@ -5,6 +5,10 @@ import { Star } from "lucide-react";
 import { motion, useInView, useAnimation, stagger, animate } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import ReviewList from "./ReviewList";
+import type { ReviewItem } from "@/types/reviews/types";
+
+
 
 // Define the exact shape of the data you expect from the API
 type ReviewsResult = {
@@ -12,6 +16,29 @@ type ReviewsResult = {
   averageRating: number;
   totalReviews: number;
 };
+const reviews: ReviewItem[] = [
+  {
+    id: "1",
+    name: "Martin Luather",
+    rating: 4,
+    timeAgo: "2 days ago",
+    comment: "Overall, I am satisfied with the service. The staff was courteous and knowledgeable. One area for improvement could be response time to queries, but I appreciate their dedication and effort.",
+    status: "Pending",    // <-- added
+    helpful: 2,           // <-- added
+    replies: [
+    ]
+  },
+  {
+    id: "2",
+    name: "Johan Smith",
+    rating: 5,
+    timeAgo: "3 days ago",
+    comment: "I had an outstanding experience! The team was professional, punctual, and went above and beyond to ensure everything was perfect. I highly recommend their services to anyone looking for quality and reliability.",
+    status: "Approved",   // <-- added
+    helpful: 5,           // <-- added
+  },
+];
+
 
 export default function ReviewsSetup() {
   const containerRef = useRef(null);
@@ -203,11 +230,10 @@ export default function ReviewsSetup() {
           initial={{ opacity: 0, y: 5 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.45, type: "spring", stiffness: 300 }}
-          className="text-center border border-dashed border-gray-200 dark:border-gray-600 rounded p-6 bg-gray-50 dark:bg-gray-800"
+          className="text-center  dark:border-gray-600 rounded py-6  "
         >
-          <p className="text-gray-600 dark:text-gray-300 text-sm mb-3">
-            You have not received any reviews yet.
-          </p>
+
+          <div className="py-4">
           <button
             onClick={HandleRequest}
             className="text-xs px-5 py-2 rounded font-medium hover:opacity-90 transition-opacity duration-150"
@@ -218,6 +244,8 @@ export default function ReviewsSetup() {
           >
             Request Reviews
           </button>
+          </div>
+          <ReviewList reviews={reviews} />
         </motion.div>
     </motion.div>
   );

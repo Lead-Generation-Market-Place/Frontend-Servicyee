@@ -18,13 +18,11 @@ const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
 });
 
-// ✅ Define months outside so we don’t depend on options inside useMemo
 const MONTHS = [
   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
 ];
 
-// Example raw data
 const rawData = [
   {
     service: "Plumbing",
@@ -62,15 +60,15 @@ export default function MonthlyCreditsUsageAdvanced() {
   const options: ApexOptions = {
     chart: {
       type: "bar",
-      height: 250,
       stacked: true,
       toolbar: { show: false },
       fontFamily: "Inter",
+      animations: { enabled: true },
     },
     plotOptions: {
       bar: {
         horizontal: false,
-        columnWidth: "50%",
+        columnWidth: "45%",
         borderRadius: 6,
       },
     },
@@ -78,11 +76,11 @@ export default function MonthlyCreditsUsageAdvanced() {
     dataLabels: { enabled: false },
     stroke: { show: true, width: 2, colors: ["#fff"] },
     xaxis: {
-      categories: MONTHS, // ✅ use MONTHS constant
+      categories: MONTHS,
       axisBorder: { show: false },
       axisTicks: { show: false },
     },
-    yaxis: { title: { text: "Credits" } },
+    yaxis: { title: { text: "Amount ($)" } },
     legend: {
       position: "top",
       horizontalAlign: "left",
@@ -92,12 +90,31 @@ export default function MonthlyCreditsUsageAdvanced() {
     fill: { opacity: 1 },
     tooltip: {
       y: {
-        formatter: (val: number) => `${val} credits`,
+        formatter: (val: number, opts) => {
+          const seriesName = opts.seriesIndex === 0 ? "Cost Spent" : "Credits Received";
+          return `${seriesName}: $${val}`;
+        },
       },
     },
+    responsive: [
+      {
+        breakpoint: 1024,
+        options: { plotOptions: { bar: { columnWidth: "55%" } } },
+      },
+      {
+        breakpoint: 768,
+        options: { plotOptions: { bar: { columnWidth: "70%" } }, legend: { fontSize: "12px" } },
+      },
+      {
+        breakpoint: 480,
+        options: {
+          plotOptions: { bar: { columnWidth: "90%" } },
+          legend: { fontSize: "10px" },
+        },
+      },
+    ],
   };
 
-  // ✅ Now MONTHS is stable, no warning
   const filteredSeries = useMemo(() => {
     let filteredData = rawData;
 
@@ -109,32 +126,31 @@ export default function MonthlyCreditsUsageAdvanced() {
       filteredData = filteredData.filter(d => d.year === selectedYear);
     }
 
-    let creditsUsed = new Array(12).fill(0);
-    let creditsRemaining = new Array(12).fill(0);
+    let costSpent = new Array(12).fill(0);
+    let creditsReceived = new Array(12).fill(0);
 
     filteredData.forEach(d => {
-      d.creditsUsed.forEach((val, idx) => { creditsUsed[idx] += val });
-      d.creditsRemaining.forEach((val, idx) => { creditsRemaining[idx] += val });
+      d.creditsUsed.forEach((val, idx) => { costSpent[idx] += val });
+      d.creditsRemaining.forEach((val, idx) => { creditsReceived[idx] += val });
     });
 
     if (selectedMonth !== "All Months") {
       const monthIndex = MONTHS.indexOf(selectedMonth);
-      creditsUsed = creditsUsed.map((v, idx) => (idx === monthIndex ? v : 0));
-      creditsRemaining = creditsRemaining.map((v, idx) => (idx === monthIndex ? v : 0));
+      costSpent = costSpent.map((v, idx) => (idx === monthIndex ? v : 0));
+      creditsReceived = creditsReceived.map((v, idx) => (idx === monthIndex ? v : 0));
     }
 
     return [
-      { name: "Credits Used", data: creditsUsed },
-      { name: "Credits Remaining", data: creditsRemaining },
+      { name: "Cost Spent", data: costSpent },
+      { name: "Credits Received", data: creditsReceived },
     ];
-  }, [selectedService, selectedMonth, selectedYear]); // ✅ no options dependency
+  }, [selectedService, selectedMonth, selectedYear]);
 
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-5 pt-5 sm:px-6 sm:pt-6">
-      {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-gray-800">
-          Monthly Usage of Credits
+          Monthly Cost & Credits
         </h3>
 
         <div className="relative inline-block">
@@ -158,7 +174,6 @@ export default function MonthlyCreditsUsageAdvanced() {
         </div>
       </div>
 
-      {/* Filters */}
       <div className="flex flex-wrap gap-3 mb-4">
         <Select value={selectedService} onValueChange={setSelectedService}>
           <SelectTrigger className="w-40">
@@ -196,13 +211,13 @@ export default function MonthlyCreditsUsageAdvanced() {
         </Select>
       </div>
 
-      {/* Chart */}
-      <div className="max-w-full overflow-x-auto">
+      <div className="w-full">
         <ReactApexChart
           options={options}
           series={filteredSeries}
           type="bar"
-          height={250}
+          width="100%"
+          height={300}
         />
       </div>
     </div>

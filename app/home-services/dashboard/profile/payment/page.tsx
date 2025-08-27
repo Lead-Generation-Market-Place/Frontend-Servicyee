@@ -62,120 +62,117 @@ const PaymentsPage = () => {
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
-            <main className="max-w-5xl mx-auto p-4 lg:p-8">
-                <h1 className="text-2xl lg:text-3xl font-bold mb-6">Payments</h1>
+           <main className="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8">
+    <h1 className="text-2xl sm:text-3xl font-bold mb-6">Payments</h1>
 
-                {/* Payment Methods */}
-                <section className="mb-8 bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
-                    <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-lg font-semibold">Payment methods</h2>
-                        <button
-                            onClick={() => setOpen(true)}
-                            className="px-4 py-2 rounded-sm transition-colors flex items-center"
-                            style={{ backgroundColor: "#0077B6", color: "#fff" }}
-                        >
-                            + Add a new card
-                        </button>
-                        {open && (
-                                  <CardDetails open={open} setOpen={setOpen} onSave={handleSaveCard} />
-
+    {/* Payment Methods */}
+    <section className="mb-8 bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 sm:gap-0">
+            <h2 className="text-lg font-semibold">Payment methods</h2>
+            <button
+                onClick={() => setOpen(true)}
+                className="px-4 py-2 rounded-sm transition-colors flex items-center w-full sm:w-auto justify-center"
+                style={{ backgroundColor: "#0077B6", color: "#fff" }}
+            >
+                + Add a new card
+            </button>
+            {open && <CardDetails open={open} setOpen={setOpen} onSave={handleSaveCard} />}
+        </div>
+        {cards.length === 0 ? (
+            <p className="text-gray-500">No card on file</p>
+        ) : (
+            <div className="space-y-4">
+                {cards.map((card) => (
+                    <div
+                        key={card.id}
+                        className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 border border-gray-200 dark:border-gray-700 rounded-lg"
+                    >
+                        <div>
+                            <p className="font-medium">
+                                {card.type} ending in {card.last4}
+                            </p>
+                            <p className="text-sm text-gray-500">Expires {card.expiry}</p>
+                        </div>
+                        {card.isDefault && (
+                            <span
+                                className="mt-2 sm:mt-0 ml-0 sm:ml-4 text-xs px-2.5 py-0.5 rounded"
+                                style={{ backgroundColor: "#0077B622", color: "#0077B6" }}
+                            >
+                                Default
+                            </span>
                         )}
                     </div>
-                    {cards.length === 0 ? (
-                        <p className="text-gray-500">No card on file</p>
-                    ) : (
-                        <div className="space-y-4">
-                            {cards.map((card) => (
-                                <div
-                                    key={card.id}
-                                    className="flex justify-between items-center p-4 border border-gray-200 dark:border-gray-700 rounded-lg"
+                ))}
+            </div>
+        )}
+    </section>
+
+    {/* Billing Settings */}
+    <section className="mb-8 bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 sm:gap-0">
+            <h2 className="text-lg font-semibold">Billing settings</h2>
+            <button
+                onClick={() => setOpen(true)}
+                className="px-4 py-2 rounded-sm transition-colors w-full sm:w-auto"
+                style={{ backgroundColor: "#0077B6", color: "#fff" }}
+            >
+                Add funds
+            </button>
+            <Funds open={open} setOpen={setOpen} />
+        </div>
+        <div
+            className="p-6 border border-gray-200 dark:border-gray-700 rounded-lg"
+            style={{ backgroundColor: "#0077B622" }}
+        >
+            <p className="text-gray-500 text-sm uppercase mb-1">Current Balance</p>
+            <p className="text-2xl font-bold mb-4">{balance.toFixed(2)} Credits</p>
+            <p className="text-gray-500 text-sm">You are being charged per lead.</p>
+        </div>
+    </section>
+
+    {/* Activity Section */}
+    <section className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
+        <Tabs tabs={["Activity", "Receipts"]} activeTab={activeTab} setActiveTab={setActiveTab} />
+
+        {activeTab === "activity" ? (
+            <div className="overflow-x-auto mt-6">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead className="bg-gray-100 dark:bg-gray-700">
+                        <tr>
+                            <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase">Date</th>
+                            <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase">Description</th>
+                            <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase">Amount</th>
+                            <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                        {activity.map((transaction) => (
+                            <tr key={transaction.id}>
+                                <td className="px-4 py-4 text-sm sm:text-base text-gray-500">{transaction.date}</td>
+                                <td className="px-4 py-4 text-sm sm:text-base">{transaction.description}</td>
+                                <td
+                                    className={`px-4 py-4 text-sm sm:text-base font-medium ${transaction.amount > 0 ? "text-green-600" : "text-red-600"
+                                        }`}
                                 >
-                                    <div>
-                                        <p className="font-medium">
-                                            {card.type} ending in {card.last4}
-                                        </p>
-                                        <p className="text-sm text-gray-500">Expires {card.expiry}</p>
-                                    </div>
-                                    {card.isDefault && (
-                                        <span
-                                            className="ml-4 text-xs px-2.5 py-0.5 rounded"
-                                            style={{ backgroundColor: "#0077B622", color: "#0077B6" }}
-                                        >
-                                            Default
-                                        </span>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </section>
+                                    {transaction.amount > 0 ? "+" : ""}
+                                    {transaction.amount.toFixed(2)}
+                                </td>
+                                <td className="px-4 py-4">
+                                    <span className="px-2 inline-flex text-xs sm:text-sm font-semibold rounded-full bg-green-100 text-green-800">
+                                        {transaction.status}
+                                    </span>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        ) : (
+            <div className="text-center py-10 text-gray-500">No receipts available</div>
+        )}
+    </section>
+</main>
 
-                {/* Billing Settings */}
-                <section className="mb-8 bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
-                    <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-lg font-semibold">Billing settings</h2>
-                        <button
-                        onClick={()=>setOpen(true)}
-                            className="px-4 py-2 rounded-sm transition-colors"
-                            style={{ backgroundColor: "#0077B6", color: "#fff" }}
-                        >
-                            Add funds
-                        </button>
-
-                        <Funds open={open} setOpen={setOpen}  />
-                    </div>
-                    <div
-                        className="p-6 border border-gray-200 dark:border-gray-700 rounded-lg"
-                        style={{ backgroundColor: "#0077B622" }}
-                    >
-                        <p className="text-gray-500 text-sm uppercase mb-1">Current Balance</p>
-                        <p className="text-3xl font-bold mb-4">{balance.toFixed(2)} Credits</p>
-                        <p className="text-gray-500 text-sm">You are being charged per lead.</p>
-                    </div>
-                </section>
-
-                {/* Activity Section */}
-                <section className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
-                    <Tabs tabs={["Activity", "Receipts"]} activeTab={activeTab} setActiveTab={setActiveTab} />
-
-                    {activeTab === "activity" ? (
-                        <div className="overflow-x-auto mt-6">
-                            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                                <thead className="bg-gray-100 dark:bg-gray-700">
-                                    <tr>
-                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
-                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
-                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                                    {activity.map((transaction) => (
-                                        <tr key={transaction.id}>
-                                            <td className="px-4 py-4 text-sm text-gray-500">{transaction.date}</td>
-                                            <td className="px-4 py-4 text-sm">{transaction.description}</td>
-                                            <td
-                                                className={`px-4 py-4 text-sm font-medium ${transaction.amount > 0 ? "text-green-600" : "text-red-600"
-                                                    }`}
-                                            >
-                                                {transaction.amount > 0 ? "+" : ""}
-                                                {transaction.amount.toFixed(2)}
-                                            </td>
-                                            <td className="px-4 py-4">
-                                                <span className="px-2 inline-flex text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                                                    {transaction.status}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    ) : (
-                        <div className="text-center py-10 text-gray-500">No receipts available</div>
-                    )}
-                </section>
-            </main>
         </div>
     );
 };

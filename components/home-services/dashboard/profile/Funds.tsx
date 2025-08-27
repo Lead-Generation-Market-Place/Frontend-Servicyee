@@ -41,10 +41,7 @@ export default function CreditDialog({ open, setOpen }: FundDialog) {
 
           {/* Body */}
           <div className="px-5 py-4 space-y-6">
-            {/* Balance */}
-            <div className="text-sm text-gray-700 dark:text-gray-300 bg-green-100 text-green-700 px-3 py-1 rounded inline-block">
-              Your current balance: 0.00
-            </div>
+
 
             {/* Select amount */}
             <div>
