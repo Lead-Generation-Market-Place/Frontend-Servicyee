@@ -1,47 +1,45 @@
+"use client";
 /// <reference types="@types/google.maps" />
 /* global google */
-"use client";
 import { Libraries } from "@react-google-maps/api";
 import React, { useRef, useState, useEffect, useCallback, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { GoogleMap, useJsApiLoader, Circle, StandaloneSearchBox, } from "@react-google-maps/api";
+import { GoogleMap, useJsApiLoader, Circle, StandaloneSearchBox } from "@react-google-maps/api";
 import { Loader2 } from "lucide-react";
 import { ProgressBar } from "./ProgressBar";
+
 const libraries: Libraries = ["places"];
 
 const ONBOARDING_STEPS = [
-  { id: 1, name: 'Profile' },
-  { id: 2, name: 'Reviews' },
-  { id: 3, name: 'Preferences' },
-  { id: 4, name: 'Location' },
-  { id: 5, name: 'Payment' },
-  { id: 6, name: 'Background' },
+  { id: 1, name: "Profile" },
+  { id: 2, name: "Reviews" },
+  { id: 3, name: "Preferences" },
+  { id: 4, name: "Location" },
+  { id: 5, name: "Payment" },
+  { id: 6, name: "Background" },
 ];
 
+const containerStyle = { width: "100%", height: "400px" };
 
-
-const containerStyle = {
-  width: "100%",
-  height: "400px",
-};
 const TAB_OPTIONS = [
   { label: "Select by Distance", value: "distance" },
   { label: "Advanced", value: "advanced" },
 ];
-const milesToMeters = (miles: number) => miles * 1609.34;
-const Map = () => {
-  // Memoize search params to prevent unnecessary recalculations
 
+const milesToMeters = (miles: number) => miles * 1609.34;
+
+const Map = () => {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+
   const searchBoxRef = useRef<google.maps.places.SearchBox | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
+
   const [activeTab, setActiveTab] = useState("distance");
   const [radiusMiles, setRadiusMiles] = useState(10);
-    const [currentStep] = useState(4);
-  
+  const [currentStep] = useState(4);
   const [center, setCenter] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<{
     lat: number;
@@ -50,55 +48,63 @@ const Map = () => {
     state?: string;
     zip?: string;
   } | null>(null);
+
+  // Load API key safely
+  const googleMapsApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? "AIzaSyC2JLLhvswLGTAa_2gzfr7Jeef2pYxEo_o";
+  if (!googleMapsApiKey) {
+    throw new Error(
+      "Google Maps API key is missing. Please set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY in your environment."
+    );
+  }
+
   const { isLoaded, loadError } = useJsApiLoader({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
+    googleMapsApiKey,
     libraries,
   });
+
   const onMapLoad = useCallback((map: google.maps.Map) => {
     mapRef.current = map;
   }, []);
+
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          const userLoc = {
-            lat: pos.coords.latitude,
-            lng: pos.coords.longitude,
-          };
+          const userLoc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
           setCenter(userLoc);
           setSelectedLocation({ ...userLoc });
         },
-        () => {
-        }
+        () => {}
       );
     }
   }, []);
 
   const onPlacesChanged = () => {
-    
     const places = searchBoxRef.current?.getPlaces();
-    if (places && places.length > 0) {
-      const place = places[0];
-      const location = place.geometry?.location;
-      const addressComponents = place.address_components;
+    if (!places || places.length === 0) return;
 
-      if (location) {
-        const lat = location.lat();
-        const lng = location.lng();
-        let city = "", state = "", zip = "";
+    const place = places[0];
+    const location = place.geometry?.location;
+    const addressComponents = place.address_components;
 
-        if (addressComponents) {
-          for (const comp of addressComponents) {
-            const types = comp.types;
-            if (types.includes("locality")) city = comp.long_name;
-            if (types.includes("administrative_area_level_1")) state = comp.short_name;
-            if (types.includes("postal_code")) zip = comp.long_name;
-          }
+    if (location) {
+      const lat = location.lat();
+      const lng = location.lng();
+      let city = "",
+        state = "",
+        zip = "";
+
+      if (addressComponents) {
+        for (const comp of addressComponents) {
+          const types = comp.types;
+          if (types.includes("locality")) city = comp.long_name;
+          if (types.includes("administrative_area_level_1")) state = comp.short_name;
+          if (types.includes("postal_code")) zip = comp.long_name;
         }
-
-        setCenter({ lat, lng });
-        setSelectedLocation({ lat, lng, city, state, zip });
       }
+
+      setCenter({ lat, lng });
+      setSelectedLocation({ lat, lng, city, state, zip });
     }
   };
 
@@ -109,8 +115,7 @@ const Map = () => {
     }
 
     try {
-      startTransition(async () => {
-
+      startTransition(() => {
         router.push(`/home-services/dashboard/services/step-10`);
       });
     } catch (err) {
@@ -119,9 +124,7 @@ const Map = () => {
   };
 
   const handleBack = () => {
-            router.back();
-
-    
+    router.back();
   };
 
   if (loadError) {
@@ -138,22 +141,24 @@ const Map = () => {
 
   return (
     <div className="space-y-4">
-            <ProgressBar
-              currentStep={currentStep}
-              totalSteps={ONBOARDING_STEPS.length}
-              steps={ONBOARDING_STEPS}
-              className="mb-8"
-            />
+      <ProgressBar
+        currentStep={currentStep}
+        totalSteps={ONBOARDING_STEPS.length}
+        steps={ONBOARDING_STEPS}
+        className="mb-8"
+      />
+
       {/* Tabs */}
       <div className="border-b border-gray-200 dark:border-gray-700">
         <ul className="flex flex-wrap -mb-px text-xs font-medium text-center" role="tablist">
           {TAB_OPTIONS.map((tab) => (
             <li className="me-2" key={tab.value}>
               <button
-                className={`inline-block p-2.5 border-b-2 rounded-t-lg transition-colors duration-200 ${activeTab === tab.value
-                  ? "text-[#0077B6] border-[#0077B6]"
-                  : "text-gray-500 border-transparent hover:text-gray-600 hover:border-gray-300"
-                  }`}
+                className={`inline-block p-2.5 border-b-2 rounded-t-lg transition-colors duration-200 ${
+                  activeTab === tab.value
+                    ? "text-[#0077B6] border-[#0077B6]"
+                    : "text-gray-500 border-transparent hover:text-gray-600 hover:border-gray-300"
+                }`}
                 onClick={() => setActiveTab(tab.value)}
               >
                 {tab.label}
@@ -171,9 +176,7 @@ const Map = () => {
         >
           {/* Left Controls */}
           <div className="flex flex-col gap-3 w-full md:w-1/3 px-4 py-6">
-            <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
-              Select by distance
-            </h2>
+            <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">Select by distance</h2>
             <p className="text-xs text-gray-600 dark:text-gray-400">
               Set the max distance from your business location
             </p>
@@ -216,7 +219,7 @@ const Map = () => {
           <div className="relative flex-1">
             <GoogleMap
               mapContainerStyle={containerStyle}
-              center={center ?? { lat: 39.8283, lng: -98.5795 }} // fallback center to continental US if none
+              center={center ?? { lat: 39.8283, lng: -98.5795 }}
               zoom={center ? 6 : 4}
               onLoad={onMapLoad}
             >
@@ -245,9 +248,7 @@ const Map = () => {
           style={{ minHeight: 400 }}
         >
           <div className="text-center max-w-xs">
-            <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
-              Advanced Filters
-            </h3>
+            <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-2">Advanced Filters</h3>
             <p className="text-xs text-gray-600 dark:text-gray-400">
               Coming soon: More advanced filtering options for precise location targeting.
             </p>
@@ -269,10 +270,8 @@ const Map = () => {
           disabled={isPending || !selectedLocation}
           onClick={handleNext}
           className={`mt-6 py-2 px-6 rounded-[4px] flex items-center justify-center gap-2 text-white text-[13px] transition duration-300
-            ${!selectedLocation || isPending
-              ? "bg-[#0077B6]/70 cursor-not-allowed"
-              : "bg-[#0077B6] hover:bg-[#005f8e]"
-            }`}
+            ${!selectedLocation || isPending ? "bg-[#0077B6]/70 cursor-not-allowed" : "bg-[#0077B6] hover:bg-[#005f8e]"}
+          `}
         >
           {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
           <span>Next</span>
