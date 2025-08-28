@@ -1,6 +1,6 @@
-"use client";
 /// <reference types="@types/google.maps" />
-/* global google */
+"use client";
+
 import { Libraries } from "@react-google-maps/api";
 import React, { useRef, useState, useEffect, useCallback, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -49,11 +49,11 @@ const Map = () => {
     zip?: string;
   } | null>(null);
 
-  // Load API key safely
-  const googleMapsApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? "AIzaSyC2JLLhvswLGTAa_2gzfr7Jeef2pYxEo_o";
+  // --- Safely get API key ---
+  const googleMapsApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? "";
   if (!googleMapsApiKey) {
     throw new Error(
-      "Google Maps API key is missing. Please set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY in your environment."
+      "Google Maps API key is missing! Please set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY in your environment variables."
     );
   }
 
@@ -66,6 +66,7 @@ const Map = () => {
     mapRef.current = map;
   }, []);
 
+  // --- Get user geolocation ---
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -79,6 +80,7 @@ const Map = () => {
     }
   }, []);
 
+  // --- Handle place selection ---
   const onPlacesChanged = () => {
     const places = searchBoxRef.current?.getPlaces();
     if (!places || places.length === 0) return;
@@ -108,6 +110,7 @@ const Map = () => {
     }
   };
 
+  // --- Navigation ---
   const handleNext = async () => {
     if (!selectedLocation) {
       toast.error("Please select your business location first.");
@@ -127,6 +130,7 @@ const Map = () => {
     router.back();
   };
 
+  // --- Loading / error states ---
   if (loadError) {
     return <div>Error loading Google Maps</div>;
   }
@@ -138,6 +142,9 @@ const Map = () => {
       </div>
     );
   }
+
+  // --- Default map center fallback ---
+  const safeCenter = center ?? { lat: 39.8283, lng: -98.5795 }; // continental US
 
   return (
     <div className="space-y-4">
@@ -219,7 +226,7 @@ const Map = () => {
           <div className="relative flex-1">
             <GoogleMap
               mapContainerStyle={containerStyle}
-              center={center ?? { lat: 39.8283, lng: -98.5795 }}
+              center={safeCenter}
               zoom={center ? 6 : 4}
               onLoad={onMapLoad}
             >
@@ -241,7 +248,7 @@ const Map = () => {
         </div>
       )}
 
-      {/* Advanced Tab Placeholder */}
+      {/* Advanced Tab */}
       {activeTab === "advanced" && (
         <div
           className="p-6 rounded-lg bg-white border border-gray-200 dark:bg-gray-900 dark:border-gray-700 flex items-center justify-center"
@@ -270,8 +277,7 @@ const Map = () => {
           disabled={isPending || !selectedLocation}
           onClick={handleNext}
           className={`mt-6 py-2 px-6 rounded-[4px] flex items-center justify-center gap-2 text-white text-[13px] transition duration-300
-            ${!selectedLocation || isPending ? "bg-[#0077B6]/70 cursor-not-allowed" : "bg-[#0077B6] hover:bg-[#005f8e]"}
-          `}
+            ${!selectedLocation || isPending ? "bg-[#0077B6]/70 cursor-not-allowed" : "bg-[#0077B6] hover:bg-[#005f8e]"}`}
         >
           {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
           <span>Next</span>
