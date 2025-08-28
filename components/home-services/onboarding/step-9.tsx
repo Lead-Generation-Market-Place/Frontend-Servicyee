@@ -1,15 +1,18 @@
 /// <reference types="@types/google.maps" />
 "use client";
 
-import { Libraries } from "@react-google-maps/api";
 import React, { useRef, useState, useEffect, useCallback, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { GoogleMap, useJsApiLoader, Circle, StandaloneSearchBox } from "@react-google-maps/api";
+import {
+  GoogleMap,
+  useLoadScript,
+  Circle,
+  StandaloneSearchBox,
+} from "@react-google-maps/api";
 import { Loader2 } from "lucide-react";
 import { ProgressBar } from "./ProgressBar";
 
-const libraries: Libraries = ["places"];
 
 const ONBOARDING_STEPS = [
   { id: 1, name: "Profile" },
@@ -49,24 +52,25 @@ const Map = () => {
     zip?: string;
   } | null>(null);
 
-  // --- Safely get API key ---
-  const googleMapsApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? "";
-  if (!googleMapsApiKey) {
-    throw new Error(
-      "Google Maps API key is missing! Please set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY in your environment variables."
-    );
+  // Safely get API key
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+
+  if (!apiKey) {
+    throw new Error('Missing NEXT_PUBLIC_GOOGLE_MAPS_API_KEY in environment variables.');
   }
 
-  const { isLoaded, loadError } = useJsApiLoader({
-    googleMapsApiKey,
-    libraries,
+  // Load the Google Maps scripts, including the "places" library for autocomplete
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey: apiKey,
+    libraries: ['places'],
   });
+
 
   const onMapLoad = useCallback((map: google.maps.Map) => {
     mapRef.current = map;
   }, []);
 
-  // --- Get user geolocation ---
+  // Get user geolocation
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -75,12 +79,14 @@ const Map = () => {
           setCenter(userLoc);
           setSelectedLocation({ ...userLoc });
         },
-        () => {}
+        () => {
+          // Optional: handle error or fallback
+        }
       );
     }
   }, []);
 
-  // --- Handle place selection ---
+  // Handle place selection from autocomplete
   const onPlacesChanged = () => {
     const places = searchBoxRef.current?.getPlaces();
     if (!places || places.length === 0) return;
@@ -110,8 +116,8 @@ const Map = () => {
     }
   };
 
-  // --- Navigation ---
-  const handleNext = async () => {
+  // Navigation handlers
+  const handleNext = () => {
     if (!selectedLocation) {
       toast.error("Please select your business location first.");
       return;
@@ -130,7 +136,7 @@ const Map = () => {
     router.back();
   };
 
-  // --- Loading / error states ---
+  // Loading / error states
   if (loadError) {
     return <div>Error loading Google Maps</div>;
   }
@@ -143,8 +149,7 @@ const Map = () => {
     );
   }
 
-  // --- Default map center fallback ---
-  const safeCenter = center ?? { lat: 39.8283, lng: -98.5795 }; // continental US
+  const safeCenter = center ?? { lat: 39.8283, lng: -98.5795 }; // US fallback
 
   return (
     <div className="space-y-4">
@@ -161,11 +166,10 @@ const Map = () => {
           {TAB_OPTIONS.map((tab) => (
             <li className="me-2" key={tab.value}>
               <button
-                className={`inline-block p-2.5 border-b-2 rounded-t-lg transition-colors duration-200 ${
-                  activeTab === tab.value
+                className={`inline-block p-2.5 border-b-2 rounded-t-lg transition-colors duration-200 ${activeTab === tab.value
                     ? "text-[#0077B6] border-[#0077B6]"
                     : "text-gray-500 border-transparent hover:text-gray-600 hover:border-gray-300"
-                }`}
+                  }`}
                 onClick={() => setActiveTab(tab.value)}
               >
                 {tab.label}
@@ -277,10 +281,10 @@ const Map = () => {
           disabled={isPending || !selectedLocation}
           onClick={handleNext}
           className={`mt-6 py-2 px-6 rounded-[4px] flex items-center justify-center gap-2 text-white text-[13px] transition duration-300
-            ${!selectedLocation || isPending ? "bg-[#0077B6]/70 cursor-not-allowed" : "bg-[#0077B6] hover:bg-[#005f8e]"}`}
+            ${!selectedLocation || isPending ? "bg-[#0077B6]/70 cursor-not-allowed" : "bg-[#0077B6] hover:bg-[#0077B6]/90"}`}
         >
-          {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-          <span>Next</span>
+          {isPending && <Loader2 className="animate-spin w-4 h-4" />}
+          Next
         </button>
       </div>
     </div>
