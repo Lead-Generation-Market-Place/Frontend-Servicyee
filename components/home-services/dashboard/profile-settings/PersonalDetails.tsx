@@ -4,6 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 
 const PersonalDetails = () => {
+  const EditBasicInfo = "edit-basic-info";
+  const EditIntro = "edit-intro";
   const professional = {
     company: "Clean Globe",
     profileImage: "/service_profile.jpg",
@@ -40,7 +42,10 @@ const PersonalDetails = () => {
             </div>
           </div>
           <div className="self-center sm:self-auto">
-            <Link href="" className="text-sky-500 font-semibold">
+            <Link
+              href={`/home-services/dashboard/profile-settings/${EditBasicInfo}`}
+              className="text-sky-500 font-semibold"
+            >
               Edit
             </Link>
           </div>
@@ -110,7 +115,10 @@ const PersonalDetails = () => {
       <div className="rounded-lg bg-white dark:bg-gray-800 p-4 md:p-6">
         <div className="flex flex-col xs:flex-row justify-between items-start xs:items-center gap-2">
           <p className="font-bold">Introduction</p>
-          <Link href={"#"} className="text-sky-500 font-semibold">
+          <Link
+            href={`/home-services/dashboard/profile-settings/${EditIntro}`}
+            className="text-sky-500 font-semibold"
+          >
             Edit
           </Link>
         </div>

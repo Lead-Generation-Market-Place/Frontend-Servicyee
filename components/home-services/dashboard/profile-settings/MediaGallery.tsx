@@ -11,12 +11,16 @@ const MediaGallery = () => {
     { image: "/assets/home-service/service (3).jpg" },
     { image: "/assets/home-service/service (4).jpg" },
   ];
+  const EditMedia = "add-media";
   return (
     <div className="max-w-6xl mx-auto p-4">
       <div className="rounded-lg bg-white dark:bg-gray-800 p-4 md:p-6 my-4">
         <div className="flex flex-col xs:flex-row justify-between items-start xs:items-center gap-2 mb-4">
           <h1 className="font-bold text-lg">Photos and Videos</h1>
-          <Link href={"#"} className="text-sky-500 font-semibold">
+          <Link
+            href={`/home-services/dashboard/profile-settings/${EditMedia}`}
+            className="text-sky-500 font-semibold"
+          >
             Edit
           </Link>
         </div>
@@ -56,7 +60,11 @@ const MediaGallery = () => {
               type="button"
               className="bg-sky-500 text-white hover:bg-sky-500 dark:hover:bg-sky-500 whitespace-nowrap w-full md:w-auto"
             >
-              Add Photos
+              <Link
+                href={`/home-services/dashboard/profile-settings/${EditMedia}`}
+              >
+                Add Photos
+              </Link>
             </Button>
           </div>
         </div>

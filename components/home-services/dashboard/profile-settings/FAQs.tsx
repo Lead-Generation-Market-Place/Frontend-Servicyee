@@ -1,11 +1,15 @@
 import Link from "next/link";
 
 const FAQs = () => {
+  const EditFAQs = "edit-q-and-a";
   return (
     <div className="rounded bg-white dark:bg-gray-800 p-4 my-4">
       <div className="flex flex-row justify-between items-center my-5">
         <h1 className="font-bold text-lg">Frequently asked question</h1>
-        <Link href="" className="text-sky-500 font-semibold">
+        <Link
+          href={`/home-services/dashboard/profile-settings/${EditFAQs}`}
+          className="text-sky-500 font-semibold"
+        >
           Edit
         </Link>
       </div>

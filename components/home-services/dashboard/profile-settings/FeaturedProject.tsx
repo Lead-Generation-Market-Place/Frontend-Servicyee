@@ -1,7 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import Link from "next/link";
 
 const FeaturedProject = () => {
+  const addProject = "add-project";
   return (
     <div className="rounded-lg bg-white dark:bg-gray-800 p-4 md:p-6 my-4">
       <div className="mb-4">
@@ -35,7 +37,11 @@ const FeaturedProject = () => {
           type="button"
           className="bg-sky-500 text-white hover:bg-sky-500 dark:hover:bg-sky-500 w-full sm:w-auto"
         >
-          Add new project
+          <Link
+            href={`/home-services/dashboard/profile-settings/${addProject}`}
+          >
+            Add new project
+          </Link>
         </Button>
       </div>
     </div>
