@@ -50,7 +50,7 @@ export default function SetupProgress() {
   return (
     <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8 text-gray-800 dark:text-gray-100 rounded-sm transition-colors">
       <div className="flex flex-col lg:flex-row items-start gap-6 sm:gap-8">
-        
+
         {/* Left side */}
         <div className="flex-1 space-y-6 sm:space-y-8 w-full">
           <div className="space-y-3 pb-4 border-b border-gray-200 dark:border-gray-700">
@@ -90,47 +90,108 @@ export default function SetupProgress() {
               <div className="h-px flex-1 bg-gray-300 dark:bg-gray-600"></div>
             </h3>
             <ul className="space-y-3">
-              {tasks.map(({ id, text, completed, icon: Icon, href, description }) => (
-                <li key={id} className="group">
-                  <div className={`flex items-start justify-between p-3 sm:p-4 rounded-lg transition-all duration-200 
-                    ${completed 
-                      ? 'bg-blue-50 dark:bg-blue-900/30' 
-                      : 'bg-white dark:bg-gray-900 hover:bg-blue-50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700'}`}>
-                    
+              {tasks.map(({ id, text, completed, icon: Icon, href, description }) =>
+                href && !completed ? (
+                  // ✅ Incomplete tasks are clickable
+                  <Link
+                    key={id}
+                    href={`${href}?id=${id}`}
+                    className={`block rounded-lg transition-all duration-200 ${completed
+                        ? "bg-blue-50 dark:bg-blue-900/30"
+                        : "bg-white dark:bg-gray-900 hover:bg-blue-50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700"
+                      }`}
+                  >
+                    <li className="flex items-start justify-between p-3 sm:p-4">
+                      {/* Left side (icon + text) */}
+                      <div className="flex items-start gap-3 sm:gap-4">
+                        <div
+                          className={`flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full ${completed
+                              ? "bg-[#0077B6]"
+                              : "bg-white dark:bg-gray-800 border border-[#0077B6]"
+                            }`}
+                        >
+                          {completed ? (
+                            <CheckCircle className="text-white" size={18} />
+                          ) : (
+                            <Icon className="text-[#0077B6]" size={18} />
+                          )}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={`font-medium ${completed
+                                  ? "text-[#0077B6]"
+                                  : "text-gray-900 dark:text-gray-100 hover:text-[#0077B6] transition-colors"
+                                }`}
+                            >
+                              {text}
+                            </span>
+                            {isAnimating && completed && (
+                              <Sparkles className="text-[#0077B6]" size={14} />
+                            )}
+                          </div>
+                          <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm mt-1">
+                            {description}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Right side arrow */}
+                      {!completed && (
+                        <div className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#0077B6] text-white group-hover:bg-[#023E8A] transition-colors opacity-90">
+                          <ArrowRight size={12} />
+                        </div>
+                      )}
+                    </li>
+                  </Link>
+                ) : (
+                  // ✅ Completed tasks (or no href) — not clickable
+                  <li
+                    key={id}
+                    className={`flex items-start justify-between p-3 sm:p-4 rounded-lg transition-all duration-200 ${completed
+                        ? "bg-blue-50 dark:bg-blue-900/30"
+                        : "bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700"
+                      }`}
+                  >
                     <div className="flex items-start gap-3 sm:gap-4">
-                      <div className={`flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full 
-                        ${completed ? 'bg-[#0077B6]' : 'bg-white dark:bg-gray-800 border border-[#0077B6]'}`}>
-                        {completed ? <CheckCircle className="text-white" size={18} /> : <Icon className="text-[#0077B6]" size={18} />}
+                      <div
+                        className={`flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full ${completed
+                            ? "bg-[#0077B6]"
+                            : "bg-white dark:bg-gray-800 border border-[#0077B6]"
+                          }`}
+                      >
+                        {completed ? (
+                          <CheckCircle className="text-white" size={18} />
+                        ) : (
+                          <Icon className="text-[#0077B6]" size={18} />
+                        )}
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          {completed ? (
-                            <span className="text-[#0077B6] font-medium ">{text}</span>
-                          ) : href ? (
-                            <Link href={`${href}?id=${id}`} className="text-gray-900 dark:text-gray-100 font-medium hover:text-[#0077B6] hover:underline transition-colors">
-                              {text}
-                            </Link>
-                          ) : (
-                            <span className="text-gray-900 dark:text-gray-100 font-medium">{text}</span>
+                          <span
+                            className={`font-medium ${completed
+                                ? "text-[#0077B6]"
+                                : "text-gray-900 dark:text-gray-100"
+                              }`}
+                          >
+                            {text}
+                          </span>
+                          {isAnimating && completed && (
+                            <Sparkles className="text-[#0077B6]" size={14} />
                           )}
-                          {isAnimating && completed && <Sparkles className="text-[#0077B6]" size={14} />}
                         </div>
-                        <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm mt-1">{description}</p>
+                        <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm mt-1">
+                          {description}
+                        </p>
                       </div>
                     </div>
-
-                    {!completed && href && (
-                      <Link href={`${href}?id=${id}`} className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#0077B6] text-white hover:bg-[#023E8A] transition-colors group-hover:opacity-100 opacity-70" aria-label={`Complete ${text}`}>
-                        <ArrowRight size={12} />
-                      </Link>
-                    )}
-                  </div>
-                </li>
-              ))}
+                  </li>
+                )
+              )}
             </ul>
+
           </div>
         </div>
-
         {/* Right side */}
         <div className="flex-1 flex justify-center items-start w-full mt-8 lg:mt-0">
           <div className="relative w-full max-w-sm sm:max-w-md">
@@ -139,7 +200,7 @@ export default function SetupProgress() {
                 <div className="relative inline-block">
                   <div className="w-24 h-24 sm:w-28 sm:h-28 bg-gradient-to-br from-[#00B4D8] to-[#0077B6] rounded-full flex items-center justify-center mx-auto shadow-lg">
                     <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white bg-opacity-20 dark:bg-gray-800 dark:bg-opacity-30 rounded-full flex items-center justify-center">
-                      <Image src="/service_profile.jpg" className="rounded-full" alt="" height={100} width={100}/>
+                      <Image src="/service_profile.jpg" className="rounded-full" alt="" height={100} width={100} />
                     </div>
                   </div>
                 </div>

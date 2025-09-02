@@ -1,4 +1,4 @@
-import { Briefcase, Mail, Settings, Layers, LayoutDashboard  } from "lucide-react";
+import { Briefcase, Mail, Settings, Layers, LayoutDashboard, ChartCandlestick  } from "lucide-react";
 import React from "react"; // <--- Required for using JSX in objects (icons)
 
 export type SubItem = {
@@ -23,5 +23,7 @@ export const serviceProviderNavItems: NavItem[] = [
   { name: "Leads", path: "/home-services/dashboard/leads", icon: <Briefcase size={18} /> },
   { name: "Inbox", path: "/home-services/dashboard/inbox", icon: <Mail size={18} /> },
   { name: "Performance", path: "/home-services/dashboard/profile", icon: <Settings size={18} /> },
+  { name: "Marketing", path: "/home-services/dashboard/marketing", icon: <ChartCandlestick size={18} /> },
+
 
 ];
