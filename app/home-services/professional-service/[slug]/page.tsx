@@ -7,6 +7,7 @@ import ProfessionalList from "@/components/home-services/homepage/professional/P
 // import QuotationForm from "@/components/home-services/homepage/professional/QuotationForm";
 import Breadcrumbs from "@/components/home-services/homepage/Breadcrumbs";
 import ServiceQuestion from "@/components/home-services/question/ServiceQuestion";
+import { Button } from "@/components/ui/button";
 
 function ProfessionalTypeFilter({
   selectedType,
@@ -217,13 +218,24 @@ export default function ProfessionalPage({
           </div>
 
           <div className="lg:w-2/4 flex-1">
-            <h1 className="text-md md:text-md font-bold">
-              Top 5 {displayService} Professionals in Your Area
-            </h1>
-            <ProfessionalTypeFilter
-              selectedType={selectedType}
-              onTypeChange={setSelectedType}
-            />
+            <div className="flex flex-row flex-wrap justify-between items-center my-2">
+              <div className="space-y-2">
+                <h1 className="text-md md:text-md font-bold">
+                  Top 5 {displayService} Professionals in Your Area
+                </h1>
+
+                <ProfessionalTypeFilter
+                  selectedType={selectedType}
+                  onTypeChange={setSelectedType}
+                />
+              </div>
+              <Button
+                type="button"
+                className="bg-sky-600 dark:bg-sky-500 dark:hover:bg-sky-600 hover:bg-sky-500 px-4 rounded-xs text-white font-semibold sticky"
+              >
+                Request Qoutation
+              </Button>
+            </div>
             <ProfessionalList
               professionals={filteredProfessionals}
               selectedType={selectedType}
