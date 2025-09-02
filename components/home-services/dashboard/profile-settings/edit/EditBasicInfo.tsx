@@ -47,7 +47,7 @@ const EditBasicInfo = () => {
   return (
     <div className="p-2 md:p-4">
       <div className="flex flex-col lg:flex-row gap-4">
-        <div className="flex-1 p-2 md:p-4">
+        <div className="flex-2 p-2 md:p-4">
           <h1 className="font-bold text-xl mb-4 md:mb-6">
             Edit Basic Information
           </h1>
