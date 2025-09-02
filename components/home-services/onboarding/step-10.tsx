@@ -18,7 +18,7 @@ const ONBOARDING_STEPS = [
 export default function PaymentForm() {
   const [isPending, setIspending] = useState(false);
   const [budgetOption, setBudgetOption] = useState<'unlimited' | 'limited' | null>(null);
-  const [budgetAmount, setBudgetAmount] = useState(210);
+  const [budgetAmount, setBudgetAmount] = useState(20);
   const [isTooltipVisible, setIsTooltipVisible] = useState(false);
   const [cardDetails, setCardDetails] = useState({
     fullName: '',
@@ -166,9 +166,9 @@ export default function PaymentForm() {
                         <span className="text-gray-700 dark:text-gray-300 mr-2">Credits</span>
                         <input
                           type="number"
-                          min="100"
+                          min="20"
                           value={budgetAmount}
-                          onChange={(e) => setBudgetAmount(Math.max(50, Number(e.target.value)))}
+                          onChange={(e) => setBudgetAmount(Math.max(20, Number(e.target.value)))}
                           className="w-24 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0096C7] focus:border-[#0096C7] dark:bg-gray-800 dark:text-white"
                         />
                         <span className="text-gray-700 dark:text-gray-300 ml-2">per week</span>
@@ -188,7 +188,7 @@ export default function PaymentForm() {
                               animate={{ opacity: 1, y: 0 }}
                               className="absolute left-0 bottom-full mb-2 w-64 p-3 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-10"
                             >
-                              A ${budgetAmount} budget will still help you establish your business quickly, but we not get you as many leads as possible. The minimum budget is $50.
+                              A ${budgetAmount} budget will still help you establish your business quickly, but we not get you as many leads as possible. The minimum budget is $20.
                             </motion.div>
                           )}
                         </div>
