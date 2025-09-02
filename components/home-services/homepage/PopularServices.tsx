@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion, Variants } from "framer-motion";
 import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 
 interface PopularSubCategory {
   id: number;
@@ -10,6 +11,13 @@ interface PopularSubCategory {
 }
 
 const SubCategories = () => {
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Wait until after hydration to show animations and handle dark mode
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   // Variants definitions
   const container: Variants = {
     hidden: { opacity: 0 },
@@ -102,7 +110,7 @@ const SubCategories = () => {
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
+          animate={isMounted ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6"
         >
@@ -111,46 +119,40 @@ const SubCategories = () => {
             <span className="text-sky-600 dark:text-sky-400">Services</span>
           </h2>
           <motion.div
-            whileHover={{ x: 3 }}
+            whileHover={isMounted ? { x: 3 } : { x: 0 }}
             transition={{ type: "spring", stiffness: 300 }}
           >
             <Link
               href="/home-services/explore-categories"
               className="text-sm text-sky-600 hover:underline dark:text-sky-400 mt-2 sm:mt-0 flex items-center gap-1"
               aria-label="Explore all categories"
+              prefetch={true}
             >
               Explore all services
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
+              {/* Use a consistent color that won't change between server and client */}
+              <ChevronRight className="w-4 h-4 text-sky-600" />
             </Link>
           </motion.div>
         </motion.div>
 
         {/* Categories Grid */}
         <motion.div
-          variants={container}
+          variants={isMounted ? container : undefined}
           initial="hidden"
-          animate="show"
+          animate={isMounted ? "show" : "hidden"}
           className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4"
         >
           {subcategories.map(({ id, name, slug, image }) => (
-            <motion.div key={id} variants={item} className="col-span-1">
+            <motion.div
+              key={id}
+              variants={isMounted ? item : undefined}
+              className="col-span-1"
+            >
               <Link
                 href={`/home-services/professional-service/${slug}`}
                 className="group block h-full rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300"
                 aria-label={`Browse ${name} services`}
+                prefetch={true}
               >
                 {/* Card with background image */}
                 <div

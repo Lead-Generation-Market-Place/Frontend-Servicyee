@@ -11,6 +11,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
 
 interface Professional {
   id: number;
@@ -166,13 +167,23 @@ export default function ProfessionalList({
             )}
 
             {/* Button */}
-            <div className="flex justify-end">
-              <Link
-                href={`/home-services/professional-profile/${professional.id}`}
-                className="px-3 py-1.5 text-xs rounded bg-sky-500 hover:bg-sky-600 dark:bg-sky-600 dark:hover:bg-sky-700 text-white transition-colors"
+            <div className="flex justify-end gap-2 items-center">
+              <Button
+                type="button"
+                className="bg-sky-600 dark:bg-sky-500 dark:hover:bg-sky-600 hover:bg-sky-500 px-4 rounded-xs text-white font-semibold "
               >
-                View Details
-              </Link>
+                Request Qoutation
+              </Button>
+              <Button
+                type="button"
+                className="bg-sky-600 dark:bg-sky-500 dark:hover:bg-sky-600 hover:bg-sky-500 rounded-xs text-white font-semibold "
+              >
+                <Link
+                  href={`/home-services/professional-profile/${professional.id}`}
+                >
+                  View Details
+                </Link>
+              </Button>
             </div>
           </div>
         </motion.div>
