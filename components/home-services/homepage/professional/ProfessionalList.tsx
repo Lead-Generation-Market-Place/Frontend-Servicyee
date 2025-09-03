@@ -12,6 +12,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import Questioner from "../../question/Questioner";
 
 interface Professional {
   id: number;
@@ -42,6 +43,7 @@ export default function ProfessionalList({
   selectedType,
 }: ProfessionalListProps) {
   console.log(selectedType);
+  const selectedServiceId = 1;
   return (
     <div className="grid gap-4 bg-white dark:bg-gray-900">
       {professionals.map((professional) => (
@@ -168,12 +170,11 @@ export default function ProfessionalList({
 
             {/* Button */}
             <div className="flex justify-end gap-2 items-center">
-              <Button
-                type="button"
-                className="bg-sky-600 dark:bg-sky-500 dark:hover:bg-sky-600 hover:bg-sky-500 px-4 rounded-xs text-white font-semibold "
-              >
-                Request Qoutation
-              </Button>
+              <Questioner
+                className="bg-sky-600 dark:bg-sky-500 dark:hover:bg-sky-600 hover:bg-sky-500 px-4 rounded-xs text-white font-semibold sticky"
+                serviceId={selectedServiceId}
+                triggerText="Request Quotation"
+              />
               <Button
                 type="button"
                 className="bg-sky-600 dark:bg-sky-500 dark:hover:bg-sky-600 hover:bg-sky-500 rounded-xs text-white font-semibold "
