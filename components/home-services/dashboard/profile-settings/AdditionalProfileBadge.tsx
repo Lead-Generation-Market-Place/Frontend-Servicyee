@@ -9,6 +9,7 @@ const AdditionalProfileBadge = () => {
   const handleDiscount = () => {
     showTip ? setShowTip(false) : setShowTip(true);
   };
+  const EditIntro = "edit-intro";
   return (
     <div className="rounded bg-white dark:bg-gray-800 p-4 my-4">
       <div className="border border-gray-200 dark:border-gray-700 p-4">
@@ -31,7 +32,10 @@ const AdditionalProfileBadge = () => {
           <p className="text-sm">
             <strong>Tip</strong>: You can add more specifics in your
             introduction.{" "}
-            <Link href="#" className="text-sky-500">
+            <Link
+              href={`/home-services/dashboard/profile-settings/${EditIntro}`}
+              className="text-sky-500"
+            >
               Update your introduction.
             </Link>
           </p>
