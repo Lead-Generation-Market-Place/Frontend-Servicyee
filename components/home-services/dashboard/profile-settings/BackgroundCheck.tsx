@@ -3,6 +3,7 @@ import { ShieldCheck, UserCheck } from "lucide-react";
 import Link from "next/link";
 
 const BackgroundCheck = () => {
+  const proId = 5;
   const AddLicence = "add-licence";
   return (
     <div className="rounded bg-white dark:bg-gray-800 p-4 my-4">
@@ -22,7 +23,9 @@ const BackgroundCheck = () => {
             type="button"
             className="bg-transparent border border-gray-200 dark:border-gray-600 dark:hover:border-sky-500 text-sky-500 hover:bg-transparent hover:border-sky-500"
           >
-            <Link href={`/home-services/dashboard/services/step-11`}>
+            <Link
+              href={`/home-services/dashboard/services/step-11/?id=${proId}`}
+            >
               Start
             </Link>
           </Button>
