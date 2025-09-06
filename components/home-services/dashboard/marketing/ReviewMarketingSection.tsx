@@ -77,13 +77,12 @@ const sampleReviews: Review[] = [
 ];
 
 const ReviewMarketingSection: React.FC = () => {
-  const [caption, setCaption] = useState("Book trusted pros in minutes. #homeservices #localpros");
+  const [caption, setCaption] = useState("Show your happy customers. Boost trust. #localpros #trustedreviews");
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
 
   // Simulate loading reviews from an API
   useEffect(() => {
-    // In a real app, this would be an API call
     setTimeout(() => {
       setReviews(sampleReviews);
       if (sampleReviews.length > 0) {
@@ -95,16 +94,10 @@ const ReviewMarketingSection: React.FC = () => {
   const handleShareToShootak = async (review: Review) => {
     try {
       if (review.type === 'video' && review.media) {
-        // For video reviews, share the video file
         console.log("Sharing video to Shootak:", review.media.url);
-        // Implementation would use Shootak's SDK or API
       } else {
-        // For text reviews, create and share a screenshot
         console.log("Sharing text review to Shootak");
-        // Implementation would capture the review card as an image
       }
-
-      // Show success message
       alert(`Review shared successfully to Shootak!`);
     } catch (error) {
       console.error("Failed to share to Shootak:", error);
@@ -114,7 +107,6 @@ const ReviewMarketingSection: React.FC = () => {
 
   const handleDownload = (review: Review) => {
     if (review.type === 'video' && review.media) {
-      // Download video logic
       const link = document.createElement('a');
       link.href = review.media.url;
       link.download = `review-${review.id}.mp4`;
@@ -122,7 +114,6 @@ const ReviewMarketingSection: React.FC = () => {
       link.click();
       document.body.removeChild(link);
     } else {
-      // For text reviews, we'll simulate a download
       const element = document.createElement("a");
       const file = new Blob([review.content], { type: 'text/plain' });
       element.href = URL.createObjectURL(file);
@@ -137,7 +128,7 @@ const ReviewMarketingSection: React.FC = () => {
     <div className="space-y-6">
       <Card className="border-0 bg-gradient-to-br from-primary/5 via-background to-background">
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-xl">Customer Review–Based Marketing</CardTitle>
+          <CardTitle className="text-xl">Review–Driven Marketing for Professionals</CardTitle>
           {selectedReview && (
             <div className="flex space-x-2">
               <Button
@@ -160,7 +151,7 @@ const ReviewMarketingSection: React.FC = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Turn your best reviews into eye-catching posts. Share them as ready-to-post images for Instagram/TikTok, or post directly to Shootak.
+            Turn your satisfied customers into your best sales tool. Share reviews as ready-made posts on Instagram/TikTok or directly to Shootak, and increase your visibility in search results.
           </p>
 
           {reviews.length > 0 ? (
