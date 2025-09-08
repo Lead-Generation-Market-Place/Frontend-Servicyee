@@ -1,12 +1,17 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import { Globe, LocateIcon, Phone, Timer, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const PersonalDetails = () => {
   const EditBasicInfo = "edit-basic-info";
   const EditIntro = "edit-intro";
+  const router = useRouter();
+
   const professional = {
+    id: 33,
     company: "Clean Globe",
     profileImage: "/service_profile.jpg",
     rating: 4.5,
@@ -61,6 +66,11 @@ const PersonalDetails = () => {
           </Button>
           <Button
             type="button"
+            onClick={() =>
+              router.push(
+                `/home-services/professional-profile/${professional.id}}`
+              )
+            }
             className="w-full sm:w-auto border border-gray-500 text-sky-500 hover:border-sky-500 bg-white dark:bg-gray-800 hover:bg-white dark:hover:bg-gray-900"
           >
             View your profile as customer
