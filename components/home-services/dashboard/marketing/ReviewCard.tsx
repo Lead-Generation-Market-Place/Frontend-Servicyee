@@ -24,11 +24,28 @@ const ReviewCard: React.FC<ReviewCardProps> = React.forwardRef(({ review }, ref)
   );
 
   return (
-    <motion.div ref={ref} layout className="rounded-2xl border bg-white shadow-sm p-6">
-      <div className="flex items-center gap-2 mb-3">{stars}</div>
-      <blockquote className="text-xl leading-relaxed font-medium mb-4">{review.content}</blockquote>
-      <div className="text-sm text-muted-foreground">— {review.name} · {review.city} · {review.service}</div>
-      <div className="mt-4 pt-4 border-t text-xs text-muted-foreground">Book trusted {review.service.toLowerCase()} pros in minutes at your location.</div>
+    <motion.div
+      ref={ref}
+      layout
+      className="rounded-2xl border bg-white shadow-sm p-4 sm:p-5 md:p-6 w-full"
+    >
+      {/* Stars */}
+      <div className="flex items-center gap-1 sm:gap-2 mb-2 sm:mb-3">{stars}</div>
+
+      {/* Review Content */}
+      <blockquote className="text-base sm:text-lg md:text-xl leading-relaxed font-medium mb-3 sm:mb-4">
+        {review.content}
+      </blockquote>
+
+      {/* Reviewer Info */}
+      <div className="text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-3">
+        — {review.name} · {review.city} · {review.service}
+      </div>
+
+      {/* Footer */}
+      <div className="mt-2 sm:mt-4 pt-2 sm:pt-4 border-t text-xs sm:text-sm text-muted-foreground">
+        Book trusted {review.service.toLowerCase()} pros in minutes at your location.
+      </div>
     </motion.div>
   );
 });
