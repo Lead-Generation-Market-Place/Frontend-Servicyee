@@ -1,148 +1,347 @@
 // src/components/marketing-hub/Guarantee.tsx
-import React, { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+"use client";
+
+import React, { useState, useEffect, useMemo } from "react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Slider } from "@/components/ui/slider";
-import { ShieldIcon, InfoIcon } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import {
+  ShieldIcon,
+  InfoIcon,
+  HeartIcon,
+  CalculatorIcon,
+  ArrowRightIcon,
+  CheckCircleIcon,
+  CreditCardIcon,
+  ZapIcon,
+} from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const Guarantee: React.FC = () => {
   const [service, setService] = useState("Home Cleaning");
-  const [coverageAmount, setCoverageAmount] = useState(1000);
+  const [isGuaranteeActive, setIsGuaranteeActive] = useState(false);
+  const [selectedDuration, setSelectedDuration] = useState("30-days");
+  const [selectedType, setSelectedType] = useState("satisfaction");
+  const [savingsPercentage, setSavingsPercentage] = useState(0);
+  const [isAnnualBilling, setIsAnnualBilling] = useState(false);
+  const [credits, setCredits] = useState(15); // Starting credits
 
-  const serviceOptions = [
-    "All Services", "Home Cleaning", "Electrician", "HVAC", "Cleaning", "Landscaping",
-    "Painting", "Handyman", "Carpenter", "Appliance Repair"
+  const serviceOptions: string[] = [
+    "All Services",
+    "Home Cleaning",
+    "Electrician",
+    "HVAC",
+    "Cleaning",
+    "Landscaping",
+    "Painting",
+    "Handyman",
+    "Carpenter",
+    "Appliance Repair",
   ];
 
-  return (
-    <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50/70 via-background to-background">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-2xl flex items-center gap-2">
-          <ShieldIcon className="w-6 h-6 text-[#0077B6]" />
-          Satisfaction Guarantee
-        </CardTitle>
-        <p className="text-sm text-muted-foreground">
-          Offer a satisfaction guarantee to build trust and win more customers.
-        </p>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="grid md:grid-cols-2 gap-6">
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium flex items-center gap-2">
-                Service Type
-                <InfoIcon className="w-3 h-3 text-muted-foreground" />
-              </label>
-              <Select value={service} onValueChange={setService}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select a service" />
-                </SelectTrigger>
-                <SelectContent className="w-full">
-                  {serviceOptions.map((option) => (
-                    <SelectItem key={option} value={option}>
-                      {option}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+  const guaranteeTypes = useMemo(() => [
+    {
+      id: "satisfaction",
+      name: "Satisfaction Guarantee",
+      description: "Full refund if not satisfied with the service",
+      icon: <HeartIcon className="w-4 h-4" />,
+      creditCost: 15,
+      coverage: "8 Credits",
+      color: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
+    },
+    {
+      id: "workmanship",
+      name: "Workmanship Guarantee",
+      description: "Free fixes for workmanship issues for 90 days",
+      icon: <ShieldIcon className="w-4 h-4" />,
+      creditCost: 25,
+      coverage: "10 Credits",
+      color: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+    },
+    {
+      id: "double-back",
+      name: "Double-Back Guarantee",
+      description: "We'll send another pro if you're not happy",
+      icon: <ZapIcon className="w-4 h-4" />,
+      creditCost: 35,
+      coverage: "15 Credits",
+      color: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
+    },
+  ], []);
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Guarantee Duration</label>
-              <Select defaultValue="30-days">
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select guarantee period" />
-                </SelectTrigger>
-                <SelectContent className="w-full">
-                  <SelectItem value="7-days">7 Days</SelectItem>
-                  <SelectItem value="30-days">30 Days</SelectItem>
-                  <SelectItem value="90-days">90 Days</SelectItem>
-                  <SelectItem value="1-year">1 Year</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+  const durationOptions = useMemo(() => [
+    { id: "7-days", name: "7 Days", discount: 0, creditMultiplier: 0.7 },
+    { id: "30-days", name: "30 Days", discount: 0, creditMultiplier: 1 },
+    { id: "90-days", name: "90 Days", discount: 5, creditMultiplier: 2.5 },
+    { id: "1-year", name: "1 Year", discount: 15, creditMultiplier: 8 },
+  ], []);
+
+  // Calculate credit cost based on selections
+  const creditCost = useMemo(() => {
+    const baseCost = guaranteeTypes.find(t => t.id === selectedType)?.creditCost || 0;
+    const durationMultiplier = durationOptions.find(d => d.id === selectedDuration)?.creditMultiplier || 1;
+    const billingDiscount = isAnnualBilling ? 0.8 : 1; // 20% discount for annual billing
+
+    return Math.round(baseCost * durationMultiplier * billingDiscount);
+  }, [guaranteeTypes, durationOptions, selectedType, selectedDuration, isAnnualBilling]);
+
+  useEffect(() => {
+    const durationDiscount = durationOptions.find(d => d.id === selectedDuration)?.discount || 0;
+    const annualDiscount = isAnnualBilling ? 10 : 0;
+    setSavingsPercentage(durationDiscount + annualDiscount);
+  }, [durationOptions, selectedDuration, isAnnualBilling]); // ✅ fixed warning
+
+  const handleActivateGuarantee = () => {
+    if (credits >= creditCost) {
+      setCredits(prev => prev - creditCost);
+      setIsGuaranteeActive(true);
+    } else {
+      // In a real app, you would show a modal or notification about insufficient credits
+      alert("Insufficient credits. Please purchase more credits to activate this guarantee.");
+    }
+  };
+
+  return (
+    <Card className="shadow-none border-none rounded-sm border-gray-300 dark:border-gray-600 dark:bg-gray-900  bg-gray-50 overflow-hidden relative">
+      {/* Decorative elements */}
+      <div className="absolute  " />
+      <div className="absolute  " />
+
+      <CardHeader className="pb-3 relative">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div>
+            <CardTitle className="text-xl flex items-center gap-2">
+              <span className="p-2 rounded-full bg-[#0077B6]/10 dark:bg-[#0077B6]/20">
+                <ShieldIcon className="w-5 h-5 text-[#0077B6] dark:text-[#40A4FF]" />
+              </span>
+              ProShield Guarantee
+            </CardTitle>
+            <CardDescription className="mt-2 text-sm">
+              Build trust and win more customers with our comprehensive
+              satisfaction guarantee program.
+            </CardDescription>
+          </div>
+        </div>
+      </CardHeader>
+
+      <CardContent className="space-y-6 relative">
+        {/* Service Selection */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium flex items-center gap-2">
+            Service Type
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <InfoIcon
+                    className="w-3 h-3 text-muted-foreground"
+                    aria-label="Info about service type"
+                  />
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  <p className="text-xs">
+                    Select the service this guarantee will apply to.
+                    Different services may have different guarantee
+                    requirements.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </label>
+          <Select value={service} onValueChange={setService}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select a service" />
+            </SelectTrigger>
+            <SelectContent>
+              {serviceOptions.map((option) => (
+                <SelectItem key={option} value={option} className="text-sm">
+                  {option}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Guarantee Type Selection */}
+        <div className="space-y-3">
+          <label className="text-sm font-medium">Guarantee Type</label>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {guaranteeTypes.map((type) => (
+              <div
+                key={type.id}
+                className={`border rounded-lg p-4 cursor-pointer transition-all ${selectedType === type.id
+                    ? "ring-1 ring-[#0077B6] dark:ring-[#40A4FF] bg-blue-50/50 dark:bg-blue-950/20"
+                    : "hover:bg-muted/50"
+                  }`}
+                onClick={() => setSelectedType(type.id)}
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div className={`p-2 rounded-full ${type.color}`}>
+                    {type.icon}
+                  </div>
+                  <Badge className={type.color}>
+                    {type.creditCost} credits
+                  </Badge>
+                </div>
+                <h3 className="font-medium text-sm mb-1">{type.name}</h3>
+                <p className="text-xs text-muted-foreground mb-2">{type.description}</p>
+                <div className="text-xs font-medium">Coverage: {type.coverage}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex gap-5 w-full">
+          {/* Duration Selection */}
+          <div className="w-1/2 space-y-3">
+            <label className="text-sm font-medium">Guarantee Duration</label>
+            <Select value={selectedDuration} onValueChange={setSelectedDuration}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select guarantee period" />
+              </SelectTrigger>
+              <SelectContent className="w-full">
+                {durationOptions.map((option) => (
+                  <SelectItem key={option.id} value={option.id} className="text-sm">
+                    <div className="flex justify-between items-center w-full">
+                      <span>{option.name}</span>
+                      {option.discount > 0 && (
+                        <Badge
+                          variant="outline"
+                          className="text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                        >
+                          Save {option.discount}%
+                        </Badge>
+                      )}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium flex items-center justify-between">
-                <span>Coverage Amount</span>
-                <span className="text-[#0077B6] font-semibold">${coverageAmount}</span>
-              </label>
-              <Slider
-                value={[coverageAmount]}
-                onValueChange={([value]) => setCoverageAmount(value)}
-                max={5000}
-                step={100}
-                className="py-3"
-              />
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>$100</span>
-                <span>$2,500</span>
-                <span>$5,000</span>
+          {/* Billing Selection */}
+          <div className="w-1/2 space-y-3">
+            <label className="text-sm font-medium">Billing Cycle</label>
+            <div className="flex items-center justify-between p-3 border rounded-md w-full">
+              <span className="text-sm">Annual Billing</span>
+              <div className="flex items-center gap-2">
+                {isAnnualBilling && (
+                  <Badge
+                    variant="outline"
+                    className="bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200 text-xs"
+                  >
+                    20% off
+                  </Badge>
+                )}
+                <Switch
+                  checked={isAnnualBilling}
+                  onCheckedChange={setIsAnnualBilling}
+                />
               </div>
             </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Guarantee Type</label>
-              <Select defaultValue="satisfaction">
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select guarantee type" />
-                </SelectTrigger>
-                <SelectContent className="w-full">
-                  <SelectItem value="satisfaction">Satisfaction Guarantee</SelectItem>
-                  <SelectItem value="workmanship">Workmanship Guarantee</SelectItem>
-                  <SelectItem value="double-back">Double-Back Guarantee</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
           </div>
         </div>
-
+        {/* Pricing & Credit Summary */}
         <div className="pt-4 border-t">
-          <h3 className="text-sm font-medium mb-3">Benefits of Offering a Guarantee</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-blue-50/50 p-4 rounded-lg border">
-              <p className="text-sm font-medium text-[#0077B6]">Competitive Edge</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Stand out from 72% of competitors who do not offer guarantees.
-              </p>
+          <h3 className="text-sm font-medium mb-3 flex items-center gap-2">
+            <CalculatorIcon className="w-4 h-4 text-[#0077B6] dark:text-[#40A4FF]" />
+            Credit Summary
+          </h3>
+          <div className="bg-blue-50/30 dark:bg-blue-950/20 p-4 rounded-lg border">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <div>
+                <p className="text-sm text-muted-foreground">
+                  This guarantee will cost
+                </p>
+                <div className="flex items-end gap-2 mt-1">
+                  <span className="text-2xl font-bold text-[#0077B6] dark:text-[#40A4FF]">
+                    {creditCost} Credits
+                  </span>
+                  {savingsPercentage > 0 && (
+                    <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                      Save {savingsPercentage}%
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  You will have {credits - creditCost} credits remaining
+                </p>
+              </div>
+
+              <Button
+                className="bg-[#0077B6] hover:bg-[#016ca6] dark:bg-[#40A4FF] dark:hover:bg-[#2B90D9] gap-2"
+                onClick={handleActivateGuarantee}
+                disabled={credits < creditCost}
+              >
+                {isGuaranteeActive ? "Update Guarantee" : "Activate Guarantee"}
+                <ArrowRightIcon className="w-4 h-4" />
+              </Button>
             </div>
-            <div className="bg-blue-50/50 p-4 rounded-lg border">
-              <p className="text-sm font-medium text-[#0077B6]">Higher Conversion</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Increase conversion rates by up to 30% with a guarantee.
-              </p>
-            </div>
-            <div className="bg-blue-50/50 p-4 rounded-lg border">
-              <p className="text-sm font-medium text-[#0077B6]">Premium Pricing</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Justify higher prices by reducing customer risk.
-              </p>
-            </div>
-            <div className="bg-blue-50/50 p-4 rounded-lg border">
-              <p className="text-sm font-medium text-[#0077B6]">Customer Loyalty</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Build long-term relationships with trust and confidence.
-              </p>
+
+            {/* Benefits List */}
+            <div className="mt-4 pt-4 border-t border-blue-100 dark:border-blue-800 space-y-2">
+              {[
+                "Includes claim processing and customer support",
+                "Marketing materials to promote your guarantee",
+                "No hidden fees or setup costs",
+              ].map((text, i) => (
+                <div key={i} className="flex items-center gap-2 text-sm">
+                  <CheckCircleIcon className="w-4 h-4 text-green-500 dark:text-green-400" />
+                  <span>{text}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
 
-        <div className="pt-4 border-t">
-          <h3 className="text-sm font-medium mb-3">Pricing</h3>
-          <div className="bg-blue-50/50 p-4 rounded-lg border">
-            <p className="text-sm text-muted-foreground">
-              The cost for your satisfaction guarantee program is <span className="font-semibold text-[#0077B6]">${Math.round(coverageAmount * 0.05)}/month</span> 
-              {" "}(5% of your coverage amount).
-            </p>
+        {/* Footer Actions */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pt-4 border-t">
+          <div className="flex items-center gap-2">
+            <Switch
+              id="guarantee-active"
+              checked={isGuaranteeActive}
+              onCheckedChange={setIsGuaranteeActive}
+            />
+            <label
+              htmlFor="guarantee-active"
+              className="text-sm font-medium cursor-pointer"
+            >
+              Enable ProShield Guarantee
+            </label>
           </div>
-        </div>
 
-        <div className="flex justify-end gap-3 pt-4">
-          <Button variant="outline">Save for Later</Button>
-          <Button className="bg-[#0077B6] hover:bg-[#016ca6]">Activate Guarantee</Button>
+          <div className="flex gap-3">
+            <Button variant="outline" className="gap-2">
+              <HeartIcon className="w-4 h-4" />
+              Save for Later
+            </Button>
+            <Button
+              className="gap-2"
+              variant="outline"
+              onClick={() => setCredits(prev => prev + 100)}
+            >
+              <CreditCardIcon className="w-4 h-4" />
+              Buy More Credits
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>

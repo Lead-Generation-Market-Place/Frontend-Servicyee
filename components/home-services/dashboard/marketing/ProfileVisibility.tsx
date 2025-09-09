@@ -112,10 +112,12 @@ const ProfileVisibility: React.FC = () => {
 
   return (
     <>
-      <Card className="border-0 shadow-lg dark:shadow-gray-800/10 dark:bg-gray-900 dark:border-gray-800">
-        <CardHeader className="pb-3">
+
+    <Card className="shadow-none border-none rounded-sm border-gray-300 dark:border-gray-600 dark:bg-gray-900  bg-gray-50 overflow-hidden relative">
+
+        <CardHeader  className="pb-3 ">
           <div className="flex justify-between items-center">
-            <CardTitle className="text-2xl flex items-center gap-2 dark:text-white">
+            <CardTitle className="text-2xl flex items-center gap-2 ">
               <EyeIcon className="w-6 h-6 text-[#0077B6]" />
               Profile Visibility
             </CardTitle>
@@ -126,7 +128,7 @@ const ProfileVisibility: React.FC = () => {
         </CardHeader>
         <CardContent className="space-y-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid grid-cols-2 w-full max-w-md mb-6 bg-gray-100 dark:bg-gray-800 p-1">
+            <TabsList className="grid grid-cols-2 w-full max-w-md mb-6 bg-gray-100 dark:bg-gray-900 p-1">
               <TabsTrigger 
                 value="settings" 
                 className="data-[state=active]:bg-white data-[state=active]:shadow-sm dark:data-[state=active]:bg-gray-700 dark:data-[state=active]:text-white"
@@ -161,7 +163,7 @@ const ProfileVisibility: React.FC = () => {
 
               <div className="grid gap-4">
                 {Object.entries(visibilitySettings).map(([key, value]) => (
-                  <div key={key} className="flex items-center justify-between p-4 border rounded-lg dark:border-gray-800 dark:bg-gray-800/50 hover:shadow-sm transition-shadow">
+                  <div key={key} className="flex items-center justify-between p-4 border rounded-lg dark:border-gray-900 dark:bg-gray-900/50 hover:shadow-sm transition-shadow">
                     <div className="flex items-center gap-4 flex-1">
                       <div className={`p-2 rounded-full ${value.enabled ? 'bg-blue-100 dark:bg-blue-900/30' : 'bg-gray-100 dark:bg-gray-700'}`}>
                         {value.enabled ? (
@@ -241,7 +243,7 @@ const ProfileVisibility: React.FC = () => {
             </TabsContent>
 
             <TabsContent value="preview">
-              <Card className="dark:bg-gray-800 dark:border-gray-700">
+              <Card className="dark:bg-gray-900 dark:border-gray-700">
                 <CardContent className="p-6">
                   <div className="flex flex-col items-center text-center mb-6">
                     <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-700 mb-3 flex items-center justify-center relative">
@@ -292,7 +294,7 @@ const ProfileVisibility: React.FC = () => {
             </TabsContent>
           </Tabs>
 
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 pt-4 border-t dark:border-gray-800">
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 pt-4 border-t dark:border-gray-900">
             <div>
               <p className="text-sm text-muted-foreground dark:text-gray-400">Selected: {subscriptionPlans.find(p => p.id === subscriptionPlan)?.name} Plan</p>
               <p className="font-medium dark:text-white">
@@ -334,7 +336,7 @@ const ProfileVisibility: React.FC = () => {
                 <SelectTrigger className="w-[100px] h-7 text-xs bg-white/10 border-white/20 text-white">
                   <SelectValue placeholder="Billing" />
                 </SelectTrigger>
-                <SelectContent className="dark:bg-gray-800 dark:border-gray-700">
+                <SelectContent className="dark:bg-gray-900 dark:border-gray-700">
                   <SelectItem value="weekly" className="dark:focus:bg-gray-700 dark:text-gray-300">Weekly</SelectItem>
                   <SelectItem value="monthly" className="dark:focus:bg-gray-700 dark:text-gray-300">Monthly</SelectItem>
                   <SelectItem value="yearly" className="dark:focus:bg-gray-700 dark:text-gray-300">Yearly</SelectItem>
@@ -373,7 +375,7 @@ const ProfileVisibility: React.FC = () => {
                     )}
 
                     <div className="flex justify-between items-start mb-3">
-                      <h3 className="font-semibold text-gray-800 dark:text-white text-base">{plan.name}</h3>
+                      <h3 className="font-semibold text-gray-900 dark:text-white text-base">{plan.name}</h3>
                       {subscriptionPlan === plan.id && (
                         <div className="h-4 w-4 rounded-full bg-[#0077B6] dark:bg-[#0077B6] flex items-center justify-center">
                           <CheckIcon className="h-2.5 w-2.5 text-white" />
@@ -407,7 +409,7 @@ const ProfileVisibility: React.FC = () => {
                         "w-full mt-4 text-sm py-2",
                         subscriptionPlan === plan.id
                           ? "bg-[#0077B6] hover:bg-[#0066A1] dark:bg-[#0077B6] dark:hover:bg-[#0077B6][#0077B6]"
-                          : "bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                          : "bg-gray-100 text-gray-900 hover:bg-gray-200 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-700"
                       )}
                     >
                       {subscriptionPlan === plan.id ? "Selected" : "Select Plan"}
@@ -421,7 +423,7 @@ const ProfileVisibility: React.FC = () => {
               <Button
                 variant="outline"
                 onClick={() => setShowSubscriptionModal(false)}
-                className="border-gray-300 text-gray-700 dark:border-gray-600 dark:text-gray-300 text-sm px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 order-2 sm:order-1"
+                className="border-gray-300 text-gray-700 dark:border-gray-600 dark:text-gray-300 text-sm px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-900 order-2 sm:order-1"
               >
                 Cancel
               </Button>

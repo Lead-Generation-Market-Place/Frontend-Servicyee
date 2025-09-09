@@ -126,7 +126,7 @@ const ReviewMarketingSection: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <Card className="border-0 bg-gradient-to-br from-primary/5 via-background to-background">
+      <Card className=" w-full border-0 bg-gray-50 dark:bg-gray-900 shadow-none ">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-xl">Review–Driven Marketing for Professionals</CardTitle>
           {selectedReview && (

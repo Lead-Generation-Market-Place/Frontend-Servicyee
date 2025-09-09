@@ -90,7 +90,7 @@ const GetMoreLeads: React.FC = () => {
 
   return (
     <>
-      <div className="w-full">
+      <div className="shadow-none border-none rounded-sm border-gray-300 dark:border-gray-600 dark:bg-gray-900  bg-gray-50 overflow-hidden relative">
         {/* Header */}
         <CardHeader className="rounded-t-sm">
           <CardTitle className="text-sm md:text-base font-semibold leading-tight flex items-center gap-2">
@@ -114,7 +114,7 @@ const GetMoreLeads: React.FC = () => {
                   Service Type
                 </label>
                 <Select value={service} onValueChange={setService}>
-                  <SelectTrigger className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0077B6]">
+                  <SelectTrigger className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#0077B6]">
                     <SelectValue placeholder="Select a service" />
                   </SelectTrigger>
                   <SelectContent className="bg-white dark:bg-gray-800">
@@ -136,7 +136,7 @@ const GetMoreLeads: React.FC = () => {
                 <label className="block font-medium text-sm">
                   Target Location
                 </label>
-                <div className="flex items-center border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus-within:ring-2 focus-within:ring-[#0077B6] bg-white dark:bg-gray-800">
+                <div className="flex items-center border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus-within:ring-1 focus-within:ring-[#0077B6] bg-white dark:bg-gray-800">
                   <MapPin className="h-4 w-4 text-gray-500 mr-2" />
                   <Input
                     value={location}
@@ -309,7 +309,7 @@ const SubscriptionCard = ({
       className={cn(
         "rounded-md border p-4 transition-all cursor-pointer relative bg-white dark:bg-gray-900",
         isSelected
-          ? "border-2 border-[#0077B6]"
+          ? "border-1 border-[#0077B6]"
           : "border-gray-200 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500"
       )}
       onClick={() => setSelectedPlan(plan.id)}
