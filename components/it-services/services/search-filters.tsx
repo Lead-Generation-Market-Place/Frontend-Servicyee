@@ -63,15 +63,15 @@ export function SearchFilters() {
       )}
 
       <div
-        className={`fixed left-0 top-0 h-full w-80 bg-white dark:bg-gray-900 shadow-2xl transform transition-transform duration-300 z-50 ${showAllFilters ? "translate-x-0" : "-translate-x-full"}`}
+        className={`fixed left-0 top-0 h-full w-80 sm:w-96 bg-white dark:bg-gray-900 shadow-2xl transform transition-transform duration-300 z-50 ${showAllFilters ? "translate-x-0" : "-translate-x-full"}`}
       >
         <div className="h-full flex flex-col">
           {/* Header */}
-          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+          <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-3">
                 <Filter className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">All Filters</h3>
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">All Filters</h3>
               </div>
               <Button 
                 variant="ghost" 
@@ -82,11 +82,11 @@ export function SearchFilters() {
                 <X className="h-4 w-4" />
               </Button>
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Refine your search with advanced filters</p>
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Refine your search with advanced filters</p>
           </div>
 
           {/* Filter Sections */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-6">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
             {/* Delivery Time Section */}
             <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
               <button
@@ -95,7 +95,7 @@ export function SearchFilters() {
               >
                 <div className="flex items-center space-x-3">
                   <Clock className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                  <h4 className="font-medium text-gray-900 dark:text-white">Delivery Time</h4>
+                  <h4 className="font-medium text-gray-900 dark:text-white text-sm sm:text-base">Delivery Time</h4>
                 </div>
                 <ChevronDown 
                   className={`h-4 w-4 text-gray-500 dark:text-gray-400 transition-transform ${
@@ -107,28 +107,28 @@ export function SearchFilters() {
               {expandedSections.includes("delivery") && (
                 <div className="mt-4 space-y-3 pt-4 border-t border-gray-200 dark:border-gray-700">
                   <RadioGroup value={selectedDeliveryTime} onValueChange={setSelectedDeliveryTime}>
-                    <div className="flex items-center justify-between p-2 rounded-md hover:bg-white dark:hover:bg-gray-700">
+                    <div className="flex items-center justify-between p-3 sm:p-2 rounded-md hover:bg-white dark:hover:bg-gray-700 touch-manipulation">
                       <div className="flex items-center space-x-3">
                         <RadioGroupItem value="Express 24H" id="express" />
                         <Label htmlFor="express" className="text-gray-700 dark:text-gray-300">Express 24H</Label>
                       </div>
                       <span className="text-sm text-gray-500 dark:text-gray-400">(1,945)</span>
                     </div>
-                    <div className="flex items-center justify-between p-2 rounded-md hover:bg-white dark:hover:bg-gray-700">
+                    <div className="flex items-center justify-between p-3 sm:p-2 rounded-md hover:bg-white dark:hover:bg-gray-700 touch-manipulation">
                       <div className="flex items-center space-x-3">
                         <RadioGroupItem value="Up to 3 days" id="3days" />
                         <Label htmlFor="3days" className="text-gray-700 dark:text-gray-300">Up to 3 days</Label>
                       </div>
                       <span className="text-sm text-gray-500 dark:text-gray-400">(8,136)</span>
                     </div>
-                    <div className="flex items-center justify-between p-2 rounded-md hover:bg-white dark:hover:bg-gray-700">
+                    <div className="flex items-center justify-between p-3 sm:p-2 rounded-md hover:bg-white dark:hover:bg-gray-700 touch-manipulation">
                       <div className="flex items-center space-x-3">
                         <RadioGroupItem value="Up to 7 days" id="7days" />
                         <Label htmlFor="7days" className="text-gray-700 dark:text-gray-300">Up to 7 days</Label>
                       </div>
                       <span className="text-sm text-gray-500 dark:text-gray-400">(917)</span>
                     </div>
-                    <div className="flex items-center justify-between p-2 rounded-md hover:bg-white dark:hover:bg-gray-700">
+                    <div className="flex items-center justify-between p-3 sm:p-2 rounded-md hover:bg-white dark:hover:bg-gray-700 touch-manipulation">
                       <div className="flex items-center space-x-3">
                         <RadioGroupItem value="Anytime" id="anytime" />
                         <Label htmlFor="anytime" className="text-gray-700 dark:text-gray-300">Anytime</Label>
@@ -148,7 +148,7 @@ export function SearchFilters() {
               >
                 <div className="flex items-center space-x-3">
                   <DollarSign className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                  <h4 className="font-medium text-gray-900 dark:text-white">Budget Range</h4>
+                  <h4 className="font-medium text-gray-900 dark:text-white text-sm sm:text-base">Budget Range</h4>
                 </div>
                 <ChevronDown 
                   className={`h-4 w-4 text-gray-500 dark:text-gray-400 transition-transform ${
@@ -201,7 +201,7 @@ export function SearchFilters() {
               >
                 <div className="flex items-center space-x-3">
                   <Palette className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                  <h4 className="font-medium text-gray-900 dark:text-white">Design Tools</h4>
+                  <h4 className="font-medium text-gray-900 dark:text-white text-sm sm:text-base">Design Tools</h4>
                 </div>
                 <ChevronDown 
                   className={`h-4 w-4 text-gray-500 dark:text-gray-400 transition-transform ${
@@ -213,7 +213,7 @@ export function SearchFilters() {
               {expandedSections.includes("designTool") && (
                 <div className="mt-4 space-y-3 pt-4 border-t border-gray-200 dark:border-gray-700">
                   {["Figma", "Adobe Photoshop", "Adobe Illustrator", "Sketch", "Canva", "InVision"].map((tool) => (
-                    <div key={tool} className="flex items-center space-x-3 p-2 rounded-md hover:bg-white dark:hover:bg-gray-700">
+                    <div key={tool} className="flex items-center space-x-3 p-3 sm:p-2 rounded-md hover:bg-white dark:hover:bg-gray-700 touch-manipulation">
                       <Checkbox
                         id={tool.toLowerCase().replace(/\s+/g, '-')}
                         checked={selectedDesignTools.includes(tool)}
@@ -236,7 +236,7 @@ export function SearchFilters() {
               >
                 <div className="flex items-center space-x-3">
                   <MapPin className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                  <h4 className="font-medium text-gray-900 dark:text-white">Location</h4>
+                  <h4 className="font-medium text-gray-900 dark:text-white text-sm sm:text-base">Location</h4>
                 </div>
                 <ChevronDown 
                   className={`h-4 w-4 text-gray-500 dark:text-gray-400 transition-transform ${
@@ -248,7 +248,7 @@ export function SearchFilters() {
               {expandedSections.includes("location") && (
                 <div className="mt-4 space-y-3 pt-4 border-t border-gray-200 dark:border-gray-700">
                   {["United States", "United Kingdom", "Canada", "Germany", "Turkey", "Australia", "India", "Brazil"].map((location) => (
-                    <div key={location} className="flex items-center space-x-3 p-2 rounded-md hover:bg-white dark:hover:bg-gray-700">
+                    <div key={location} className="flex items-center space-x-3 p-3 sm:p-2 rounded-md hover:bg-white dark:hover:bg-gray-700 touch-manipulation">
                       <Checkbox
                         id={location.toLowerCase().replace(/\s+/g, '-')}
                         checked={selectedLocations.includes(location)}
@@ -271,7 +271,7 @@ export function SearchFilters() {
               >
                 <div className="flex items-center space-x-3">
                   <Globe className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                  <h4 className="font-medium text-gray-900 dark:text-white">Languages</h4>
+                  <h4 className="font-medium text-gray-900 dark:text-white text-sm sm:text-base">Languages</h4>
                 </div>
                 <ChevronDown 
                   className={`h-4 w-4 text-gray-500 dark:text-gray-400 transition-transform ${
@@ -283,7 +283,7 @@ export function SearchFilters() {
               {expandedSections.includes("speaks") && (
                 <div className="mt-4 space-y-3 pt-4 border-t border-gray-200 dark:border-gray-700">
                   {["English", "Spanish", "French", "German", "Chinese", "Japanese", "Arabic", "Portuguese"].map((language) => (
-                    <div key={language} className="flex items-center space-x-3 p-2 rounded-md hover:bg-white dark:hover:bg-gray-700">
+                    <div key={language} className="flex items-center space-x-3 p-3 sm:p-2 rounded-md hover:bg-white dark:hover:bg-gray-700 touch-manipulation">
                       <Checkbox
                         id={language.toLowerCase().replace(/\s+/g, '-')}
                         checked={selectedLanguages.includes(language)}
@@ -306,7 +306,7 @@ export function SearchFilters() {
               >
                 <div className="flex items-center space-x-3">
                   <Star className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                  <h4 className="font-medium text-gray-900 dark:text-white">Seller Level</h4>
+                  <h4 className="font-medium text-gray-900 dark:text-white text-sm sm:text-base">Seller Level</h4>
                 </div>
                 <ChevronDown 
                   className={`h-4 w-4 text-gray-500 dark:text-gray-400 transition-transform ${
@@ -318,7 +318,7 @@ export function SearchFilters() {
               {expandedSections.includes("level") && (
                 <div className="mt-4 space-y-3 pt-4 border-t border-gray-200 dark:border-gray-700">
                   {["Top Rated Seller", "Level Two", "Level One", "New Seller"].map((level) => (
-                    <div key={level} className="flex items-center space-x-3 p-2 rounded-md hover:bg-white dark:hover:bg-gray-700">
+                    <div key={level} className="flex items-center space-x-3 p-3 sm:p-2 rounded-md hover:bg-white dark:hover:bg-gray-700 touch-manipulation">
                       <Checkbox
                         id={level.toLowerCase().replace(/\s+/g, '-')}
                         checked={selectedLevel === level}
@@ -335,7 +335,7 @@ export function SearchFilters() {
           </div>
 
           {/* Footer Actions */}
-          <div className="p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+          <div className="p-4 sm:p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
             <div className="flex space-x-3">
               <Button 
                 variant="outline" 
@@ -363,29 +363,31 @@ export function SearchFilters() {
       </div>
 
       {/* Main Filter Bar */}
-      <div className="flex items-center justify-between py-6 border-b border-gray-200 dark:border-gray-700 mb-8 relative max-w-7xl mx-auto">
-        <div className="flex items-center space-x-4">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between py-4 sm:py-6 border-b border-gray-200 dark:border-gray-700 mb-6 sm:mb-8 relative max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-4 mb-4 lg:mb-0">
           <Button
             variant="outline"
-            className="flex items-center space-x-2 bg-transparent border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+            className="flex items-center space-x-2 bg-transparent border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 text-sm sm:text-base"
             onClick={() => setShowAllFilters(true)}
           >
             <SlidersHorizontal className="h-4 w-4" />
-            <span>All Filters</span>
+            <span className="hidden sm:inline">All Filters</span>
+            <span className="sm:hidden">Filters</span>
           </Button>
 
           <div className="relative">
             <Button
               variant="outline"
-              className="flex items-center space-x-2 bg-transparent border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+              className="flex items-center space-x-2 bg-transparent border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 text-sm sm:text-base"
               onClick={() => toggleFilter("delivery")}
             >
-              <span>Delivery Time</span>
+              <span className="hidden sm:inline">Delivery Time</span>
+              <span className="sm:hidden">Delivery</span>
               <ChevronDown className="h-4 w-4" />
             </Button>
 
             {activeFilter === "delivery" && (
-              <div className="absolute top-full left-0 mt-2 w-80 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-6 z-30">
+              <div className="absolute top-full left-0 mt-2 w-72 sm:w-80 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-4 sm:p-6 z-30 max-h-96 overflow-y-auto">
                 <RadioGroup value={selectedDeliveryTime} onValueChange={setSelectedDeliveryTime}>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="Express 24H" id="express" />
@@ -412,7 +414,7 @@ export function SearchFilters() {
           <div className="relative">
             <Button
               variant="outline"
-              className="flex items-center space-x-2 bg-transparent border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+              className="flex items-center space-x-2 bg-transparent border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 text-sm sm:text-base"
               onClick={() => toggleFilter("budget")}
             >
               <span>Budget</span>
@@ -420,7 +422,7 @@ export function SearchFilters() {
             </Button>
 
             {activeFilter === "budget" && (
-              <div className="absolute top-full left-0 mt-2 w-80 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-6 z-30">
+              <div className="absolute top-full left-0 mt-2 w-72 sm:w-80 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-4 sm:p-6 z-30 max-h-96 overflow-y-auto">
                 <div className="mb-6">
                   <Slider
                     value={budgetRange}
@@ -456,7 +458,7 @@ export function SearchFilters() {
           <div className="relative">
             <Button
               variant="outline"
-              className="flex items-center space-x-2 bg-transparent border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+              className="flex items-center space-x-2 bg-transparent border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 text-sm sm:text-base"
               onClick={() => toggleFilter("level")}
             >
               <span>Level</span>
@@ -464,7 +466,7 @@ export function SearchFilters() {
             </Button>
 
             {activeFilter === "level" && (
-              <div className="absolute top-full left-0 mt-2 w-80 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-6 z-30">
+              <div className="absolute top-full left-0 mt-2 w-72 sm:w-80 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-4 sm:p-6 z-30 max-h-96 overflow-y-auto">
                 <div className="space-y-3">
                   <div className="flex items-center space-x-2">
                     <Checkbox
@@ -507,7 +509,7 @@ export function SearchFilters() {
           <div className="relative">
             <Button
               variant="outline"
-              className="flex items-center space-x-2 bg-transparent border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+              className="flex items-center space-x-2 bg-transparent border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 text-sm sm:text-base"
               onClick={() => toggleFilter("location")}
             >
               <span>Location</span>
@@ -515,7 +517,7 @@ export function SearchFilters() {
             </Button>
 
             {activeFilter === "location" && (
-              <div className="absolute top-full left-0 mt-2 w-80 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-6 z-30">
+              <div className="absolute top-full left-0 mt-2 w-72 sm:w-80 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-4 sm:p-6 z-30 max-h-96 overflow-y-auto">
                 <div className="space-y-3">
                   <div className="flex items-center space-x-2">
                     <Checkbox
@@ -564,10 +566,11 @@ export function SearchFilters() {
           </div>
         </div>
 
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 mt-4 lg:mt-0">
           <span className="text-sm text-gray-600 dark:text-gray-400">Sort by:</span>
-          <Button variant="outline" className="flex items-center space-x-2 bg-transparent border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
-            <span>Best Seller</span>
+          <Button variant="outline" className="flex items-center space-x-2 bg-transparent border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 text-sm sm:text-base">
+            <span className="hidden sm:inline">Best Seller</span>
+            <span className="sm:hidden">Best</span>
             <ChevronDown className="h-4 w-4" />
           </Button>
         </div>

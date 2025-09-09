@@ -139,16 +139,16 @@ export function TrendingServicesSection() {
   }
 
   return (
-    <section className="py-16 bg-gray-50 dark:bg-gray-950">
-      <div className="max-w-7xl mx-auto">
+    <section className="py-12 sm:py-16 bg-gray-50 dark:bg-gray-950">
+      <div className="max-w-7xl mx-auto px-4 sm:px-0">
         {/* Header */}
-        <div className="flex items-center justify-between mb-12">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 sm:mb-12 gap-4">
           <div>
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Trending Services</h2>
-            <p className="text-gray-600 dark:text-gray-400">Most viewed and all-time top-selling services</p>
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-1 sm:mb-2">Trending Services</h2>
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">Most viewed and all-time top-selling services</p>
           </div>
           {/* Navigation */}
-          <div className="flex items-center gap-4">
+          <div className="hidden sm:flex items-center gap-3 sm:gap-4">
             <Button
               variant="outline"
               size="icon"
@@ -166,17 +166,18 @@ export function TrendingServicesSection() {
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
+          {/* Mobile Navigation below carousel */}
         </div>
         {/* Services Carousel */}
         <div
           ref={containerRef}
-          className="flex gap-6 overflow-x-auto scrollbar-hide pb-4 mb-8 snap-x snap-mandatory"
+          className="flex gap-4 sm:gap-6 overflow-x-auto scrollbar-hide pb-3 sm:pb-4 mb-6 sm:mb-8 snap-x snap-mandatory -mx-4 px-4 sm:mx-0 sm:px-0"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {trendingServices.map((service) => (
             <Card
               key={service.id}
-              className="group hover:shadow-lg dark:hover:shadow-2xl dark:hover:shadow-black/20 transition-shadow duration-300 bg-white dark:bg-gray-800 flex-shrink-0 w-80 border-gray-200 dark:border-gray-700 snap-start"
+              className="group hover:shadow-lg dark:hover:shadow-2xl dark:hover:shadow-black/20 transition-shadow duration-300 bg-white dark:bg-gray-800 flex-shrink-0 w-64 sm:w-72 md:w-80 border-gray-200 dark:border-gray-700 snap-start"
             >
               <CardContent className="p-0">
                 {/* Service Image */}
@@ -205,7 +206,7 @@ export function TrendingServicesSection() {
                   </Button>
                 </div>
                 {/* Service Content */}
-                <div className="p-4">
+                <div className="p-3 sm:p-4">
                   {/* Category Badge */}
                   <Badge
                     variant="secondary"
@@ -214,7 +215,7 @@ export function TrendingServicesSection() {
                     {service.category}
                   </Badge>
                   {/* Title */}
-                  <h3 className="font-semibold text-gray-900 dark:text-white mb-3 line-clamp-2 leading-tight">
+                  <h3 className="font-semibold text-gray-900 dark:text-white mb-2 sm:mb-3 line-clamp-2 leading-tight text-sm sm:text-base">
                     {service.title}
                   </h3>
                   {/* Rating */}
@@ -223,7 +224,7 @@ export function TrendingServicesSection() {
                       <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                       <span className="font-medium text-gray-900 dark:text-white">{service.rating}</span>
                     </div>
-                    <span className="text-gray-500 dark:text-gray-400 text-sm">({service.reviews} reviews)</span>
+                    <span className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm">({service.reviews} reviews)</span>
                   </div>
                   {/* Author and Price */}
                   <div className="flex items-center justify-between">
@@ -237,11 +238,11 @@ export function TrendingServicesSection() {
                           className="object-cover"
                         />
                       </div>
-                      <span className="text-sm text-gray-600 dark:text-gray-400">{service.author.name}</span>
+                      <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">{service.author.name}</span>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Starting at</p>
-                      <p className="font-bold text-gray-900 dark:text-white">${service.price}</p>
+                      <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Starting at</p>
+                      <p className="font-bold text-gray-900 dark:text-white text-sm sm:text-base">${service.price}</p>
                     </div>
                   </div>
                 </div>

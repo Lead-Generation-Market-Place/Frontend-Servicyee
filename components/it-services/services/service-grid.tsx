@@ -161,8 +161,8 @@ const services = [
 
 export function ServiceGrid() {
   return (
-    <div className="max-w-7xl mx-auto">
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 ">
+    <div className="max-w-7xl mx-auto px-4 sm:px-0">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-12">
       {services.map((service) => (
         <ServiceCard key={service.id} service={service} />
       ))}
