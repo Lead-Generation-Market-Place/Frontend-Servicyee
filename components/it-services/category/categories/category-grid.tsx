@@ -92,7 +92,7 @@ const categories = [
 
 export function CategoryGrid() {
   return (
-    <section className="py-16 bg-gray-50 dark:bg-gray-900">
+    <section className="py-16 bg-gray-50 dark:bg-gray-950">
       <div className="mx-auto px-4 max-w-7xl">
         <h2 className="text-3xl font-bold mb-12 text-gray-900 dark:text-white">
           Explore Programming & Tech
