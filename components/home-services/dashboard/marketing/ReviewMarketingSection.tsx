@@ -126,31 +126,35 @@ const ReviewMarketingSection: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <Card className=" w-full border-0 bg-gray-50 dark:bg-gray-900 shadow-none ">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-xl">Review–Driven Marketing for Professionals</CardTitle>
+      <Card className="w-full border-0 bg-gray-50 dark:bg-gray-900 shadow-none">
+        <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <CardTitle className="text-xl md:text-2xl text-center md:text-left">
+            Review–Driven Marketing for Professionals
+          </CardTitle>
           {selectedReview && (
-            <div className="flex space-x-2">
+            <div className="flex justify-center md:justify-end space-x-2 w-full md:w-auto">
               <Button
                 variant="outline"
                 size="sm"
+                className="flex items-center"
                 onClick={() => handleDownload(selectedReview)}
               >
-                <DownloadIcon className="h-4 w-4 mr-2" />
-                Download
+                <DownloadIcon className="h-4 w-4 md:mr-2" />
+                <span className="hidden md:inline">Download</span>
               </Button>
               <Button
                 size="sm"
+                className="flex items-center"
                 onClick={() => handleShareToShootak(selectedReview)}
               >
-                <ShareIcon className="h-4 w-4 mr-2" />
-                Share to Shootak
+                <ShareIcon className="h-4 w-4 md:mr-2" />
+                <span className="hidden md:inline">Share to Shootak</span>
               </Button>
             </div>
           )}
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground text-center md:text-left">
             Turn your satisfied customers into your best sales tool. Share reviews as ready-made posts on Instagram/TikTok or directly to Shootak, and increase your visibility in search results.
           </p>
 
