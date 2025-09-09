@@ -107,10 +107,12 @@ function CarouselSection({
   const scrollByCards = (dir: "left" | "right") => {
     const el = scrollerRef.current
     if (!el) return
-    const cardWidth = 288
-    const gap = 16
+    const firstChild = el.children[0] as HTMLElement | undefined
+    const cardWidth = firstChild?.clientWidth || 0
+    const style = window.getComputedStyle(el)
+    const gap = parseInt(style.columnGap || style.gap || "0", 10) || 0
     const viewport = el.clientWidth
-    const cardsPerView = Math.max(1, Math.floor((viewport - 32) / (cardWidth + gap)))
+    const cardsPerView = Math.max(1, Math.floor((viewport - 1) / Math.max(1, cardWidth + gap)))
     const distance = (cardWidth + gap) * cardsPerView
     el.scrollBy({ left: dir === "left" ? -distance : distance, behavior: "smooth" })
   }
@@ -143,10 +145,29 @@ function CarouselSection({
           className="flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-pb-4 pb-4 -mx-4 px-4 md:mx-0 md:px-0 scrollbar-hide"
         >
           {services.map((service) => (
-            <div key={service.id} className="snap-start">
-              <ServiceCard service={service} />
+            <div key={service.id} className="snap-start w-64 sm:w-72 md:w-80 flex-shrink-0">
+              <div className="h-full w-full">
+                <ServiceCard service={service} />
+              </div>
             </div>
           ))}
+        </div>
+        {/* Mobile navigation */}
+        <div className="flex sm:hidden items-center justify-center gap-3 mt-1">
+          <button
+            aria-label="Scroll left"
+            onClick={() => scrollByCards("left")}
+            className="h-9 w-9 inline-flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 hover:bg-white dark:hover:bg-gray-900 transition"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <button
+            aria-label="Scroll right"
+            onClick={() => scrollByCards("right")}
+            className="h-9 w-9 inline-flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 hover:bg-white dark:hover:bg-gray-900 transition"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
         </div>
       </div>
     </section>
@@ -165,10 +186,12 @@ function CarouselSectionFreelancers({
   const scrollByCards = (dir: "left" | "right") => {
     const el = scrollerRef.current
     if (!el) return
-    const cardWidth = 288
-    const gap = 16
+    const firstChild = el.children[0] as HTMLElement | undefined
+    const cardWidth = firstChild?.clientWidth || 0
+    const style = window.getComputedStyle(el)
+    const gap = parseInt(style.columnGap || style.gap || "0", 10) || 0
     const viewport = el.clientWidth
-    const cardsPerView = Math.max(1, Math.floor((viewport - 32) / (cardWidth + gap)))
+    const cardsPerView = Math.max(1, Math.floor((viewport - 1) / Math.max(1, cardWidth + gap)))
     const distance = (cardWidth + gap) * cardsPerView
     el.scrollBy({ left: dir === "left" ? -distance : distance, behavior: "smooth" })
   }
@@ -201,10 +224,29 @@ function CarouselSectionFreelancers({
           className="flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-pb-4 pb-4 -mx-4 px-4 md:mx-0 md:px-0 scrollbar-hide"
         >
           {freelancers.map((f) => (
-            <div key={f.id} className="snap-start w-72 flex-shrink-0">
-              <FreelancerCard freelancer={f} />
+            <div key={f.id} className="snap-start w-64 sm:w-72 md:w-80 flex-shrink-0">
+              <div className="h-full w-full">
+                <FreelancerCard freelancer={f} />
+              </div>
             </div>
           ))}
+        </div>
+        {/* Mobile navigation */}
+        <div className="flex sm:hidden items-center justify-center gap-3 mt-1">
+          <button
+            aria-label="Scroll left"
+            onClick={() => scrollByCards("left")}
+            className="h-9 w-9 inline-flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 hover:bg-white dark:hover:bg-gray-900 transition"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <button
+            aria-label="Scroll right"
+            onClick={() => scrollByCards("right")}
+            className="h-9 w-9 inline-flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 hover:bg-white dark:hover:bg-gray-900 transition"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
         </div>
       </div>
     </section>
