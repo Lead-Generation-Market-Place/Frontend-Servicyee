@@ -112,7 +112,7 @@ const ProfileVisibility: React.FC = () => {
 
   return (
     <>
-      <Card className="border-0 bg-white dark:bg-gray-900 shadow-0 border- ">
+        <Card className="shadow-none border-none rounded-sm border-gray-300 dark:border-gray-600 dark:bg-gray-900 bg-gray-50 overflow-hidden relative">
         <CardHeader className="pb-3">
           <div className="flex justify-between items-center">
             <CardTitle className="text-2xl flex items-center gap-2 ">
