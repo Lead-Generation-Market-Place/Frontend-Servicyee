@@ -43,7 +43,7 @@ const Guarantee: React.FC = () => {
   const [selectedType, setSelectedType] = useState("satisfaction");
   const [savingsPercentage, setSavingsPercentage] = useState(0);
   const [isAnnualBilling, setIsAnnualBilling] = useState(false);
-  const [credits, setCredits] = useState(15); // Starting credits
+  const [credits, setCredits] = useState(15);
 
   const serviceOptions: string[] = [
     "All Services",
@@ -95,12 +95,10 @@ const Guarantee: React.FC = () => {
     { id: "1-year", name: "1 Year", discount: 15, creditMultiplier: 8 },
   ], []);
 
-  // Calculate credit cost based on selections
   const creditCost = useMemo(() => {
     const baseCost = guaranteeTypes.find(t => t.id === selectedType)?.creditCost || 0;
     const durationMultiplier = durationOptions.find(d => d.id === selectedDuration)?.creditMultiplier || 1;
-    const billingDiscount = isAnnualBilling ? 0.8 : 1; // 20% discount for annual billing
-
+    const billingDiscount = isAnnualBilling ? 0.8 : 1;
     return Math.round(baseCost * durationMultiplier * billingDiscount);
   }, [guaranteeTypes, durationOptions, selectedType, selectedDuration, isAnnualBilling]);
 
@@ -108,24 +106,19 @@ const Guarantee: React.FC = () => {
     const durationDiscount = durationOptions.find(d => d.id === selectedDuration)?.discount || 0;
     const annualDiscount = isAnnualBilling ? 10 : 0;
     setSavingsPercentage(durationDiscount + annualDiscount);
-  }, [durationOptions, selectedDuration, isAnnualBilling]); // ✅ fixed warning
+  }, [durationOptions, selectedDuration, isAnnualBilling]);
 
   const handleActivateGuarantee = () => {
     if (credits >= creditCost) {
       setCredits(prev => prev - creditCost);
       setIsGuaranteeActive(true);
     } else {
-      // In a real app, you would show a modal or notification about insufficient credits
       alert("Insufficient credits. Please purchase more credits to activate this guarantee.");
     }
   };
 
   return (
-    <Card className="shadow-none border-none rounded-sm border-gray-300 dark:border-gray-600 dark:bg-gray-900  bg-gray-50 overflow-hidden relative">
-      {/* Decorative elements */}
-      <div className="absolute  " />
-      <div className="absolute  " />
-
+    <Card className="shadow-none border-none rounded-sm border-gray-300 dark:border-gray-600 dark:bg-gray-900 bg-gray-50 overflow-hidden relative">
       <CardHeader className="pb-3 relative">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div>
@@ -136,8 +129,7 @@ const Guarantee: React.FC = () => {
               ProShield Guarantee
             </CardTitle>
             <CardDescription className="mt-2 text-sm">
-              Build trust and win more customers with our comprehensive
-              satisfaction guarantee program.
+              Build trust and win more customers with our comprehensive satisfaction guarantee program.
             </CardDescription>
           </div>
         </div>
@@ -158,9 +150,7 @@ const Guarantee: React.FC = () => {
                 </TooltipTrigger>
                 <TooltipContent className="max-w-xs">
                   <p className="text-xs">
-                    Select the service this guarantee will apply to.
-                    Different services may have different guarantee
-                    requirements.
+                    Select the service this guarantee will apply to. Different services may have different guarantee requirements.
                   </p>
                 </TooltipContent>
               </Tooltip>
@@ -183,7 +173,7 @@ const Guarantee: React.FC = () => {
         {/* Guarantee Type Selection */}
         <div className="space-y-3">
           <label className="text-sm font-medium">Guarantee Type</label>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
             {guaranteeTypes.map((type) => (
               <div
                 key={type.id}
@@ -194,12 +184,8 @@ const Guarantee: React.FC = () => {
                 onClick={() => setSelectedType(type.id)}
               >
                 <div className="flex items-start justify-between mb-3">
-                  <div className={`p-2 rounded-full ${type.color}`}>
-                    {type.icon}
-                  </div>
-                  <Badge className={type.color}>
-                    {type.creditCost} credits
-                  </Badge>
+                  <div className={`p-2 rounded-full ${type.color}`}>{type.icon}</div>
+                  <Badge className={type.color}>{type.creditCost} credits</Badge>
                 </div>
                 <h3 className="font-medium text-sm mb-1">{type.name}</h3>
                 <p className="text-xs text-muted-foreground mb-2">{type.description}</p>
@@ -209,9 +195,9 @@ const Guarantee: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex gap-5 w-full">
+        <div className="flex flex-col sm:flex-row gap-4 w-full">
           {/* Duration Selection */}
-          <div className="w-1/2 space-y-3">
+          <div className="flex-1 space-y-3">
             <label className="text-sm font-medium">Guarantee Duration</label>
             <Select value={selectedDuration} onValueChange={setSelectedDuration}>
               <SelectTrigger className="w-full">
@@ -238,7 +224,7 @@ const Guarantee: React.FC = () => {
           </div>
 
           {/* Billing Selection */}
-          <div className="w-1/2 space-y-3">
+          <div className="flex-1 space-y-3">
             <label className="text-sm font-medium">Billing Cycle</label>
             <div className="flex items-center justify-between p-3 border rounded-md w-full">
               <span className="text-sm">Annual Billing</span>
@@ -251,30 +237,24 @@ const Guarantee: React.FC = () => {
                     20% off
                   </Badge>
                 )}
-                <Switch
-                  checked={isAnnualBilling}
-                  onCheckedChange={setIsAnnualBilling}
-                />
+                <Switch checked={isAnnualBilling} onCheckedChange={setIsAnnualBilling} />
               </div>
             </div>
           </div>
         </div>
+
         {/* Pricing & Credit Summary */}
         <div className="pt-4 border-t">
-          <h3 className="text-sm font-medium mb-3 flex items-center gap-2">
+          <h3 className="text-sm font-normal mb-3 flex items-center gap-2">
             <CalculatorIcon className="w-4 h-4 text-[#0077B6] dark:text-[#40A4FF]" />
             Credit Summary
           </h3>
-          <div className="bg-blue-50/30 dark:bg-blue-950/20 p-4 rounded-lg border">
+          <div className=" rounded-lg ">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div>
-                <p className="text-sm text-muted-foreground">
-                  This guarantee will cost
-                </p>
+                <p className="text-sm text-muted-foreground">This guarantee will cost</p>
                 <div className="flex items-end gap-2 mt-1">
-                  <span className="text-2xl font-bold text-[#0077B6] dark:text-[#40A4FF]">
-                    {creditCost} Credits
-                  </span>
+                  <span className="text-2xl font-bold text-[#0077B6] dark:text-[#40A4FF]">{creditCost} Credits</span>
                   {savingsPercentage > 0 && (
                     <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
                       Save {savingsPercentage}%
@@ -287,7 +267,7 @@ const Guarantee: React.FC = () => {
               </div>
 
               <Button
-                className="bg-[#0077B6] hover:bg-[#016ca6] dark:bg-[#40A4FF] dark:hover:bg-[#2B90D9] gap-2"
+                className="bg-[#0077B6] hover:bg-[#016ca6] dark:bg-[#40A4FF] dark:hover:bg-[#2B90D9] gap-2 w-full sm:w-auto"
                 onClick={handleActivateGuarantee}
                 disabled={credits < creditCost}
               >
@@ -314,27 +294,20 @@ const Guarantee: React.FC = () => {
 
         {/* Footer Actions */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pt-4 border-t">
-          <div className="flex items-center gap-2">
-            <Switch
-              id="guarantee-active"
-              checked={isGuaranteeActive}
-              onCheckedChange={setIsGuaranteeActive}
-            />
-            <label
-              htmlFor="guarantee-active"
-              className="text-sm font-medium cursor-pointer"
-            >
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <Switch id="guarantee-active" checked={isGuaranteeActive} onCheckedChange={setIsGuaranteeActive} />
+            <label htmlFor="guarantee-active" className="text-sm font-medium cursor-pointer">
               Enable ProShield Guarantee
             </label>
           </div>
 
-          <div className="flex gap-3">
-            <Button variant="outline" className="gap-2">
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            <Button variant="outline" className="gap-2 w-full sm:w-auto">
               <HeartIcon className="w-4 h-4" />
               Save for Later
             </Button>
             <Button
-              className="gap-2"
+              className="gap-2 w-full sm:w-auto"
               variant="outline"
               onClick={() => setCredits(prev => prev + 100)}
             >
