@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
-import { CalendarIcon, InfoIcon, TrendingUpIcon, UsersIcon, TargetIcon, BarChart3 } from "lucide-react";
+import { CalendarIcon, InfoIcon, TrendingUpIcon, UsersIcon, TargetIcon, BarChart3, PercentIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
@@ -17,6 +17,7 @@ const CustomerRetention: React.FC = () => {
   const [endDate, setEndDate] = useState<Date>(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000));
   const [customerCount, setCustomerCount] = useState<number>(150);
   const [offerType, setOfferType] = useState("discount");
+  const [discountPercentage, setDiscountPercentage] = useState<number>(10);
 
   const serviceOptions = [
     "All Services", "Home Cleaning", "Electrician", "HVAC", "Cleaning", "Landscaping",
@@ -30,12 +31,14 @@ const CustomerRetention: React.FC = () => {
   ];
 
   return (
-    <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50/70 via-background to-background dark:from-blue-950/30 dark:via-background dark:to-background">
+    
+    
+    <Card className="shadow-none border-none rounded-sm border-gray-300 dark:border-gray-600 dark:bg-gray-900  bg-gray-50 overflow-hidden relative">
       <CardHeader className="pb-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <CardTitle className="text-2xl flex items-center gap-2">
-              <div className="p-2 rounded-full bg-blue-100 dark:bg-blue-900/40">
+              <div className="p-2 rounded-full bg-blue-100 dark:bg-gray-900">
                 <TrendingUpIcon className="w-5 h-5 text-[#0077B6] dark:text-blue-400" />
               </div>
               Customer Retention Campaign
@@ -44,7 +47,7 @@ const CustomerRetention: React.FC = () => {
               Re-engage past customers with offers and reminders to boost repeat business.
             </CardDescription>
           </div>
-          <Badge variant="outline" className="w-fit bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300">
+          <Badge variant="outline" className="w-fit bg-blue-100 text-blue-800 dark:bg-gray-900 dark:text-blue-300">
             <TargetIcon className="w-3 h-3 mr-1" />
             Retention Strategy
           </Badge>
@@ -113,14 +116,37 @@ const CustomerRetention: React.FC = () => {
                 </SelectContent>
               </Select>
             </div>
+            
+            {offerType === "discount" && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium flex items-center gap-2">
+                  Discount Percentage
+                </label>
+                <div className="relative">
+                  <Input
+                    type="number"
+                    min="1"
+                    max="100"
+                    value={discountPercentage}
+                    onChange={(e) => setDiscountPercentage(Number(e.target.value))}
+                    placeholder="e.g., 15"
+                    className="pl-10"
+                  />
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <PercentIcon className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                </div>
+              </div>
+            )}
+            
             <div className="space-y-2">
               <label className="text-sm font-medium">Campaign Dates</label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant={"outline"} className={cn("justify-start text-left font-normal", !startDate && "text-muted-foreground")}>
+                    <Button variant={"outline"} className={cn("justify-start text-left font-normal w-full", !startDate && "text-muted-foreground")}>
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {startDate ? format(startDate, "MMM dd") : <span>Start date</span>}
+                      {startDate ? format(startDate, "MMM dd, yyyy") : <span>Start date</span>}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -129,9 +155,9 @@ const CustomerRetention: React.FC = () => {
                 </Popover>
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant={"outline"} className={cn("justify-start text-left font-normal", !endDate && "text-muted-foreground")}>
+                    <Button variant={"outline"} className={cn("justify-start text-left font-normal w-full", !endDate && "text-muted-foreground")}>
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {endDate ? format(endDate, "MMM dd") : <span>End date</span>}
+                      {endDate ? format(endDate, "MMM dd, yyyy") : <span>End date</span>}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -152,7 +178,7 @@ const CustomerRetention: React.FC = () => {
             Campaign Performance Metrics
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/50 dark:to-blue-900/30 border-blue-200 dark:border-blue-800">
+            <Card className="bg-white dark:bg-gray-900">
               <CardContent className="p-4">
                 <div className="flex justify-between items-start">
                   <div>
@@ -202,7 +228,7 @@ const CustomerRetention: React.FC = () => {
                 <div className="flex justify-between items-start">
                   <div>
                     <p className="text-xs text-muted-foreground">Campaign Cost</p>
-                    <p className="text-xl font-bold">${customerCount * 0.25}</p>
+                    <p className="text-xl font-bold">${(customerCount * 0.25).toFixed(2)}</p>
                   </div>
                   <div className="p-2 rounded-full bg-purple-200/50 dark:bg-purple-800/50">
                     <InfoIcon className="w-4 h-4 text-purple-700 dark:text-purple-300" />
