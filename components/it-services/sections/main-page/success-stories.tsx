@@ -2,8 +2,8 @@
 
 export function SuccessStories() {
   return (
-    <section className="py-16 bg-white dark:bg-gray-950 text-black dark:text-white transition-colors">
-      <div className="container mx-auto px-4">
+    <section className="py-16 bg-gray-50 dark:bg-gray-950 text-black dark:text-white transition-colors">
+      <div className="max-w-7xl mx-auto px-4">
         <h2 className="text-4xl font-heading mb-4">What success on Servicyee looks like</h2>
         <p className="text-gray-600 dark:text-gray-300 mb-12 max-w-2xl">
           Millions of people use Servicyee to turn their ideas into reality.

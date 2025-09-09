@@ -19,7 +19,7 @@ export function HeroSection() {
   const router = useRouter()
  
   return (
-    <section className="relative bg-[#204c3f] text-white overflow-hidden min-h-[70vh]">
+    <section className="relative bg-[#204c3f] text-white overflow-hidden min-h-[60vh] sm:min-h-[70vh]">
       {/* Topographic contour lines background */}
       <div className="absolute inset-0 opacity-5">
         <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
@@ -47,41 +47,41 @@ export function HeroSection() {
       </div>
       
       {/* Additional background pattern overlay */}
-      <div className="absolute inset-0 opacity-10">
+      <div className="absolute inset-0 opacity-10 hidden md:block">
         <div className="absolute top-20 left-10 w-32 h-32 border border-white/20 rounded-full"></div>
         <div className="absolute top-40 right-20 w-24 h-24 border border-white/20 rounded-full"></div>
         <div className="absolute bottom-20 left-1/4 w-16 h-16 border border-white/20 rounded-full"></div>
       </div>
 
-      <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 ">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+      <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* Left Column - Content */}
-          <div className="space-y-8">
-            <h1 className="text-3xl lg:text-4xl font-bold leading-tight">
+          <div className="space-y-6 sm:space-y-8">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight">
               Find the perfect freelance services for your business.
             </h1>
             
-            <p className="text-lg text-white/90 max-w-lg">
+            <p className="text-base sm:text-lg text-white/90 max-w-xl">
               Work with talented people at the most affordable price to get the most out of your time and cost.
             </p>
 
             {/* Search Bar */}
             <div className="relative">
-              <div className="py-2 px-4  flex bg-white rounded-full overflow-hidden shadow-lg">
-                <div className="flex-1 flex items-center px-4">
-                  <Search className="h-5 w-5 text-gray-400 mr-3" />
+              <div className="py-2 px-2 sm:px-4 flex flex-col md:flex-row bg-white rounded-2xl md:rounded-full overflow-hidden shadow-lg gap-2 md:gap-0">
+                <div className="flex-1 flex items-center px-3 sm:px-4">
+                  <Search className="hidden sm:block h-5 w-5 text-gray-400 mr-3" />
                   <Input
                     type="text"
                     placeholder="What are you looking for?"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="border-0 focus:ring-0 text-gray-900 placeholder-gray-500"
+                    className="border-0 focus:ring-0 text-gray-900 placeholder-gray-500 w-full"
                   />
                 </div>
                
                 <Button 
                   size="lg"
-                  className="bg-[#1dbf73] hover:bg-[#19a463] text-white px-8 py-4 rounded-full "
+                  className="bg-[#1dbf73] hover:bg-[#19a463] text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl md:rounded-full w-full md:w-auto"
                   onClick={()=>{
                     router.push(`/it-services/search/?query=${searchQuery}`)
                   }}
@@ -92,13 +92,13 @@ export function HeroSection() {
             </div>
 
             {/* Statistics */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 pt-8">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 pt-6 sm:pt-8">
               {statistics.map((stat, index) => (
                 <div key={index} className="text-center">
-                  <div className="text-2xl lg:text-3xl font-bold text-white mb-1">
+                  <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-1">
                     {stat.value}
                   </div>
-                  <div className="text-sm text-white/80">
+                  <div className="text-xs sm:text-sm text-white/80">
                     {stat.label}
                   </div>
                 </div>
@@ -109,7 +109,7 @@ export function HeroSection() {
           {/* Right Column - Images */}
           <div className="relative">
             {/* Main image container */}
-            <div className="relative bg-transparent rounded-2xl p-6 shadow-2xl">
+            <div className="relative bg-transparent rounded-2xl p-4 sm:p-6 shadow-2xl">
               <div className="relative">
                 <div className="w-full h-auto rounded-xl overflow-hidden">
                   <Image
@@ -124,7 +124,7 @@ export function HeroSection() {
                 
                 {/* Overlaid Cards */}
                 <div
-                  className="absolute top-4 left-4 bg-white rounded-lg p-3 shadow-lg max-w-48"
+                  className="hidden md:block absolute top-4 left-4 bg-white rounded-lg p-3 shadow-lg max-w-48"
                   style={{
                     animation: 'slideX 4s ease infinite alternate'
                   }}
@@ -141,7 +141,7 @@ export function HeroSection() {
                 </div>
 
                 <div
-                  className="absolute bottom-4 right-4 bg-white rounded-lg p-3 shadow-lg max-w-48"
+                  className="hidden md:block absolute bottom-4 right-4 bg-white rounded-lg p-3 shadow-lg max-w-48"
                   style={{
                     animation: 'slideY 4s ease infinite alternate'
                   }}
@@ -179,7 +179,7 @@ export function HeroSection() {
 
             {/* Happy Clients Section */}
             <div
-              className="absolute -bottom-6 left-8 bg-white rounded-lg p-4 shadow-lg"
+              className="hidden md:block absolute -bottom-6 left-8 bg-white rounded-lg p-4 shadow-lg"
               style={{
                 animation: 'slideX 4s ease infinite alternate'
               }}
