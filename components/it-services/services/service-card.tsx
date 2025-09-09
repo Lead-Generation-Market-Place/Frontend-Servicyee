@@ -22,7 +22,7 @@ interface ServiceCardProps {
 
 export function ServiceCard({ service }: ServiceCardProps) {
   return (
-    <Card className="group hover:shadow-lg transition-shadow duration-300 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 h-full flex flex-col w-72 flex-shrink-0">
+    <Card className="group hover:shadow-lg transition-shadow duration-300 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 h-full flex flex-col w-full">
       <CardContent className="p-0 flex flex-col h-full">
         <div className="relative w-full h-48">
           <Image
