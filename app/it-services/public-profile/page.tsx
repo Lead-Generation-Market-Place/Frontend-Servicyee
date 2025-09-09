@@ -16,7 +16,6 @@ import {
   MessageCircle,
   ThumbsUp,
   ThumbsDown,
-  
 } from "lucide-react"
 import Image from "next/image"
 import { SellerFeaturedServices } from "@/components/it-services/profiles/seller-featured-services"
@@ -153,10 +152,10 @@ export default function PublicProfilePage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      <div className="max-w-7xl mx-auto ">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header Banner */}
         <div className="relative pb-8 pt-4">
-          <div className="relative  h-48 overflow-hidden">
+          <div className="relative h-32 sm:h-40 md:h-48 overflow-hidden">
             {/* Background Image */}
             <div className="absolute inset-0">
               <Image
@@ -171,46 +170,46 @@ export default function PublicProfilePage() {
             </div>
             
             {/* Content */}
-            <div className="relative z-10 h-full flex items-center justify-between p-8">
+            <div className="relative z-10 h-full flex items-center p-4 sm:p-6 md:p-8">
               {/* Left side - Service and Profile Info */}
               <div className="flex-1">
-                <h1 className="text-2xl font-bold text-white mb-6 drop-shadow-lg">
+                <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-4 sm:mb-6 drop-shadow-lg">
                   Professional Website UI/UX Design Services in Adobe XD & Figma
                 </h1>
                 
-                <div className="flex items-center gap-6">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
                   <div className="relative">
-                    <Avatar className="h-20 w-20 border-4 border-white shadow-lg">
+                    <Avatar className="h-16 w-16 sm:h-20 sm:w-20 border-4 border-white shadow-lg">
                       <AvatarImage src="https://randomuser.me/api/portraits/men/32.jpg" alt="John Smith" />
                       <AvatarFallback className="text-lg">JS</AvatarFallback>
                     </Avatar>
-                    <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white"></div>
+                    <div className="absolute -bottom-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-green-500 rounded-full border-2 border-white"></div>
                   </div>
                   
-                  <div>
-                    <h2 className="text-xl font-bold text-white drop-shadow-lg">Leslie Alexander</h2>
+                  <div className="flex-1">
+                    <h2 className="text-lg sm:text-xl font-bold text-white drop-shadow-lg">Leslie Alexander</h2>
                     <p className="text-gray-200 text-sm drop-shadow-md">UI/UX Designer</p>
-                    <div className="flex items-center gap-4 mt-2">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-2">
                       <div className="flex items-center gap-1">
-                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                        <span className="font-medium text-white drop-shadow-md">{averageRating}</span>
-                        <span className="text-gray-200 text-sm drop-shadow-md">{userReviews.length} reviews</span>
+                        <Star className="h-3 w-3 sm:h-4 sm:w-4 fill-yellow-400 text-yellow-400" />
+                        <span className="font-medium text-white drop-shadow-md text-sm sm:text-base">{averageRating}</span>
+                        <span className="text-gray-200 text-xs sm:text-sm drop-shadow-md">{userReviews.length} reviews</span>
                       </div>
                       <div className="flex items-center gap-1 text-gray-200">
-                        <MapPin className="h-4 w-4" />
-                        <span className="text-sm drop-shadow-md">London, UK</span>
+                        <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
+                        <span className="text-xs sm:text-sm drop-shadow-md">London, UK</span>
                       </div>
                       {/* Success Rate */}
-                      <div className="flex items-center gap-1 text-green-300 ml-2">
-                        <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <div className="flex items-center gap-1 text-green-300">
+                        <svg className="h-3 w-3 sm:h-4 sm:w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
-                        <span className="text-sm font-medium drop-shadow-md">98% Success Rate</span>
+                        <span className="text-xs sm:text-sm font-medium drop-shadow-md">98% Success Rate</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-1 text-gray-200 mt-1">
-                      <Calendar className="h-4 w-4" />
-                      <span className="text-sm drop-shadow-md">Member since April 1, 2022</span>
+                      <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
+                      <span className="text-xs sm:text-sm drop-shadow-md">Member since April 1, 2022</span>
                     </div>
                   </div>
                 </div>
@@ -219,13 +218,12 @@ export default function PublicProfilePage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
-        
+          <div className="lg:col-span-2 space-y-6 md:space-y-8">
             {/* Description */}
-            <div className=" dark:bg-gray-950 rounded-lg py-6">
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Description</h3>
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6">
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-4">Description</h3>
               <p className="text-gray-700 dark:text-gray-300 mb-4">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
               </p>
@@ -235,8 +233,8 @@ export default function PublicProfilePage() {
             </div>
 
             {/* Education */}
-            <div className=" dark:bg-gray-950 rounded-lg p-6">
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Education</h3>
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6">
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-4">Education</h3>
               <div className="space-y-6">
                 {education.map((edu, index) => (
                   <div key={index} className="border-l-4 border-emerald-500 pl-4">
@@ -249,8 +247,8 @@ export default function PublicProfilePage() {
             </div>
 
             {/* Work & Experience */}
-            <div className=" dark:bg-gray-950 rounded-lg p-6">
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Work & Experience</h3>
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6">
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-4">Work & Experience</h3>
               <div className="space-y-6">
                 {experience.map((exp, index) => (
                   <div key={index} className="border-l-4 border-emerald-500 pl-4">
@@ -263,8 +261,8 @@ export default function PublicProfilePage() {
             </div>
 
             {/* Awards and Certificates */}
-            <div className=" dark:bg-gray-950 rounded-lg p-6">
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Awards and Certificates</h3>
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6">
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-4">Awards and Certificates</h3>
               <div className="space-y-6">
                 {awards.map((award, index) => (
                   <div key={index} className="border-l-4 border-emerald-500 pl-4">
@@ -277,16 +275,16 @@ export default function PublicProfilePage() {
             </div>
 
             {/* Reviews */}
-            <div className=" dark:bg-gray-950 rounded-lg py-6">
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">{userReviews.length} Reviews</h3>
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6">
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-4">{userReviews.length} Reviews</h3>
               <div className="mb-6">
-                <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{averageRating} Exceptional</div>
+                <div className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">{averageRating} Exceptional</div>
                 <div className="space-y-2">
                   {starDistribution.map((item) => (
                     <div key={item.stars} className="flex items-center gap-3">
-                      <span className="text-sm text-gray-600 dark:text-gray-400 w-8">{item.stars} Star</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400 w-12 sm:w-8">{item.stars} Star</span>
                       <Progress value={item.percentage} className="flex-1 h-2" />
-                      <span className="text-sm text-gray-600 dark:text-gray-400 w-12">{item.count}</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400 w-8 sm:w-12 text-right">{item.count}</span>
                     </div>
                   ))}
                 </div>
@@ -296,17 +294,17 @@ export default function PublicProfilePage() {
                 {userReviews.map((review) => (
                   <div key={review.id} className="border-b border-gray-200 dark:border-gray-700 pb-6 last:border-b-0">
                     <div className="flex items-start gap-3 mb-3">
-                      <Avatar className="h-10 w-10">
+                      <Avatar className="h-10 w-10 flex-shrink-0">
                         <AvatarFallback>{review.initials}</AvatarFallback>
                       </Avatar>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-1">
                           <span className="font-medium text-gray-900 dark:text-white">{review.name}</span>
                           <div className="flex items-center gap-1">
                             {[...Array(5)].map((_, i) => (
                               <Star
                                 key={i}
-                                className={`h-4 w-4 ${
+                                className={`h-3 w-3 sm:h-4 sm:w-4 ${
                                   i < review.rating
                                     ? "fill-yellow-400 text-yellow-400"
                                     : "text-gray-300 dark:text-gray-600"
@@ -318,13 +316,13 @@ export default function PublicProfilePage() {
                         <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">{review.date}</p>
                         <p className="text-gray-700 dark:text-gray-300 mb-3">{review.comment}</p>
                         <div className="flex items-center gap-4">
-                          <Button variant="ghost" size="sm" className="text-gray-600 dark:text-gray-400">
-                            <ThumbsUp className="h-4 w-4 mr-1" />
-                            Helpful
+                          <Button variant="ghost" size="sm" className="text-gray-600 dark:text-gray-400 p-0 h-auto">
+                            <ThumbsUp className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                            <span className="text-xs sm:text-sm">Helpful</span>
                           </Button>
-                          <Button variant="ghost" size="sm" className="text-gray-600 dark:text-gray-400">
-                            <ThumbsDown className="h-4 w-4 mr-1" />
-                            Not helpful
+                          <Button variant="ghost" size="sm" className="text-gray-600 dark:text-gray-400 p-0 h-auto">
+                            <ThumbsDown className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                            <span className="text-xs sm:text-sm">Not helpful</span>
                           </Button>
                         </div>
                       </div>
@@ -335,8 +333,8 @@ export default function PublicProfilePage() {
             </div>
 
             {/* Add Review Form */}
-            <div className=" dark:bg-gray-950 rounded-lg py-6">
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Add a Review</h3>
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6">
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-2">Add a Review</h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
                 Your email address will not be published. Required fields are marked *
               </p>
@@ -349,7 +347,7 @@ export default function PublicProfilePage() {
                     {[...Array(5)].map((_, i) => (
                       <Star 
                         key={i} 
-                        className={`h-6 w-6 cursor-pointer transition-colors ${
+                        className={`h-5 w-5 sm:h-6 sm:w-6 cursor-pointer transition-colors ${
                           i < (hoveredStar || newReview.rating)
                             ? "text-yellow-400 fill-yellow-400"
                             : "text-gray-300 dark:text-gray-600"
@@ -380,7 +378,7 @@ export default function PublicProfilePage() {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium text-gray-900 dark:text-white mb-2 block">
                       Name *
@@ -417,7 +415,7 @@ export default function PublicProfilePage() {
 
                 <Button 
                   type="submit"
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white w-full sm:w-auto"
                   disabled={newReview.rating === 0 || !newReview.comment.trim()}
                 >
                   Send Review
@@ -429,9 +427,9 @@ export default function PublicProfilePage() {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Service Details */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 sticky top-44">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6 sticky top-4">
               <div className="text-center mb-6">
-                <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2">$29 per hour</div>
+                <div className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">$29 per hour</div>
                 <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white">
                   Contact Me
                 </Button>
@@ -439,37 +437,37 @@ export default function PublicProfilePage() {
 
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
-                  <MapPin className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                  <span className="text-gray-700 dark:text-gray-300">London, UK</span>
+                  <MapPin className="h-4 w-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
+                  <span className="text-gray-700 dark:text-gray-300 text-sm sm:text-base">London, UK</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Calendar className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                  <span className="text-gray-700 dark:text-gray-300">Member since April 2022</span>
+                  <Calendar className="h-4 w-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
+                  <span className="text-gray-700 dark:text-gray-300 text-sm sm:text-base">Member since April 2022</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Clock className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                  <span className="text-gray-700 dark:text-gray-300">Last Delivery: 5 days</span>
+                  <Clock className="h-4 w-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
+                  <span className="text-gray-700 dark:text-gray-300 text-sm sm:text-base">Last Delivery: 5 days</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <User className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                  <span className="text-gray-700 dark:text-gray-300">Gender: Male</span>
+                  <User className="h-4 w-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
+                  <span className="text-gray-700 dark:text-gray-300 text-sm sm:text-base">Gender: Male</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <MessageCircle className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                  <span className="text-gray-700 dark:text-gray-300">Languages: English</span>
+                  <MessageCircle className="h-4 w-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
+                  <span className="text-gray-700 dark:text-gray-300 text-sm sm:text-base">Languages: English</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-gray-700 dark:text-gray-300">English Level: Fluent</span>
+                  <span className="text-gray-700 dark:text-gray-300 text-sm sm:text-base">English Level: Fluent</span>
                 </div>
               </div>
             </div>
 
             {/* Skills */}
-            <div className=" dark:bg-gray-950 rounded-lg p-6">
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">My Skills</h3>
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6">
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-4">My Skills</h3>
               <div className="flex flex-wrap gap-2">
                 {skills.map((skill, index) => (
-                  <Badge key={index} variant="secondary" className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+                  <Badge key={index} variant="secondary" className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs sm:text-sm">
                     {skill}
                   </Badge>
                 ))}

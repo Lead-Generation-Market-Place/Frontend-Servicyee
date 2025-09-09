@@ -61,76 +61,84 @@ export function EducationDialog({ education, onSave, trigger }: EducationDialogP
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="max-w-[95vw] sm:max-w-[425px] md:max-w-[500px] mx-2">
         <DialogHeader>
-          <DialogTitle>{education ? "Edit Education" : "Add Education"}</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-lg sm:text-xl">
+            {education ? "Edit Education" : "Add Education"}
+          </DialogTitle>
+          <DialogDescription className="text-sm sm:text-base">
             {education ? "Update your education information." : "Add your education background."}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="institution">Institution</Label>
+              <Label htmlFor="institution" className="text-sm sm:text-base">Institution</Label>
               <Input
                 id="institution"
                 value={formData.institution}
                 onChange={(e) => setFormData({ ...formData, institution: e.target.value })}
                 required
+                className="text-sm sm:text-base"
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="degree">Degree</Label>
+              <Label htmlFor="degree" className="text-sm sm:text-base">Degree</Label>
               <Input
                 id="degree"
                 value={formData.degree}
                 onChange={(e) => setFormData({ ...formData, degree: e.target.value })}
                 required
+                className="text-sm sm:text-base"
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="field">Field of Study</Label>
+              <Label htmlFor="field" className="text-sm sm:text-base">Field of Study</Label>
               <Input
                 id="field"
                 value={formData.field}
                 onChange={(e) => setFormData({ ...formData, field: e.target.value })}
                 required
+                className="text-sm sm:text-base"
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="startDate">Start Date</Label>
+                <Label htmlFor="startDate" className="text-sm sm:text-base">Start Date</Label>
                 <Input
                   id="startDate"
                   type="month"
                   value={formData.startDate}
                   onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
                   required
+                  className="text-sm sm:text-base"
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="endDate">End Date</Label>
+                <Label htmlFor="endDate" className="text-sm sm:text-base">End Date</Label>
                 <Input
                   id="endDate"
                   type="month"
                   value={formData.endDate}
                   onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
                   required
+                  className="text-sm sm:text-base"
                 />
               </div>
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="description">Description (Optional)</Label>
+              <Label htmlFor="description" className="text-sm sm:text-base">Description (Optional)</Label>
               <Textarea
                 id="description"
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={3}
+                className="text-sm sm:text-base"
               />
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit">Save</Button>
+            <Button type="submit" className="w-full sm:w-auto">Save</Button>
           </DialogFooter>
         </form>
       </DialogContent>
@@ -181,68 +189,75 @@ export function CertificationDialog({ certification, onSave, trigger }: Certific
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="max-w-[95vw] sm:max-w-[425px] md:max-w-[500px] mx-2">
         <DialogHeader>
-          <DialogTitle>{certification ? "Edit Certification" : "Add Certification"}</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-lg sm:text-xl">
+            {certification ? "Edit Certification" : "Add Certification"}
+          </DialogTitle>
+          <DialogDescription className="text-sm sm:text-base">
             {certification ? "Update your certification information." : "Add a new certification."}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="title">Certification Title</Label>
+              <Label htmlFor="title" className="text-sm sm:text-base">Certification Title</Label>
               <Input
                 id="title"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 required
+                className="text-sm sm:text-base"
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="provider">Provider</Label>
+              <Label htmlFor="provider" className="text-sm sm:text-base">Provider</Label>
               <Input
                 id="provider"
                 value={formData.provider}
                 onChange={(e) => setFormData({ ...formData, provider: e.target.value })}
                 required
+                className="text-sm sm:text-base"
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="issued">Issued Date</Label>
+                <Label htmlFor="issued" className="text-sm sm:text-base">Issued Date</Label>
                 <Input
                   id="issued"
                   type="month"
                   value={formData.issued}
                   onChange={(e) => setFormData({ ...formData, issued: e.target.value })}
                   required
+                  className="text-sm sm:text-base"
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="expires">Expires Date</Label>
+                <Label htmlFor="expires" className="text-sm sm:text-base">Expires Date</Label>
                 <Input
                   id="expires"
                   type="month"
                   value={formData.expires}
                   onChange={(e) => setFormData({ ...formData, expires: e.target.value })}
                   required
+                  className="text-sm sm:text-base"
                 />
               </div>
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description" className="text-sm sm:text-base">Description</Label>
               <Textarea
                 id="description"
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={3}
                 required
+                className="text-sm sm:text-base"
               />
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit">Save</Button>
+            <Button type="submit" className="w-full sm:w-auto">Save</Button>
           </DialogFooter>
         </form>
       </DialogContent>
@@ -280,6 +295,13 @@ export function SkillsDialog({ skills, onSave, trigger }: SkillsDialogProps) {
     setOpen(false);
   };
 
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addSkill();
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -289,51 +311,64 @@ export function SkillsDialog({ skills, onSave, trigger }: SkillsDialogProps) {
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="max-w-[95vw] sm:max-w-[425px] md:max-w-[500px] mx-2">
         <DialogHeader>
-          <DialogTitle>Edit Skills</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-lg sm:text-xl">Edit Skills</DialogTitle>
+          <DialogDescription className="text-sm sm:text-base">
             Add or remove skills from your profile.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="newSkill">Add New Skill</Label>
-              <div className="flex gap-2">
+              <Label htmlFor="newSkill" className="text-sm sm:text-base">Add New Skill</Label>
+              <div className="flex flex-col sm:flex-row gap-2">
                 <Input
                   id="newSkill"
                   value={newSkill}
                   onChange={(e) => setNewSkill(e.target.value)}
+                  onKeyPress={handleKeyPress}
                   placeholder="Enter a skill"
+                  className="text-sm sm:text-base flex-1"
                 />
-                <Button type="button" onClick={addSkill} disabled={!newSkill.trim()}>
+                <Button 
+                  type="button" 
+                  onClick={addSkill} 
+                  disabled={!newSkill.trim()}
+                  className="w-full sm:w-auto"
+                >
                   <Plus className="h-4 w-4" />
                 </Button>
               </div>
             </div>
             <div className="grid gap-2">
-              <Label>Current Skills</Label>
-              <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
-                {skillList.map((skill, index) => (
-                  <div key={index} className="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded">
-                    <span className="text-sm">{skill}</span>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeSkill(skill)}
-                      className="h-4 w-4 p-0"
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
-                  </div>
-                ))}
+              <Label className="text-sm sm:text-base">Current Skills</Label>
+              <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto p-2 border rounded-md">
+                {skillList.length === 0 ? (
+                  <p className="text-sm text-gray-500 text-center w-full py-2">
+                    No skills added yet
+                  </p>
+                ) : (
+                  skillList.map((skill, index) => (
+                    <div key={index} className="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-sm">
+                      <span>{skill}</span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeSkill(skill)}
+                        className="h-4 w-4 p-0 ml-1"
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit">Save</Button>
+            <Button type="submit" className="w-full sm:w-auto">Save</Button>
           </DialogFooter>
         </form>
       </DialogContent>
@@ -384,68 +419,75 @@ export function EmploymentDialog({ employment, onSave, trigger }: EmploymentDial
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="max-w-[95vw] sm:max-w-[425px] md:max-w-[500px] mx-2">
         <DialogHeader>
-          <DialogTitle>{employment ? "Edit Employment" : "Add Employment"}</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-lg sm:text-xl">
+            {employment ? "Edit Employment" : "Add Employment"}
+          </DialogTitle>
+          <DialogDescription className="text-sm sm:text-base">
             {employment ? "Update your employment information." : "Add your employment history."}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="title">Job Title</Label>
+              <Label htmlFor="title" className="text-sm sm:text-base">Job Title</Label>
               <Input
                 id="title"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 required
+                className="text-sm sm:text-base"
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="company">Company</Label>
+              <Label htmlFor="company" className="text-sm sm:text-base">Company</Label>
               <Input
                 id="company"
                 value={formData.company}
                 onChange={(e) => setFormData({ ...formData, company: e.target.value })}
                 required
+                className="text-sm sm:text-base"
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="startDate">Start Date</Label>
+                <Label htmlFor="startDate" className="text-sm sm:text-base">Start Date</Label>
                 <Input
                   id="startDate"
                   type="month"
                   value={formData.startDate}
                   onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
                   required
+                  className="text-sm sm:text-base"
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="endDate">End Date</Label>
+                <Label htmlFor="endDate" className="text-sm sm:text-base">End Date</Label>
                 <Input
                   id="endDate"
                   type="month"
                   value={formData.endDate}
                   onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
                   required
+                  className="text-sm sm:text-base"
                 />
               </div>
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description" className="text-sm sm:text-base">Description</Label>
               <Textarea
                 id="description"
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={4}
                 required
+                className="text-sm sm:text-base"
               />
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit">Save</Button>
+            <Button type="submit" className="w-full sm:w-auto">Save</Button>
           </DialogFooter>
         </form>
       </DialogContent>
@@ -490,37 +532,41 @@ export function ExperienceDialog({ experience, onSave, trigger }: ExperienceDial
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="max-w-[95vw] sm:max-w-[425px] md:max-w-[500px] mx-2">
         <DialogHeader>
-          <DialogTitle>{experience ? "Edit Experience" : "Add Experience"}</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-lg sm:text-xl">
+            {experience ? "Edit Experience" : "Add Experience"}
+          </DialogTitle>
+          <DialogDescription className="text-sm sm:text-base">
             {experience ? "Update your experience information." : "Add your other experiences."}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="title">Experience Title</Label>
+              <Label htmlFor="title" className="text-sm sm:text-base">Experience Title</Label>
               <Input
                 id="title"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 required
+                className="text-sm sm:text-base"
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description" className="text-sm sm:text-base">Description</Label>
               <Textarea
                 id="description"
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={4}
                 required
+                className="text-sm sm:text-base"
               />
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit">Save</Button>
+            <Button type="submit" className="w-full sm:w-auto">Save</Button>
           </DialogFooter>
         </form>
       </DialogContent>
