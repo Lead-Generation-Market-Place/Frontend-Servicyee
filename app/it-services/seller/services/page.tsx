@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -77,32 +77,32 @@ const SERVICES: Service[] = [
 function getStatusBadge(status: Service["status"]) {
   switch (status) {
     case "active":
-      return <span className="text-green-700">Active</span>;
+      return <span className="text-green-700 dark:text-green-400">Active</span>;
     case "paused":
-      return <span className="text-yellow-700">Paused</span>;
+      return <span className="text-yellow-700 dark:text-yellow-400">Paused</span>;
     case "draft":
-      return <span className="text-gray-700">Draft</span>;
+      return <span className="text-gray-700 dark:text-gray-400">Draft</span>;
     case "rejected":
-      return <span className="text-red-700">Rejected</span>;
+      return <span className="text-red-700 dark:text-red-400">Rejected</span>;
     default:
-      return <span className="text-gray-700">{status}</span>;
+      return <span className="text-gray-700 dark:text-gray-400">{status}</span>;
   }
 }
 
 function ServicesTable({ services }: { services: Service[] }) {
   return (
-    <div>
-      <Table>
+    <div className="w-full overflow-x-auto">
+      <Table className="min-w-full">
         <TableHeader>
           <TableRow>
             <TableHead className="w-[80px]">Image</TableHead>
-            <TableHead>Title</TableHead>
-            <TableHead>Category</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Price</TableHead>
-            <TableHead>Orders</TableHead>
-            <TableHead>Created</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+            <TableHead className="min-w-[200px]">Title</TableHead>
+            <TableHead className="min-w-[120px]">Category</TableHead>
+            <TableHead className="min-w-[100px]">Status</TableHead>
+            <TableHead className="min-w-[80px]">Price</TableHead>
+            <TableHead className="min-w-[80px]">Orders</TableHead>
+            <TableHead className="min-w-[100px]">Created</TableHead>
+            <TableHead className="text-right w-[100px]">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -125,12 +125,12 @@ function ServicesTable({ services }: { services: Service[] }) {
                   </div>
                 </div>
               </TableCell>
-              <TableCell className="text-gray-900">{service.title}</TableCell>
-              <TableCell className="text-gray-700">{service.category}</TableCell>
+              <TableCell className="text-gray-900 dark:text-gray-100 font-medium">{service.title}</TableCell>
+              <TableCell className="text-gray-700 dark:text-gray-300">{service.category}</TableCell>
               <TableCell>{getStatusBadge(service.status)}</TableCell>
-              <TableCell className="font-semibold text-gray-900">{service.price}</TableCell>
-              <TableCell className="text-gray-700">{service.orders}</TableCell>
-              <TableCell className="text-gray-700">{service.created}</TableCell>
+              <TableCell className="font-semibold text-gray-900 dark:text-gray-100">{service.price}</TableCell>
+              <TableCell className="text-gray-700 dark:text-gray-300">{service.orders}</TableCell>
+              <TableCell className="text-gray-700 dark:text-gray-300">{service.created}</TableCell>
               <TableCell className="text-right">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -171,69 +171,53 @@ export default function ServicesPage() {
   }, [tab]);
 
   return (
-    <div className="min-h-screen">
-      <div className="max-w-7xl mx-auto  ">
-        <div className="mb-8 flex items-center justify-between">
+    <div className="p-4 sm:p-6 bg-white dark:bg-gray-950">
+      <div className="max-w-7xl mx-auto ">
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-1">Services & Gigs</h1>
-            <p className="text-gray-600">Manage your service offerings and track performance.</p>
+            <h1 className="text-3xl font-bold text-gray-950 dark:text-gray-100 mb-1">Services & Gigs</h1>
+            <p className="text-gray-600 dark:text-gray-400">Manage your service offerings and track performance.</p>
           </div>
-          <Button>Create New Service</Button>
+          <Button className="w-full sm:w-auto">Create New Service</Button>
         </div>
 
-        {/* Tabs header section */}
+        {/* Simple Tabs */}
         <Tabs value={tab} onValueChange={setTab} className="w-full">
-          <div>
-            <div className="px-0 pt-0">
-              <div className="flex flex-wrap items-center gap-6 border-b">
-                <TabsList className="bg-transparent p-0 h-auto text-muted-foreground">
-                  <TabsTrigger
-                    value="all"
-                    className="relative px-0 pb-4 mr-8 rounded-none uppercase tracking-wide text-gray-500 data-[state=active]:text-gray-900"
-                  >
-                    <span>All</span>
-                    <span className="hidden md:inline ml-2 text-gray-400">({SERVICES.length})</span>
-                    <span className="hidden data-[state=active]:block absolute left-1/2 -bottom-[9px] h-2 w-2 -translate-x-1/2 rotate-45 border border-gray-300 bg-white"></span>
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="active"
-                    className="relative px-0 pb-4 mr-8 rounded-none uppercase tracking-wide text-gray-500 data-[state=active]:text-gray-900"
-                  >
-                    <span>Active</span>
-                    <span className="hidden md:inline ml-2 text-gray-400">({SERVICES.filter(s => s.status === 'active').length})</span>
-                    <span className="hidden data-[state=active]:block absolute left-1/2 -bottom-[9px] h-2 w-2 -translate-x-1/2 rotate-45 border border-gray-300 bg-white"></span>
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="paused"
-                    className="relative px-0 pb-4 mr-8 rounded-none uppercase tracking-wide text-gray-500 data-[state=active]:text-gray-900"
-                  >
-                    <span>Paused</span>
-                    <span className="hidden md:inline ml-2 text-gray-400">({SERVICES.filter(s => s.status === 'paused').length})</span>
-                    <span className="hidden data-[state=active]:block absolute left-1/2 -bottom-[9px] h-2 w-2 -translate-x-1/2 rotate-45 border border-gray-300 bg-white"></span>
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="draft"
-                    className="relative px-0 pb-4 mr-8 rounded-none uppercase tracking-wide text-gray-500 data-[state=active]:text-gray-900"
-                  >
-                    <span>Draft</span>
-                    <span className="hidden md:inline ml-2 text-gray-400">({SERVICES.filter(s => s.status === 'draft').length})</span>
-                    <span className="hidden data-[state=active]:block absolute left-1/2 -bottom-[9px] h-2 w-2 -translate-x-1/2 rotate-45 border border-gray-300 bg-white"></span>
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="rejected"
-                    className="relative px-0 pb-4 mr-8 rounded-none uppercase tracking-wide text-gray-500 data-[state=active]:text-gray-900"
-                  >
-                    <span>Rejected</span>
-                    <span className="hidden md:inline ml-2 text-gray-400">({SERVICES.filter(s => s.status === 'rejected').length})</span>
-                    <span className="hidden data-[state=active]:block absolute left-1/2 -bottom-[9px] h-2 w-2 -translate-x-1/2 rotate-45 border border-gray-300 bg-white"></span>
-                  </TabsTrigger>
-                </TabsList>
-              </div>
-            </div>
-           
+          <div className="border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
+            <TabsList className="bg-transparent p-0 h-auto min-w-max">
+              <TabsTrigger 
+                value="all" 
+                className="px-4 py-2 text-gray-600 dark:text-gray-400 data-[state=active]:text-emerald-600 dark:data-[state=active]:text-emerald-400 data-[state=active]:border-b-2 data-[state=active]:border-emerald-600 dark:data-[state=active]:border-emerald-400 whitespace-nowrap"
+              >
+                All ({SERVICES.length})
+              </TabsTrigger>
+              <TabsTrigger 
+                value="active" 
+                className="px-4 py-2 text-gray-600 dark:text-gray-400 data-[state=active]:text-emerald-600 dark:data-[state=active]:text-emerald-400 data-[state=active]:border-b-2 data-[state=active]:border-emerald-600 dark:data-[state=active]:border-emerald-400 whitespace-nowrap"
+              >
+                Active ({SERVICES.filter(s => s.status === 'active').length})
+              </TabsTrigger>
+              <TabsTrigger 
+                value="paused" 
+                className="px-4 py-2 text-gray-600 dark:text-gray-400 data-[state=active]:text-emerald-600 dark:data-[state=active]:text-emerald-400 data-[state=active]:border-b-2 data-[state=active]:border-emerald-600 dark:data-[state=active]:border-emerald-400 whitespace-nowrap"
+              >
+                Paused ({SERVICES.filter(s => s.status === 'paused').length})
+              </TabsTrigger>
+              <TabsTrigger 
+                value="draft" 
+                className="px-4 py-2 text-gray-600 dark:text-gray-400 data-[state=active]:text-emerald-600 dark:data-[state=active]:text-emerald-400 data-[state=active]:border-b-2 data-[state=active]:border-emerald-600 dark:data-[state=active]:border-emerald-400 whitespace-nowrap"
+              >
+                Draft ({SERVICES.filter(s => s.status === 'draft').length})
+              </TabsTrigger>
+              <TabsTrigger 
+                value="rejected" 
+                className="px-4 py-2 text-gray-600 dark:text-gray-400 data-[state=active]:text-emerald-600 dark:data-[state=active]:text-emerald-400 data-[state=active]:border-b-2 data-[state=active]:border-emerald-600 dark:data-[state=active]:border-emerald-400 whitespace-nowrap"
+              >
+                Rejected ({SERVICES.filter(s => s.status === 'rejected').length})
+              </TabsTrigger>
+            </TabsList>
           </div>
 
-          {/* Table content separated from tabs header */}
           <div className="mt-6">
             <TabsContent value="all">
               <ServicesTable services={filtered} />
