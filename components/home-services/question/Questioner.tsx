@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
+// import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ArrowLeft, ArrowRight, CheckCircle2 } from "lucide-react";
 
@@ -34,6 +34,14 @@ interface UserInfo {
   phone: string;
   description: string;
   files: FileList | null;
+}
+
+interface Professional {
+  id: number;
+  name: string;
+  rating: number;
+  completedProjects: number;
+  specialty: string;
 }
 
 interface QuestionerProps {
@@ -120,6 +128,45 @@ const sampleData = {
   ],
 };
 
+// Sample professionals data
+const professionalsData: Professional[] = [
+  {
+    id: 1,
+    name: "John Smith",
+    rating: 4.8,
+    completedProjects: 124,
+    specialty: "React/Next.js",
+  },
+  {
+    id: 2,
+    name: "Sarah Johnson",
+    rating: 4.9,
+    completedProjects: 98,
+    specialty: "Vue/Nuxt.js",
+  },
+  {
+    id: 3,
+    name: "Michael Brown",
+    rating: 4.7,
+    completedProjects: 156,
+    specialty: "WordPress",
+  },
+  {
+    id: 4,
+    name: "Emily Davis",
+    rating: 4.6,
+    completedProjects: 87,
+    specialty: "Angular",
+  },
+  {
+    id: 5,
+    name: "David Wilson",
+    rating: 4.5,
+    completedProjects: 112,
+    specialty: "Custom PHP",
+  },
+];
+
 // Custom ProgressBar component since the UI library's Progress doesn't support indicatorClassName
 const CustomProgressBar = ({
   value,
@@ -157,6 +204,10 @@ const Questioner = ({
   });
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [uploadedFileNames, setUploadedFileNames] = useState<string[]>([]);
+  const [selectedProfessionals, setSelectedProfessionals] = useState<number[]>(
+    professionalsData.map((p) => p.id) // Select all professionals by default
+  );
+  const [sendOption, setSendOption] = useState<string>("top5");
 
   useEffect(() => {
     // In a real app, you would fetch this from your data.json
@@ -173,6 +224,8 @@ const Questioner = ({
       files: null,
     });
     setUploadedFileNames([]);
+    setSelectedProfessionals(professionalsData.map((p) => p.id));
+    setSendOption("top5");
   }, [serviceId, isOpen]);
 
   const handleResponse = (questionId: number, answer: string) => {
@@ -191,6 +244,10 @@ const Questioner = ({
       // If we're on the user info step, move to the review step
       else if (currentStep === service.questions.length) {
         setCurrentStep(service.questions.length + 1); // Review step
+      }
+      // If we're on the review step, move to the professional selection step
+      else if (currentStep === service.questions.length + 1) {
+        setCurrentStep(service.questions.length + 2); // Professional selection step
       }
       // Otherwise, move to the next question
       else if (currentStep < service.questions.length - 1) {
@@ -224,15 +281,44 @@ const Questioner = ({
     }
   };
 
+  // const handleProfessionalToggle = (professionalId: number) => {
+  //   setSelectedProfessionals((prev) =>
+  //     prev.includes(professionalId)
+  //       ? prev.filter((id) => id !== professionalId)
+  //       : [...prev, professionalId]
+  //   );
+  // };
+
+  // const handleSelectAll = () => {
+  //   setSelectedProfessionals(professionalsData.map((p) => p.id));
+  // };
+
+  // const handleDeselectAll = () => {
+  //   setSelectedProfessionals([]);
+  // };
+
+  const handleSendOptionChange = (value: string) => {
+    setSendOption(value);
+    if (value === "top5") {
+      setSelectedProfessionals(professionalsData.map((p) => p.id));
+    }
+  };
+
   const handleSubmit = () => {
     // Here you would typically send the data to your backend
-    console.log("Submitting:", { responses, userInfo, serviceId });
+    console.log("Submitting:", {
+      responses,
+      userInfo,
+      serviceId,
+      sendOption,
+      selectedProfessionals,
+    });
     alert("Quotation request submitted successfully!");
     setIsOpen(false);
   };
 
   const progressValue = service
-    ? (currentStep / (service.questions.length + 2)) * 100
+    ? (currentStep / (service.questions.length + 3)) * 100
     : 0;
 
   if (!service) return null;
@@ -437,7 +523,7 @@ const Questioner = ({
                   </Button>
                 </div>
               </div>
-            ) : (
+            ) : currentStep === service.questions.length + 1 ? (
               // Review step
               <div className="space-y-6">
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
@@ -516,7 +602,154 @@ const Questioner = ({
                     Back
                   </Button>
                   <Button
+                    onClick={handleNext}
+                    className="bg-sky-600 hover:bg-sky-700 flex items-center gap-2"
+                  >
+                    Continue
+                    <ArrowRight size={16} />
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              // Professional selection step
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  Send Quotation Request
+                </h3>
+
+                <p className="text-red-600 dark:textt-sky-400 text-sm">
+                  For faster responses and more accurate pricing, we recommend
+                  sending your quotation request to the top 5 recommended
+                  professionals, including your selected professional.
+                </p>
+
+                <RadioGroup
+                  value={sendOption}
+                  onValueChange={handleSendOptionChange}
+                >
+                  {[
+                    {
+                      id: "top5",
+                      label:
+                        "Request to top 5 professionals (selected by default)",
+                      value: "top5",
+                    },
+                    {
+                      id: "select",
+                      label: "Request to selected professional",
+                      value: "select",
+                    },
+                  ].map((option) => {
+                    const isSelected = sendOption === option.value;
+                    return (
+                      <Label
+                        htmlFor={option.id}
+                        key={option.id}
+                        className={`flex items-center space-x-3 border p-4 rounded-md transition-colors duration-200 cursor-pointer ${
+                          isSelected
+                            ? "border-sky-500 bg-sky-50 dark:border-sky-400 dark:bg-sky-900/20"
+                            : "border-gray-200 dark:border-gray-700 hover:border-sky-300 dark:hover:border-sky-600"
+                        }`}
+                      >
+                        <RadioGroupItem
+                          value={option.value}
+                          id={option.id}
+                          className="text-sky-600 border-gray-300 dark:border-gray-600"
+                        />
+                        <span className="text-sm font-normal text-gray-700 dark:text-gray-300 flex-1">
+                          {option.label}
+                        </span>
+                      </Label>
+                    );
+                  })}
+                </RadioGroup>
+                {/* {sendOption === "select" && (
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <h4 className="font-medium text-gray-900 dark:text-white">
+                          Select Professionals
+                        </h4>
+                        <div className="space-x-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleSelectAll}
+                          >
+                            Select All
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleDeselectAll}
+                          >
+                            Deselect All
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3 max-h-60 overflow-y-auto">
+                        {professionalsData.map((professional) => (
+                          <div
+                            key={professional.id}
+                            className={`flex items-start space-x-3 border p-3 rounded-md transition-colors duration-200 ${
+                              selectedProfessionals.includes(professional.id)
+                                ? "border-sky-500 bg-sky-50 dark:border-sky-400 dark:bg-sky-900/20"
+                                : "border-gray-200 dark:border-gray-700"
+                            }`}
+                          >
+                            <Checkbox
+                              id={`pro-${professional.id}`}
+                              checked={selectedProfessionals.includes(
+                                professional.id
+                              )}
+                              onCheckedChange={() =>
+                                handleProfessionalToggle(professional.id)
+                              }
+                            />
+                            <Label
+                              htmlFor={`pro-${professional.id}`}
+                              className="flex-1 cursor-pointer"
+                            >
+                              <div className="flex flex-col justify-between items-start">
+                                <div>
+                                  <p className="font-semibold text-gray-900 pb-2 dark:text-white">
+                                    {professional.name}
+                                  </p>
+                                  <small className="text-xs text-gray-500">
+                                    ⭐ {professional.rating}
+                                  </small>
+                                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                                    <b>Specialty:</b> {professional.specialty}
+                                  </p>
+                                </div>
+                                <div className="">
+                                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                                    {professional.completedProjects} projects
+                                  </p>
+                                </div>
+                              </div>
+                            </Label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )} */}
+
+                <div className="flex justify-between mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <Button
+                    onClick={handleBack}
+                    variant="outline"
+                    className="flex items-center gap-2"
+                  >
+                    <ArrowLeft size={16} />
+                    Back
+                  </Button>
+                  <Button
                     onClick={handleSubmit}
+                    disabled={
+                      sendOption === "select" &&
+                      selectedProfessionals.length === 0
+                    }
                     className="bg-sky-600 hover:bg-sky-700 flex items-center gap-2"
                   >
                     <CheckCircle2 size={16} />
