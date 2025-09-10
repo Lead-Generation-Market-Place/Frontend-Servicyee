@@ -29,11 +29,11 @@ export function ServiceCard({ service, className }: ServiceCardProps) {
   const router = useRouter();
   const handleClick = ()=>{
     router.push("/it-services/service/")
-  }
+  } 
   return (
     <Card
     onClick={handleClick}
-     className={`group hover:shadow-lg transition-shadow duration-200 cursor-pointer p-0 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 ${className ?? ""}`}>
+     className={` cursor-pointer p-0 border border-gray-200 hover:border-gray-300 dark:hover:border-gray-700 bg-white dark:bg-gray-900   dark:border-gray-800 ${className ?? ""}`}>
       <CardContent className="p-0 ">
         {/* Service Image */}
         <div className="relative overflow-hidden rounded-t-lg ">

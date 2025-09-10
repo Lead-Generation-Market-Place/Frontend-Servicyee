@@ -17,10 +17,10 @@ export default function MadeOnServicyee() {
   const [activeItem, setActiveItem] = useState<any | null>(null)
 
   return (
-    <section className="py-8 pt-12 bg-white text-black dark:bg-gray-900 dark:text-white min-h-screen transition-colors">
-      <div className="container mx-auto px-4">
+    <section className="py-8 pt-12 bg-gray-50 text-black dark:bg-gray-950 dark:text-white  transition-colors">
+      <div className="max-w-7xl mx-auto ">
         <div className="mb-8 ">
-          <h2 className="text-3xl mb-6">
+          <h2 className="text-3xl mb-6  font-semibold ">
             Made on <span className="text-green-500">Servicyee</span>
           </h2>
           <p className="text-gray-600 dark:text-gray-300">

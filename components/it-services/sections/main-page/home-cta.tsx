@@ -6,8 +6,8 @@ import Link from "next/link"
 
 export default function HomeCta() {
     return (
-        <section className="bg-background/50 dark:bg-gray-950 mb-4 md:mb-10 py-16">
-            <div className="container mx-auto px-4">
+        <section className="bg-background/50 dark:bg-gray-950 pb-4 md:pb-10 py-16">
+            <div className="max-w-7xl mx-auto px-4">
                 {/* Two Column CTA Banner */}
                 <Card className="bg-card border-border shadow-lg">
                     <CardContent className="p-8 lg:p-12">
