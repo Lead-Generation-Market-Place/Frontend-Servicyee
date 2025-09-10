@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useState } from "react"
-import { ChevronDown, ChevronRight, Grid2X2, ShoppingCart, Bookmark, MoveRight, MoveLeft } from "lucide-react"
+import { ChevronDown, ChevronRight, Grid2X2, Search, MoveRight, MoveLeft, User } from "lucide-react"
 
 type SidebarMenuProps = { isOpen: boolean; onClose: () => void }
 
@@ -11,7 +11,7 @@ type DropdownItem = { label: string; href: string }
 type MenuItem = {
   label: string
   href: string
-  icon?: "grid" | "cart" | "bookmark"
+  icon?: "grid" | "cart" | "account"
   dropdownItems?: DropdownItem[]
 }
 
@@ -19,8 +19,8 @@ type SubMenuSection = { title: string; items: DropdownItem[] }
 
 // Main menu structure
 const menu: MenuItem[] = [
-  { label: "Cart", href: "/it-services/buyer/cart", icon: "cart" },
-  { label: "Saved", href: "/it-services/buyer/saved", icon: "bookmark" },
+  { label: "Browse", href: "/it-services/search", icon: "cart" },
+  { label: "Account", href: "/it-services/account/", icon: "account" },
   {
     label: "Browse categories",
     href: "/it-services/categories",
@@ -105,9 +105,9 @@ function renderIcon(name?: MenuItem["icon"]) {
     case "grid":
       return <Grid2X2 className={className} />
     case "cart":
-      return <ShoppingCart className={className} />
-    case "bookmark":
-      return <Bookmark className={className} />
+      return <Search className={className} />
+    case "account":
+      return <User className={className} />
     default:
       return null
   }

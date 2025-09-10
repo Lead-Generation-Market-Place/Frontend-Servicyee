@@ -7,48 +7,56 @@ const categories = [
     skillCount: "1853 skills",
     title: "Development & IT",
     description: "Software Engineer, Web / Mobile Developer & More",
+    href:"developerment-it"
   },
   {
     icon: Palette,
     skillCount: "1853 skills",
     title: "Design & Creative",
     description: "Software Engineer, Web / Mobile Developer & More",
+    href:"/design-creative"
   },
   {
     icon: TrendingUp,
     skillCount: "1853 skills",
     title: "Digital Marketing",
     description: "Software Engineer, Web / Mobile Developer & More",
+    href:"digital-marketing"
   },
   {
     icon: Languages,
     skillCount: "1853 skills",
     title: "Writing & Translation",
     description: "Software Engineer, Web / Mobile Developer & More",
+    href:"writing-translation"
   },
   {
     icon: Mic,
     skillCount: "1853 skills",
     title: "Music & Audio",
     description: "Software Engineer, Web / Mobile Developer & More",
+    href:"music-audio"
   },
   {
     icon: Play,
     skillCount: "1853 skills",
     title: "Video & Animation",
     description: "Software Engineer, Web / Mobile Developer & More",
+    href:"video-animation"
   },
   {
     icon: Building,
     skillCount: "1853 skills",
     title: "Engineering & Architecture",
     description: "Software Engineer, Web / Mobile Developer & More",
+    href:"engineering-achitecture"
   },
   {
     icon: Calculator,
     skillCount: "1853 skills",
     title: "Finance & Accounting",
     description: "Software Engineer, Web / Mobile Developer & More",
+    href:"finance-accounting"
   },
 ]
 
@@ -80,6 +88,7 @@ export function BrowseTalentGrid() {
           {categories.map((category, index) => (
             <CategoryCard
               key={index}
+              href={category.href}
               icon={category.icon}
               skillCount={category.skillCount}
               title={category.title}

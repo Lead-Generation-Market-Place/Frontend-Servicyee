@@ -1,14 +1,17 @@
 import type { LucideIcon } from "lucide-react"
+import Link from "next/link"
 
 interface CategoryCardProps {
   icon: LucideIcon
   skillCount: string
   title: string
   description: string
+  href:string
 }
 
-export function CategoryCard({ icon: Icon, skillCount, title, description }: CategoryCardProps) {
+export function CategoryCard({ icon: Icon, href, skillCount, title, description }: CategoryCardProps) {
   return (
+   <Link href={`/it-services/search/?category=${href}`}> 
     <div className="group p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 hover:border-emerald-200 dark:hover:border-emerald-600 hover:shadow-md dark:hover:shadow-lg dark:hover:shadow-emerald-900/20 transition-all duration-300 cursor-pointer">
       <div className="flex flex-col items-start space-y-4">
         <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/30 transition-colors">
@@ -24,5 +27,6 @@ export function CategoryCard({ icon: Icon, skillCount, title, description }: Cat
         </div>
       </div>
     </div>
+   </Link>
   )
 }

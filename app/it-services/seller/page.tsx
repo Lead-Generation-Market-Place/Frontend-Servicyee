@@ -235,7 +235,7 @@ export default function DashboardOverview() {
               </div>
               <div className="mt-6 text-center">
                 <Button variant="outline" className="w-full">
-                  View All Gigs
+                  View All Services
                 </Button>
               </div>
             </div>

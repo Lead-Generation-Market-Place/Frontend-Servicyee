@@ -108,7 +108,7 @@ export function CategoriesDropdown({ isOpen, onClose }: CategoriesDropdownProps)
 
   return (
     <div
-      className={`absolute top-full left-0 rounded bg-white dark:bg-gray-800 shadow-2xl border-t border-gray-200 dark:border-gray-700 z-50 w-fit min-w-[800px] max-w-4xl transition-all duration-300 ease-out ${
+      className={`absolute top-full left-0 rounded bg-white dark:bg-gray-900 shadow-2xl border-t border-gray-200 dark:border-gray-700 z-50 w-fit min-w-[800px] max-w-4xl transition-all duration-300 ease-out ${
         isOpen 
           ? 'opacity-100 translate-y-0 pointer-events-auto' 
           : 'opacity-0 -translate-y-2 pointer-events-none'
@@ -118,14 +118,14 @@ export function CategoriesDropdown({ isOpen, onClose }: CategoriesDropdownProps)
       <div className="px-6 py-6">
         <div className="flex">
           {/* Left Sidebar - Main Categories */}
-          <div className="w-64 bg-gray-50 dark:bg-gray-700 rounded-lg p-4 flex-shrink-0">
+          <div className="w-64 rounded-lg px-4 flex-shrink-0">
             {categories.map((category) => (
               <div
                 key={category.id}
                 className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-colors ${
                   selectedCategory.id === category.id
-                    ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300"
-                    : "hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200"
+                    ? "  text-emerald-800 dark:text-emerald-300"
+                    : " text-gray-700 dark:text-gray-200"
                 }`}
                 onMouseEnter={() => setSelectedCategory(category)}
               >
@@ -139,7 +139,7 @@ export function CategoriesDropdown({ isOpen, onClose }: CategoriesDropdownProps)
           </div>
 
           {/* Right Content - Subcategories */}
-          <div className="pl-6 flex-1 min-w-0">
+          <div className="pl-6 flex-1 min-w-0 pt-2">
             <div className="grid grid-cols-3 gap-6">
               {Object.entries(selectedCategory.subcategories).map(([categoryName, items]) => (
                 <div key={categoryName}>
