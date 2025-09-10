@@ -8,7 +8,7 @@ import ProfessionalList from "@/components/home-services/homepage/professional/P
 import Breadcrumbs from "@/components/home-services/homepage/Breadcrumbs";
 import ServiceQuestion from "@/components/home-services/question/ServiceQuestion";
 
-import Questioner from "@/components/home-services/question/Questioner";
+//
 
 function ProfessionalTypeFilter({
   selectedType,
@@ -63,7 +63,7 @@ export default function ProfessionalPage({
   const { slug } = use(params);
   const [selectedType, setSelectedType] = useState<string>("All");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const selectedServiceId = 2;
+  // const selectedServiceId = 2;
   const MOCK_PROFESSIONALS = [
     {
       id: 1,
@@ -236,11 +236,11 @@ export default function ProfessionalPage({
               >
                 Request Qoutation
               </Button> */}
-              <Questioner
+              {/* <Questioner
                 className="bg-sky-600 dark:bg-sky-500 dark:hover:bg-sky-600 hover:bg-sky-500 px-4 rounded-xs text-white font-semibold sticky"
                 serviceId={selectedServiceId}
                 triggerText="Request Quotation"
-              />
+              /> */}
             </div>
             <ProfessionalList
               professionals={filteredProfessionals}
