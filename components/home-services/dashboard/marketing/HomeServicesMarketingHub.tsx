@@ -5,10 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles } from "lucide-react";
 import ReviewMarketingSection from "./ReviewMarketingSection";
-import AdsPlannerSection from "./AdsPlannerSection";
+import GetMoreLeads from "./GetMoreLeads";
+import ProfileVisibility from "./ProfileVisibility";
+import Guarantee from "./Guaranty";
+import CustomerRetention from "./CustomerRetention";
 
 const HomeServicesMarketingHub: React.FC = () => {
-  const [activeSection, setActiveSection] = useState<"reviews" | "ads">("reviews");
+  const [activeSection, setActiveSection] = useState<
+    "reviews" | "leads" | "visibility" | "retention" | "guarantee"
+  >("reviews");
 
   return (
     <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -23,26 +28,51 @@ const HomeServicesMarketingHub: React.FC = () => {
       </header>
 
       {/* Section Buttons */}
-      <div className="flex flex-col sm:flex-row gap-2 mb-8">
+      <div className="flex flex-col sm:flex-row gap-2 mb-8 flex-wrap">
         <Button
-          className="w-full sm:w-auto"
-          variant={activeSection === "reviews" ? "default" : "outline"}
+          className="w-full sm:w-auto "
+          variant={activeSection === "reviews" ? "#0077B6" : "outline"}
           onClick={() => setActiveSection("reviews")}
         >
-          Review‑Based Marketing
+           Review‑Based Marketing
         </Button>
         <Button
           className="w-full sm:w-auto"
-          variant={activeSection === "ads" ? "default" : "outline"}
-          onClick={() => setActiveSection("ads")}
+          variant={activeSection === "leads" ? "#0077B6" : "outline"}
+          onClick={() => setActiveSection("leads")}
         >
-          Marketing Center
+          Get More Leads
+        </Button>
+        <Button
+          className="w-full sm:w-auto"
+          variant={activeSection === "visibility" ? "#0077B6" : "outline"}
+          onClick={() => setActiveSection("visibility")}
+        >
+          Profile Visibility
+        </Button>
+        <Button
+          className="w-full sm:w-auto"
+          variant={activeSection === "retention" ? "#0077B6" : "outline"}
+          onClick={() => setActiveSection("retention")}
+        >
+          Customer Retention
+        </Button>
+        <Button
+          className="w-full sm:w-auto"
+          variant={activeSection === "guarantee" ? "#0077B6" : "outline"}
+          onClick={() => setActiveSection("guarantee")}
+        >
+          Guarantee
         </Button>
       </div>
 
       {/* Active Section */}
       <div className="w-full">
-        {activeSection === "reviews" ? <ReviewMarketingSection /> : <AdsPlannerSection />}
+        {activeSection === "reviews" && <ReviewMarketingSection />}
+        {activeSection === "leads" && <GetMoreLeads />}
+        {activeSection === "visibility" && <ProfileVisibility />}
+        {activeSection === "retention" && <CustomerRetention />}
+        {activeSection === "guarantee" && <Guarantee />}
       </div>
     </div>
   );
