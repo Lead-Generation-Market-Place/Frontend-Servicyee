@@ -31,35 +31,35 @@ const HomeServicesMarketingHub: React.FC = () => {
       <div className="flex flex-col sm:flex-row gap-2 mb-8 flex-wrap">
         <Button
           className="w-full sm:w-auto "
-          variant={activeSection === "reviews" ? "#0077B6" : "outline"}
+          variant={activeSection === "reviews" ? "default" : "outline"}
           onClick={() => setActiveSection("reviews")}
         >
            Review‑Based Marketing
         </Button>
         <Button
           className="w-full sm:w-auto"
-          variant={activeSection === "leads" ? "#0077B6" : "outline"}
+          variant={activeSection === "leads" ? "default" : "outline"}
           onClick={() => setActiveSection("leads")}
         >
           Get More Leads
         </Button>
         <Button
           className="w-full sm:w-auto"
-          variant={activeSection === "visibility" ? "#0077B6" : "outline"}
+          variant={activeSection === "visibility" ? "default" : "outline"}
           onClick={() => setActiveSection("visibility")}
         >
           Profile Visibility
         </Button>
         <Button
           className="w-full sm:w-auto"
-          variant={activeSection === "retention" ? "#0077B6" : "outline"}
+          variant={activeSection === "retention" ? "default" : "outline"}
           onClick={() => setActiveSection("retention")}
         >
           Customer Retention
         </Button>
         <Button
           className="w-full sm:w-auto"
-          variant={activeSection === "guarantee" ? "#0077B6" : "outline"}
+          variant={activeSection === "guarantee" ? "default" : "outline"}
           onClick={() => setActiveSection("guarantee")}
         >
           Guarantee
