@@ -140,7 +140,7 @@ export function PopularServiceSection() {
 
   
   return (
-    <section className="py-12 sm:py-16 bg-gray-50 dark:bg-gray-950">
+    <section className="py-12 sm:py-16 bg-gray-50 dark:bg-gray-950 ">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 sm:gap-6 mb-8 sm:mb-12">

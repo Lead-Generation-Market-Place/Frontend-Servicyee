@@ -140,12 +140,12 @@ export function LatestServiceSection() {
 
   
   return (
-    <section className="py-12 sm:py-16 bg-gray-50 dark:bg-gray-950">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className=" bg-gray-50 dark:bg-gray-950">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 sm:gap-6 mb-8 sm:mb-12">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">Latest Services</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">Trending Services</h2>
             <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base">Most viewed and all-time top-selling services</p>
           </div>
 
@@ -195,7 +195,7 @@ export function LatestServiceSection() {
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {services.map((item,index)=>(
-            <div key={index} className="snap-start flex-shrink-0">
+            <div key={index} className="snap-start flex-shrink-0 w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/4 min-w-0">
               <ServiceCard service={item} />
             </div>
           ))}

@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge"
 import { Star, Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
+import Link from "next/link"
 
 interface ServiceCardProps {
   service: {
@@ -25,6 +26,7 @@ export function ServiceCard({ service }: ServiceCardProps) {
     <Card className="group hover:shadow-lg transition-shadow duration-300 py-0  dark:bg-gray-900 border border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 h-full flex flex-col w-full">
       <CardContent className="p-0 flex flex-col h-full ">
         <div className="relative w-full h-48 ">
+          <Link href={"/it-services/service/"}>
           <Image
             src={service.image || "/placeholder.svg"}
             alt={service.title}
@@ -34,6 +36,7 @@ export function ServiceCard({ service }: ServiceCardProps) {
             style={{ backgroundColor: "var(--card-img-bg, #f3f4f6)" }}
             priority={false}
           />
+          </Link>
           <Button
             size="sm"
             variant="ghost"
@@ -52,7 +55,9 @@ export function ServiceCard({ service }: ServiceCardProps) {
           </Badge>
 
           <h3 className="font-medium text-gray-900 dark:text-white mb-3 line-clamp-2 leading-tight text-sm">
+            <Link href={"/it-services/service/"}>
             {service.title}
+            </Link>
           </h3>
 
           <div className="flex items-center mb-4">
