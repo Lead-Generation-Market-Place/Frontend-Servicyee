@@ -39,7 +39,7 @@ const locations = [
   'Phoenix, AZ',
   'Philadelphia, PA',
   'San Antonio, TX',
-  'San Diego, CA',
+  'San Diego, CA', 
   'Dallas, TX',
 ];
 
@@ -81,7 +81,7 @@ export function HeroSection() {
   };
 
   return (
-    <section className="relative bg-[#204c3f] text-white overflow-hidden min-h-[60vh] sm:min-h-[70vh] z-0 ">
+    <section className="relative bg-[#204c3f] text-white overflow-hidden min-h-[40vh] sm:min-h-[50vh] z-0 ">
       {/* Topographic contour lines background */}
       <div className="absolute inset-0 opacity-5">
         <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
