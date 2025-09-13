@@ -1,25 +1,87 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, ThumbsUp, Shield, Plus } from 'lucide-react';
+import { Search, ChevronDown, MapPin, Filter, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
 
-const statistics = [
-  { value: '834M', label: 'Total Freelancer' },
-  { value: '732M', label: 'Positive Review' },
-  { value: '90M', label: 'Order recieved' },
-  { value: '236M', label: 'Projects Completed' }
+// Category data
+const categories = [
+  { value: 'all', label: 'All Categories' },
+  { value: 'wordpress', label: 'WordPress Development' },
+  { value: 'custom-web', label: 'Custom Websites Development' },
+  { value: 'website-dev', label: 'Website Development' },
+  { value: 'software-dev', label: 'Software Development' },
+  { value: 'web-app', label: 'Web Application Development' },
+  { value: 'mobile-dev', label: 'Mobile Development' },
+  { value: 'ui-ux', label: 'UI/UX Design' },
+  { value: 'seo', label: 'SEO Services' },
+  { value: 'digital-marketing', label: 'Digital Marketing' },
+];
+
+// Location data
+const locations = [
+  'Current Location',
+  'New York, NY',
+  'Los Angeles, CA',
+  'Chicago, IL',
+  'Houston, TX',
+  'Phoenix, AZ',
+  'Philadelphia, PA',
+  'San Antonio, TX',
+  'San Diego, CA',
+  'Dallas, TX',
 ];
 
 export function HeroSection() {
   const [searchQuery, setSearchQuery] = useState('');
-  const router = useRouter()
- 
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedLocation, setSelectedLocation] = useState('Current Location');
+  const [showLocationDropdown, setShowLocationDropdown] = useState(false);
+  const [showMapFilter, setShowMapFilter] = useState(false);
+  const [radius, setRadius] = useState(25);
+  const router = useRouter();
+  const locationRef = useRef<HTMLDivElement>(null);
+
+  // Handle click outside for location dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (locationRef.current && !locationRef.current.contains(event.target as Node)) {
+        setShowLocationDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleSearch = () => {
+    const params = new URLSearchParams();
+    if (searchQuery) params.set('query', searchQuery);
+    if (selectedCategory !== 'all') params.set('category', selectedCategory);
+    if (selectedLocation !== 'Current Location') params.set('location', selectedLocation);
+    if (showMapFilter) params.set('radius', radius.toString());
+    
+    router.push(`/it-services/search/?${params.toString()}`);
+  };
+
+  const handleLocationSelect = (location: string) => {
+    setSelectedLocation(location);
+    setShowLocationDropdown(false);
+  };
+
   return (
-    <section className="relative bg-[#204c3f] text-white overflow-hidden min-h-[60vh] sm:min-h-[70vh]">
+    <section className="relative bg-[#204c3f] text-white overflow-hidden min-h-[60vh] sm:min-h-[70vh] z-0 ">
       {/* Topographic contour lines background */}
       <div className="absolute inset-0 opacity-5">
         <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
@@ -36,10 +98,6 @@ export function HeroSection() {
               <path d="M40,0 Q35,25 40,50 T40,100" stroke="white" strokeWidth="1.3" fill="none" opacity="0.3"/>
               <path d="M60,0 Q55,25 60,50 T60,100" stroke="white" strokeWidth="1.3" fill="none" opacity="0.3"/>
               <path d="M80,0 Q75,25 80,50 T80,100" stroke="white" strokeWidth="1.3" fill="none" opacity="0.3"/>
-              
-              {/* Diagonal contour lines */}
-              {/* <path d="M0,0 Q25,25 50,50 T100,100" stroke="white" strokeWidth="1" fill="none" opacity="0.2"/>
-              <path d="M100,0 Q75,25 50,50 T0,100" stroke="white" strokeWidth="1" fill="none" opacity="0.2"/> */}
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#topographic)" />
@@ -54,151 +112,150 @@ export function HeroSection() {
       </div>
 
       <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-          {/* Left Column - Content */}
+        <div className="grid grid-cols-1 items-center">
+          {/* Content */}
           <div className="space-y-6 sm:space-y-8">
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight">
-              Find the perfect freelance services for your business.
+              Find the perfect freelance <br /> services for your business.
             </h1>
             
             <p className="text-base sm:text-lg text-white/90 max-w-xl">
               Work with talented people at the most affordable price to get the most out of your time and cost.
             </p>
 
-            {/* Search Bar */}
-            <div className="relative">
-              <div className="py-2 px-2 sm:px-4 flex flex-col md:flex-row bg-white rounded-2xl md:rounded-full overflow-hidden shadow-lg gap-2 md:gap-0">
-                <div className="flex-1 flex items-center px-3 sm:px-4">
-                  <Search className="hidden sm:block h-5 w-5 text-gray-400 mr-3" />
-                  <Input
-                    type="text"
-                    placeholder="What are you looking for?"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="border-0 focus:ring-0 text-gray-900 placeholder-gray-500 w-full"
-                  />
-                </div>
-               
-                <Button 
-                  size="lg"
-                  className="bg-[#1dbf73] hover:bg-[#19a463] text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl md:rounded-full w-full md:w-auto"
-                  onClick={()=>{
-                    router.push(`/it-services/search/?query=${searchQuery}`)
-                  }}
-                >
-                  Search
-                </Button>
-              </div>
-            </div>
-
-            {/* Statistics */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 pt-6 sm:pt-8">
-              {statistics.map((stat, index) => (
-                <div key={index} className="text-center">
-                  <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-1">
-                    {stat.value}
+            {/* Enhanced Search Bar with Filters */}
+            <div className="space-y-4">
+              <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-6">
+                {/* Main Search Row */}
+                <div className="flex flex-col lg:flex-row gap-4">
+                  {/* Search Input */}
+                  <div className="flex-1 relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <Input
+                      type="text"
+                      placeholder="What service are you looking for?"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-10 pr-4 py-3 border-0 focus:ring-2 focus:ring-[#1dbf73] text-gray-900 placeholder-gray-500 rounded-lg"
+                    />
                   </div>
-                  <div className="text-xs sm:text-sm text-white/80">
-                    {stat.label}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
 
-          {/* Right Column - Images */}
-          <div className="relative">
-            {/* Main image container */}
-            <div className="relative bg-transparent rounded-2xl p-4 sm:p-6 shadow-2xl">
-              <div className="relative">
-                <div className="w-full h-auto rounded-xl overflow-hidden">
-                  <Image
-                    src="/assets/it-services/home/hero.png"
-                    alt="Freelancers working"
-                    width={600}
-                    height={400}
-                    className="w-full h-auto rounded-xl"
-                    priority
-                  />
-                </div>
-                
-                {/* Overlaid Cards */}
-                <div
-                  className="hidden md:block absolute top-4 left-4 bg-white rounded-lg p-3 shadow-lg max-w-48"
-                  style={{
-                    animation: 'slideX 4s ease infinite alternate'
-                  }}
-                >
-                  <div className="flex items-center space-x-2">
-                    <div className="bg-[#1dbf73]/20 p-2 rounded-lg">
-                      <ThumbsUp className="h-4 w-4 text-[#1dbf73]" />
-                    </div>
-                    <div>
-                      <div className="font-semibold text-gray-900 text-sm">Proof of quality</div>
-                      <div className="text-gray-500 text-xs">Lorem Ipsum Dolar Amet</div>
-                    </div>
+                  {/* Category Filter */}
+                  <div className="w-full lg:w-64">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          className="w-full justify-between py-3 px-4 text-gray-700 border-gray-300 hover:border-gray-400"
+                        >
+                          {categories.find(cat => cat.value === selectedCategory)?.label || 'All Categories'}
+                          <ChevronDown className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-80">
+                        <DropdownMenuLabel>Category</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuRadioGroup value={selectedCategory} onValueChange={setSelectedCategory}>
+                          {categories.map((category) => (
+                            <DropdownMenuRadioItem key={category.value} value={category.value}>
+                              {category.label}
+                            </DropdownMenuRadioItem>
+                          ))}
+                        </DropdownMenuRadioGroup>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
+
+                  {/* Location Filter */}
+                  <div className="w-full lg:w-64 relative" ref={locationRef}>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-between py-3 px-4 text-gray-700 border-gray-300 hover:border-gray-400"
+                      onClick={() => setShowLocationDropdown(!showLocationDropdown)}
+                    >
+                      <div className="flex items-center">
+                        <MapPin className="w-4 h-4 mr-2 text-[#1dbf73]" />
+                        <span className="truncate">{selectedLocation}</span>
+                      </div>
+                      <ChevronDown className={`w-4 h-4 transition-transform ${showLocationDropdown ? 'rotate-180' : ''}`} />
+                    </Button>
+                    
+                    {showLocationDropdown && (
+                      <div className="absolute z-30 mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                        <div className="px-4 py-2 text-sm font-medium text-gray-900 border-b border-gray-100">
+                          Select Location
+                        </div>
+                        {locations.map((location) => (
+                          <button
+                            key={location}
+                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                            onClick={() => handleLocationSelect(location)}
+                          >
+                            {location}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Search Button */}
+                  <Button 
+                    onClick={handleSearch}
+                    className="bg-[#1dbf73] hover:bg-[#19a463] text-white px-8 py-3 w-full lg:w-auto"
+                  >
+                    Search
+                  </Button>
                 </div>
 
-                <div
-                  className="hidden md:block absolute bottom-4 right-4 bg-white rounded-lg p-3 shadow-lg max-w-48"
-                  style={{
-                    animation: 'slideY 4s ease infinite alternate'
-                  }}
-                >
-                  <div className="flex items-center space-x-2">
-                    <div className="bg-[#1dbf73]/20 p-2 rounded-lg">
-                      <Shield className="h-4 w-4 text-[#1dbf73]" />
-                    </div>
-                    <div>
-                      <div className="font-semibold text-gray-900 text-sm">Safe and secure</div>
-                      <div className="text-gray-500 text-xs">Lorem Ipsum Dolar Amet</div>
-                    </div>
+                {/* Filter Options Row */}
+                <div className="flex flex-wrap items-center gap-4 mt-4 pt-4 border-t border-gray-200">
+                  {/* Map Filter Toggle */}
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant={showMapFilter ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setShowMapFilter(!showMapFilter)}
+                      className={`flex items-center gap-2 ${
+                        showMapFilter 
+                          ? 'bg-[#1dbf73] hover:bg-[#19a463] text-white' 
+                          : 'text-gray-700 border-gray-300'
+                      }`}
+                    >
+                      <Filter className="w-4 h-4" />
+                      Map Filter
+                      {showMapFilter && <X className="w-3 h-3" onClick={(e) => { e.stopPropagation(); setShowMapFilter(false); }} />}
+                    </Button>
                   </div>
-                </div>
-                <style jsx>{`
-                  @keyframes slideX {
-                    0% {
-                      transform: translateX(0);
-                    }
-                    100% {
-                      transform: translateX(20px);
-                    }
-                  }
-                  @keyframes slideY {
-                    0% {
-                      transform: translateY(0);
-                    }
-                    100% {
-                      transform: translateY(20px);
-                    }
-                  }
-                `}</style>
-              </div>
-            </div>
 
-            {/* Happy Clients Section */}
-            <div
-              className="hidden md:block absolute -bottom-6 left-8 bg-white rounded-lg p-4 shadow-lg"
-              style={{
-                animation: 'slideX 4s ease infinite alternate'
-              }}
-            >
-              <div className="flex items-center space-x-3">
-                <div className="text-center">
-                  <div className="text-lg font-bold text-gray-900">58M+</div>
-                  <div className="text-sm text-gray-600">Happy Clients</div>
-                </div>
-                <div className="flex -space-x-2">
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <div key={i} className="w-8 h-8 rounded-full bg-gray-300 border-2 border-white flex items-center justify-center">
-                      {i === 5 ? (
-                        <Plus className="h-3 w-3 text-gray-600" />
-                      ) : (
-                        <div className="text-xs text-gray-600">U</div>
-                      )}
+                  {/* Radius Slider (shown when map filter is active) */}
+                  {showMapFilter && (
+                    <div className="flex items-center gap-3 ml-4">
+                      <span className="text-sm text-gray-600">Radius:</span>
+                      <input
+                        type="range"
+                        min="5"
+                        max="100"
+                        value={radius}
+                        onChange={(e) => setRadius(Number(e.target.value))}
+                        className="w-24 accent-[#1dbf73]"
+                      />
+                      <span className="text-sm font-medium text-gray-700 min-w-[60px]">{radius} miles</span>
                     </div>
-                  ))}
+                  )}
+
+                  {/* Filter Tags */}
+                  <div className="flex text-black  dark:text-white items-center gap-2 ml-auto">
+                    <span className="text-xs text-gray-500">Quick filters:</span>
+                    <Button variant="outline" size="sm" className="text-xs px-3 py-1 h-7">
+                      Top Rated
+                    </Button>
+                    <Button variant="outline" size="sm" className="text-xs px-3 py-1 h-7">
+                      Fast Delivery
+                    </Button>
+                    <Button variant="outline" size="sm" className="text-xs px-3 py-1 h-7">
+                      Budget Friendly
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
