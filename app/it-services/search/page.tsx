@@ -1,12 +1,12 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { PopularCategoriesMenu } from "@/components/it-services/services/popular-categories-menu"
-import { CategoryHero } from "@/components/it-services/services/category-hero"
-import { SearchFilters } from "@/components/it-services/services/search-filters"
-import { ServiceGrid } from "@/components/it-services/services/service-grid"
-import { Pagination } from "@/components/it-services/services/pagination"
-import { TrendingServicesSection } from "@/components/it-services/services/trending-services-section"
+import { PopularCategoriesMenu } from "@/components/it-services/sections/search/popular-categories-menu"
+import { CategoryHero } from "@/components/it-services/sections/search/category-hero"
+import { SearchFilters } from "@/components/it-services/sections/search/search-filters"
+import { ServiceGrid } from "@/components/it-services/service/service-grid"
+import { Pagination } from "@/components/it-services/sections/search/pagination"
+import { TrendingServices } from "@/components/it-services/service/trending-services"
 
 export default function SearchPage() {
   const [activeCategory, setActiveCategory] = useState("Graphics & Design")
@@ -107,8 +107,8 @@ export default function SearchPage() {
 
       <div className="container mx-auto px-4 py-8">
         <SearchFilters />
-        <TrendingServicesSection />
-        <ServiceGrid />
+        <TrendingServices />
+        <ServiceGrid />s
         <Pagination />
       </div>
     </div>
