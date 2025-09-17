@@ -2,13 +2,79 @@
 
 import { ServiceCard } from "@/components/it-services/service/service-card"
 import { Button } from "@/components/ui/button"
-import { useState } from "react"
+import { useMemo, useState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 
-const allServices = [
+// Subcategories aligned with components/it-services/sections/search/sub-categories.tsx
+const SUBCATEGORY_TITLES: Record<string, string[]> = {
+  "Graphics & Design": [
+    "Logo Design", "Brand Style Guides", "Illustration", "Image Editing",
+    "Business Cards", "Social Posts", "Presentation Design", "Packaging",
+    "Book Covers", "Infographics", "T‑Shirt Design", "UI Mockups",
+  ],
+  "Digital Marketing": [
+    "Social Media Marketing", "SEO", "Email Marketing", "Influencer Marketing",
+    "PPC Campaigns", "Content Marketing", "Affiliate Marketing", "ASO",
+    "Analytics Setup", "Funnel Design", "Reputation Mgmt", "Community Growth",
+  ],
+  "Writing & Translation": [
+    "Copywriting", "Translation", "Blog Posts", "Technical Writing",
+    "Proofreading", "Product Descriptions", "UX Writing", "Resume & CV",
+    "Scriptwriting", "White Papers", "Press Releases", "Subtitles",
+  ],
+  "Video & Animation": [
+    "Video Editing", "Short Ads", "Product Shoots", "Motion Graphics",
+    "2D Animation", "3D Animation", "Logo Animation", "Color Grading",
+    "Captions", "YouTube Editing", "Reels/TikTok", "Storyboards",
+  ],
+  "Music & Audio": [
+    "Music Production", "Voice Over", "Mix & Master", "Sound Design",
+    "Podcast Editing", "Jingles", "Audiobooks", "SFX Packs",
+    "Music Lessons", "Tuning & Timing", "Dialogue Cleanup", "Arrangement",
+  ],
+  "Programming & Tech": [
+    "Web Development", "Backend APIs", "Databases", "Mobile Apps",
+    "DevOps & CI/CD", "Cloud & Infra", "Testing & QA", "AI/ML",
+    "Data Engineering", "Cybersecurity", "WordPress", "Shopify",
+  ],
+  Business: [
+    "Business Plans", "Market Research", "Project Management", "Legal Consulting",
+    "Financial Modeling", "Pitch Decks", "HR Consulting", "Sales Strategy",
+    "Customer Support", "Bookkeeping", "Virtual Assistant", "Operations",
+  ],
+  Lifestyle: [
+    "Wellness Coaching", "Fitness Training", "Nutrition", "Personal Growth",
+    "Mindfulness", "Language Lessons", "Crafts & Hobbies", "Photography",
+    "Home Organization", "Travel Planning", "Gardening", "Parenting",
+  ],
+  "Trending Services": [
+    "AI Integrations", "UGC Content", "Short-form Video", "Brand Revamps",
+    "Chatbots", "No-code Apps", "Webflow", "Carousel Design",
+    "Landing Pages", "Newsletter", "Micro SaaS", "Prompt Engineering",
+  ],
+}
+
+// Map granular service categories to their main categories used by the subcategory list
+const SERVICE_CATEGORY_TO_MAIN: Record<string, string> = {
+  "Design & Creative": "Graphics & Design",
+  "Art & Illustration": "Graphics & Design",
+  "Web & App Design": "Graphics & Design",
+  Marketing: "Digital Marketing",
+}
+
+function pickSubCategory(serviceCategory: string, seed: number): string {
+  const mainCategory = SERVICE_CATEGORY_TO_MAIN[serviceCategory] || serviceCategory
+  const list = SUBCATEGORY_TITLES[mainCategory]
+  if (!list || list.length === 0) return "General"
+  const index = seed % list.length
+  return list[index]
+}
+
+const baseServices = [
   {
     id: 1,
     image: "https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?auto=compress&w=600",
-    category: "Web & App Design",
+    category: "Graphics & Design",
     title: "I will design modern websites in figma or adobe xd",
     rating: 4.82,
     reviews: 94,
@@ -21,7 +87,7 @@ const allServices = [
   {
     id: 2,
     image: "https://images.pexels.com/photos/1103970/pexels-photo-1103970.jpeg?auto=compress&w=600",
-    category: "Art & Illustration",
+    category: "Graphics & Design",
     title: "I will create modern flat design illustration",
     rating: 4.82,
     reviews: 94,
@@ -34,7 +100,7 @@ const allServices = [
   {
     id: 3,
     image: "https://images.pexels.com/photos/574071/pexels-photo-574071.jpeg?auto=compress&w=600",
-    category: "Design & Creative",
+    category: "Graphics & Design",
     title: "I will build a fully responsive design in HTML,CSS, bootstrap...",
     rating: 4.82,
     reviews: 94,
@@ -47,7 +113,7 @@ const allServices = [
   {
     id: 4,
     image: "https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&w=600",
-    category: "Web & App Design",
+    category: "Graphics & Design",
     title: "I will do mobile app development for ios and android",
     rating: 4.82,
     reviews: 94,
@@ -60,7 +126,7 @@ const allServices = [
   {
     id: 5,
     image: "https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg?auto=compress&w=600",
-    category: "Web & App Design",
+    category: "Graphics & Design",
     title: "I will design modern websites in figma or adobe xd",
     rating: 4.82,
     reviews: 94,
@@ -2095,25 +2161,65 @@ const allServices = [
   },
 ]
 
+const allServices = baseServices.map(s => ({ ...s, subCategory: pickSubCategory(s.category, s.id) }))
+
+// Map main menu categories to the categories used in the base services
+const CATEGORY_TO_SERVICE_CATEGORIES: Record<string, string[]> = {
+  "All Categories": [],
+  Trending: [],
+  "Trending Services": [],
+  "Graphics & Design": ["Design & Creative", "Art & Illustration", "Web & App Design"],
+  "Digital Marketing": ["Digital Marketing", "Marketing"],
+  "Writing & Translation": ["Writing & Translation"],
+  "Video & Animation": ["Video & Animation"],
+  "Music & Audio": ["Music & Audio"],
+  "Programming & Tech": ["Programming & Tech", "Web & App Design"],
+  Business: ["Business"],
+  Lifestyle: ["Lifestyle"],
+  Photography: ["Photography"],
+}
+
 export function ServiceGrid() {
+  const searchParams = useSearchParams()
   const [visibleCount, setVisibleCount] = useState(40) // Initially show 8 services
   const [isLoading, setIsLoading] = useState(false)
 
-  const services = allServices.slice(0, visibleCount)
-  const hasMore = visibleCount < allServices.length
+  const selectedCategoryRaw = searchParams.get("category") || "All Categories"
+  const selectedSubCategoryRaw = searchParams.get("sub-category") || ""
+  const selectedCategory = decodeURIComponent(selectedCategoryRaw)
+  const selectedSubCategory = decodeURIComponent(selectedSubCategoryRaw)
+
+  const filtered = useMemo(() => {
+    const allowed = CATEGORY_TO_SERVICE_CATEGORIES[selectedCategory]
+    return allServices.filter(s => {
+      const categoryMatch = !allowed || allowed.length === 0 ? true : allowed.includes(s.category)
+      const subMatch = selectedSubCategory ? s.subCategory === selectedSubCategory : true
+      return categoryMatch && subMatch
+    })
+  }, [selectedCategory, selectedSubCategory])
+
+  // Reset visible count when filters change for better UX
+  useEffect(() => {
+    setVisibleCount(40)
+  }, [selectedCategory, selectedSubCategory])
+
+  const services = filtered.slice(0, visibleCount)
+  const hasMore = visibleCount < filtered.length
 
   const handleLoadMore = () => {
     setIsLoading(true)
     
     // Simulate loading delay for better UX
     setTimeout(() => {
-      setVisibleCount(prev => Math.min(prev + 32, allServices.length))
+      setVisibleCount(prev => Math.min(prev + 32, filtered.length))
       setIsLoading(false)
     }, 800)
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-0 mb-8">
+    <div className="max-w-7xl mx-auto  lg:px-0  my-8">
+
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-12">
         {services.map((service,index) => (
           <ServiceCard key={index} service={service} />

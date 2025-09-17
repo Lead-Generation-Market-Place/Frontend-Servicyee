@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button"
-import { Play } from "lucide-react"
+import { Play, Home } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
 
 interface CategoryHeroProps {
   category: string
@@ -9,30 +10,73 @@ interface CategoryHeroProps {
   gradient?: string
 }
 
-export function CategoryHero({ category, description, illustration, gradient = "from-orange-50 to-pink-50" }: CategoryHeroProps) {
+export function CategoryHero({
+  category,
+  description,
+  illustration,
+  gradient = "from-orange-50 to-pink-50",
+}: CategoryHeroProps) {
   return (
-    <div className={`bg-gradient-to-r ${gradient} py-8 sm:py-12 lg:py-16`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8 lg:gap-12">
-          <div className="flex-1 max-w-lg">
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">{category}</h1>
+    <div className={`bg-gradient-to-r ${gradient} min-h-[22rem] sm:min-h-[24rem] py-4 px-4`}>
+      <div className="max-w-7xl mx-auto h-full">
+        <div
+          className="
+            h-full
+            flex flex-col
+            lg:flex-row
+            items-center
+            lg:items-center
+            lg:justify-between
+            gap-6 md:gap-10 lg:gap-12
+          "
+        >
+          {/* Text content */}
+          <div className="w-full lg:w-1/2 flex flex-col justify-center max-w-lg">
+            {/* breadcrumbs */}
+            <nav className="mb-3 sm:mb-4" aria-label="Breadcrumb">
+              <ol className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
+                <li className="flex items-center">
+                  <Link href="/" className="inline-flex items-center hover:text-gray-900">
+                    <Home className="h-4 w-4 mr-1" />
+                    Home
+                  </Link>
+                </li>
+                <li className="text-gray-400">/</li>
+                <li className="flex items-center">
+                  <Link href="/it-services" className="hover:text-gray-900">
+                    IT Services
+                  </Link>
+                </li>
+                <li className="text-gray-400">/</li>
+                <li className="text-gray-900 font-medium line-clamp-1" aria-current="page">
+                  {category}
+                </li>
+              </ol>
+            </nav>
+            {/* category with description */}
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
+              {category}
+            </h1>
             <p className="text-base sm:text-lg text-gray-600 mb-6 sm:mb-8">{description}</p>
             <Button variant="outline" className="flex items-center space-x-2 bg-transparent text-sm sm:text-base">
               <Play className="h-4 w-4" />
-              <span>How Freelio Works</span>
+              <span>How Servicyee Works</span>
             </Button>
           </div>
-          <div className="flex-1 flex justify-center lg:justify-end">
-            <Image
-              src={illustration}
-              alt={`${category} illustration`}
-              className="max-w-xs sm:max-w-sm lg:max-w-md h-auto"
-              width={400}
-              height={300}
-              style={{ objectFit: "contain" }}
-              priority
-              unoptimized
-            />
+          {/* Image: below text on sm, right of text on lg+ */}
+          <div className="w-full lg:w-1/2 flex justify-center lg:justify-end mt-6 lg:mt-0">
+            <div className="w-full max-w-[220px] sm:max-w-[320px] md:max-w-xs lg:max-w-md">
+              <Image
+                src={illustration}
+                alt={`${category} illustration`}
+                className="w-full h-auto object-contain"
+                width={400}
+                height={260}
+                priority
+                unoptimized
+                sizes="(max-width: 640px) 90vw, (max-width: 1024px) 50vw, 400px"
+              />
+            </div>
           </div>
         </div>
       </div>
