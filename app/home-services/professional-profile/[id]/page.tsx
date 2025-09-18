@@ -32,7 +32,6 @@ import ShareDialogWrapper from "@/components/home-services/homepage/ShareDialogW
 import Breadcrumbs from "@/components/home-services/homepage/Breadcrumbs";
 
 import QuestionModal from "@/components/home-services/homepage/QuestionModal";
-import Questioner from "@/components/home-services/question/Questioner";
 
 export default function ProfessionalProfile({
   params,
@@ -120,7 +119,7 @@ export default function ProfessionalProfile({
       prevIndex === 0 ? portfolio_album.length - 1 : prevIndex - 1
     );
   };
-  const selectedServiceId = 1;
+
   return (
     <div className="min-h-screen transition-colors duration-300 dark:bg-gray-900 dark:text-gray-100 text-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -707,10 +706,9 @@ export default function ProfessionalProfile({
               </div>
 
               <div className="p-4 text-center">
-                <Questioner
-                  className="bg-sky-600 dark:bg-sky-500 dark:hover:bg-sky-600 hover:bg-sky-500 px-4 rounded-xs text-white font-semibold sticky"
-                  serviceId={selectedServiceId}
+                <QuestionModal
                   triggerText="Request Quotation"
+                  triggerClassName="bg-sky-500 dark:bg-sky-400 px-4 py-2 text-white rounded hover:bg-sky-600 dark:hover:bg-sky-500 transition-colors"
                 />
               </div>
               <div className="flex flex-row gap-2 justify-center items-center text-xs text-green-500 mt-4">
