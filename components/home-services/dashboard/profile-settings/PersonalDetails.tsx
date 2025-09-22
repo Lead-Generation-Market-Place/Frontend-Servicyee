@@ -1,6 +1,7 @@
 "use client";
 
 import { useGetProfessional } from "@/hooks/usegetProfessionalById";
+import { useLocationByUserId } from "@/hooks/useLocation";
 import { Button } from "@/components/ui/button";
 import { Globe, LocateIcon, Phone, Timer, Users } from "lucide-react";
 import Image from "next/image";
@@ -10,15 +11,23 @@ import { useState } from "react";
 
 const PersonalDetails = () => {
   const { data: prov, isLoading, isError, refetch, error } = useGetProfessional();
+  const {
+    data: locations,
+    isLoading: isLoadingLocation,
+    isError: isErrorLocation,
+    refetch: refetchLocation,
+    error: locationError,
+  } = useLocationByUserId();
   const router = useRouter();
   const [retrying, setRetrying] = useState(false);
 
   const professionalDetails = prov || {};
+  const locationsDetails = locations || {};
 
   // ------------------------------
   // Loading Skeleton
   // ------------------------------
-  if (isLoading || retrying) {
+  if (isLoading || isLoadingLocation || retrying) {
     return (
       <div className="max-w-6xl mx-auto p-4 space-y-5 animate-pulse">
         <div className="h-6 bg-gray-300 rounded w-32"></div>
@@ -31,23 +40,23 @@ const PersonalDetails = () => {
   // ------------------------------
   // Error State
   // ------------------------------
-  if (isError) {
+  if (isError || isErrorLocation) {
     return (
       <div className="max-w-6xl mx-auto p-4 text-center">
         <p className="text-red-600 font-semibold mb-2">
-          Oops! Something went wrong while fetching your profile.
+          Oops! Something went wrong while fetching your profile or location.
         </p>
         <p className="text-gray-500 mb-4">
           Please check your internet connection or try again later.
         </p>
-        {error?.message && (
-          <p className="text-gray-400 text-sm mb-4">Error: {error.message}</p>
-        )}
+        {error?.message && <p className="text-gray-400 text-sm mb-2">Profile Error: {error.message}</p>}
+        {locationError?.message && <p className="text-gray-400 text-sm mb-4">Location Error: {locationError.message}</p>}
         <Button
           disabled={retrying}
           onClick={async () => {
             setRetrying(true);
             await refetch();
+            await refetchLocation();
             setRetrying(false);
           }}
           className="bg-sky-500 text-white hover:bg-sky-600"
@@ -64,8 +73,20 @@ const PersonalDetails = () => {
   const professional = {
     id: professionalDetails.id || 33,
     phone: professionalDetails.phone || "N/A",
-    address: professionalDetails.address || "N/A",
   };
+
+  // ------------------------------
+  // Prepare full address
+  // ------------------------------
+  const fullAddress = [
+    locationsDetails.address_line,
+    locationsDetails.city,
+    locationsDetails.state,
+    locationsDetails.zipcode,
+    locationsDetails.country,
+  ]
+    .filter(Boolean) // remove undefined/null
+    .join(", ") || "N/A";
 
   return (
     <div className="max-w-6xl mx-auto p-4 space-y-5">
@@ -119,10 +140,10 @@ const PersonalDetails = () => {
 
         {/* Details */}
         <div className="space-y-4 mt-6">
+          {/* Professional Details */}
           {[
             { icon: Phone, label: "Phone", value: professional.phone },
             { icon: Globe, label: "Website", value: professionalDetails.website || "N/A" },
-            { icon: LocateIcon, label: "Address", value: professional.address || "N/A" },
             { icon: Timer, label: "Year Founded", value: professionalDetails.founded_year || "N/A" },
             { icon: Users, label: "Number of Employees", value: professionalDetails.employees || "N/A" },
           ].map((item, idx) => (
@@ -132,11 +153,20 @@ const PersonalDetails = () => {
             >
               <div className="flex flex-row gap-2 font-bold items-center min-w-[120px]">
                 <item.icon className="w-4 h-4" />
-                <p>{item.label}</p>
+                <p>{item.label}:</p>
               </div>
               <p className="xs:ml-5 break-all">{item.value}</p>
             </div>
           ))}
+
+          {/* Full Address */}
+          <div className="flex flex-col xs:flex-row xs:items-center gap-2">
+            <div className="flex flex-row gap-2 font-bold items-center min-w-[120px]">
+              <LocateIcon className="w-4 h-4" />
+              <p>Address:</p>
+            </div>
+            <p className="xs:ml-5 break-all">{fullAddress}</p>
+          </div>
         </div>
       </div>
 
