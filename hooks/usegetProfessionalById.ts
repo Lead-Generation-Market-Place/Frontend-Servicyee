@@ -6,7 +6,6 @@ export const useGetProfessional = () => {
     queryKey: ["professionals"],
     queryFn: getProfessionalById,
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
     refetchOnReconnect: false,
   });
 };
