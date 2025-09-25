@@ -1,6 +1,5 @@
 "use client";
 
-import { useGetProfessional } from "@/hooks/usegetProfessionalById";
 import { useLocationByUserId } from "@/hooks/useLocation";
 import { Button } from "@/components/ui/button";
 import { Globe, LocateIcon, Phone, Timer, Users } from "lucide-react";
@@ -8,9 +7,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useGetProfessionalbyUserId } from "@/hooks/useProfessional";
 
 const PersonalDetails = () => {
-  const { data: prov, isLoading, isError, refetch, error } = useGetProfessional();
+  const { data: prov, isLoading, isError, refetch, error } = useGetProfessionalbyUserId();
   const {
     data: locations,
     isLoading: isLoadingLocation,
