@@ -8,8 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Play, X } from "lucide-react"
+import { X } from "lucide-react"
 
 interface OverviewStepProps {
    // eslint-disable-next-line
@@ -193,7 +192,7 @@ export function OverviewStep({ onNext, formData }: OverviewStepProps) {
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
+      <div className="grid grid-cols-1  gap-6 lg:gap-8">
         {/* Main Content */}
         <div className="xl:col-span-2">
 
@@ -513,33 +512,6 @@ export function OverviewStep({ onNext, formData }: OverviewStepProps) {
           </form>
         </div>
 
-        {/* Sidebar */}
-        <div className="xl:col-span-1">
-          <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
-            <CardHeader className="p-4 lg:p-6">
-              <CardTitle className="text-blue-900 dark:text-blue-100 flex items-center gap-2 text-lg lg:text-xl">
-                <div className="w-5 h-5 lg:w-6 lg:h-6 bg-blue-600 rounded-full flex items-center justify-center">
-                  <span className="text-white text-xs">?</span>
-                </div>
-                Start Defining Your Service
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 lg:space-y-4 p-4 lg:p-6">
-              <div className="bg-gray-200 dark:bg-gray-700 rounded-lg aspect-video flex items-center justify-center">
-                <Play className="w-8 h-8 lg:w-12 lg:h-12 text-gray-500" />
-              </div>
-              <ul className="space-y-1 lg:space-y-2 text-xs lg:text-sm text-blue-800 dark:text-blue-200">
-                <li>• Create a catchy title.</li>
-                <li>• Choose a category that fits your Service.</li>
-                <li>• Add meta data to help buyers find more information.</li>
-                <li>• Add tags to help buyers find your Service while searching.</li>
-              </ul>
-              <Button variant="link" className="text-green-600 p-0 h-auto text-sm lg:text-base">
-                General Service Policy
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
       </div>
     </div>
   )

@@ -11,7 +11,6 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
-import { Play } from "lucide-react"
 
 interface PricingStepProps {
   // eslint-disable-next-line
@@ -261,10 +260,10 @@ export function PricingStep({ onNext }: PricingStepProps) {
 
   return (
     <div className="w-full min-h-screen bg-white dark:bg-gray-900">
-      <div className="max-w-6xl mx-auto px-2 sm:px-4 py-8">
+      <div className="max-w-7xl mx-auto py-8 px-4">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Main Content */}
-          <div className="w-full lg:w-2/3">
+          <div className="w-full ">
             <form onSubmit={handleSubmit} className="space-y-8">
               {/* Scope & Pricing Header */}
               <div className="flex flex-wrap items-center justify-between gap-3">
@@ -308,7 +307,7 @@ export function PricingStep({ onNext }: PricingStepProps) {
                         />
                       </div>
 
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 gap-3">
                         <div className="space-y-2">
                           <Label>Delivery time</Label>
                           <Select value={pricing.packages[key].deliveryTime}>
@@ -694,29 +693,6 @@ export function PricingStep({ onNext }: PricingStepProps) {
                 </Button>
               </div>
             </form>
-          </div>
-
-          {/* Sidebar */}
-          <div className="w-full lg:w-1/3">
-            <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
-              <CardHeader>
-                <CardTitle className="text-blue-900 dark:text-blue-100 flex items-center gap-2">
-                  <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
-                    <span className="text-white text-xs">?</span>
-                  </div>
-                  Set your packages
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="bg-gray-200 dark:bg-gray-700 rounded-lg aspect-video flex items-center justify-center">
-                  <Play className="w-12 h-12 text-gray-500" />
-                </div>
-                <ul className="space-y-2 text-sm text-blue-800 dark:text-blue-200">
-                  <li>• Scope out different tiers with different features.</li>
-                  <li>• Offer more value to increase your order value.</li>
-                </ul>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </div>

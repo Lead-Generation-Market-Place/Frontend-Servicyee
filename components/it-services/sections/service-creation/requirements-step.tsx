@@ -8,8 +8,8 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Play, Plus, Info, MoreHorizontal } from "lucide-react"
+import { Card, CardContent} from "@/components/ui/card"
+import { Plus, Info, MoreHorizontal } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 interface RequirementsStepProps {
@@ -146,7 +146,7 @@ export function RequirementsStep({ onNext }: RequirementsStepProps) {
 
   return (
     <div className="max-w-6xl mx-auto">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 gap-8">
         {/* Main Content */}
         <div className="lg:col-span-2">
           <form onSubmit={handleSubmit} className="space-y-8">
@@ -385,28 +385,6 @@ export function RequirementsStep({ onNext }: RequirementsStepProps) {
               </Button>
             </div>
           </form>
-        </div>
-
-        {/* Sidebar */}
-        <div className="lg:col-span-1">
-          <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
-            <CardHeader>
-              <CardTitle className="text-blue-900 dark:text-blue-100 flex items-center gap-2">
-                <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
-                  <span className="text-white text-xs">?</span>
-                </div>
-                Provide Your Requirements
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="bg-gray-200 dark:bg-gray-700 rounded-lg aspect-video flex items-center justify-center">
-                <Play className="w-12 h-12 text-gray-500" />
-              </div>
-              <p className="text-sm text-blue-800 dark:text-blue-200">
-                Indicate what you need before you can start working.
-              </p>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </div>

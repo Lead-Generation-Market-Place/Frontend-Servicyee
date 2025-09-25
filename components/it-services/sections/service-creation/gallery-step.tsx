@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Upload, Play, FileText, X } from "lucide-react"
 import Image from "next/image"
@@ -120,7 +120,7 @@ export function GalleryStep({ onNext }: GalleryStepProps) {
 
   return (
     <div className="max-w-6xl mx-auto">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1  gap-8">
         {/* Main Content */}
         <div className="lg:col-span-2">
           <form onSubmit={handleSubmit} className="space-y-8">
@@ -131,10 +131,10 @@ export function GalleryStep({ onNext }: GalleryStepProps) {
                 Encourage buyers to choose your Service by featuring a variety of your work.
               </p>
               <div className="flex items-start gap-2 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                <div className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center mt-0.5">
+                <div className="w-5 h-5 bg-orange-600 rounded-full flex items-center justify-center mt-0.5">
                   <span className="text-white text-xs">!</span>
                 </div>
-                <p className="text-sm text-blue-800 dark:text-blue-200">
+                <p className="text-sm text-orange-800 dark:text-blue-200">
                   To comply with Servicyee&apos;s terms of service, make sure to upload only content you either own or you have
                   the permission or license to use.
                 </p>
@@ -347,28 +347,6 @@ export function GalleryStep({ onNext }: GalleryStepProps) {
               </Button>
             </div>
           </form>
-        </div>
-
-        {/* Sidebar */}
-        <div className="lg:col-span-1">
-          <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
-            <CardHeader>
-              <CardTitle className="text-blue-900 dark:text-blue-100 flex items-center gap-2">
-                <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
-                  <span className="text-white text-xs">?</span>
-                </div>
-                Showcase Your Talent
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="bg-gray-200 dark:bg-gray-700 rounded-lg aspect-video flex items-center justify-center">
-                <Play className="w-12 h-12 text-gray-500" />
-              </div>
-              <ul className="space-y-2 text-sm text-blue-800 dark:text-blue-200">
-                <li>• Add images, an introduction video, or PDF files that best represent your service.</li>
-              </ul>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </div>
