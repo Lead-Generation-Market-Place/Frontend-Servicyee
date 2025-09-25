@@ -1,3 +1,5 @@
+import { getProfessionalById } from "@/app/api/services/professional";
+import { useQuery } from "@tanstack/react-query";
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { updateProfessional } from '@/app/api/services/professional';
@@ -18,8 +20,18 @@ interface UseUpdateProfessionalOptions {
   showAdvancedError?: boolean;
   enableOptimisticUpdate?: boolean;
 }
+// Get Professional By User_Id
+export const useGetProfessionalbyUserId = () => {
+  return useQuery({
+    queryKey: ["professionals"],
+    queryFn: getProfessionalById,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+  });
+};
 
-export const useUpdateProfessional = (options: UseUpdateProfessionalOptions = {}) => {
+// Update the Introduction of Professional By User_Id
+export const useUpdateProfessionalbyUserId = (options: UseUpdateProfessionalOptions = {}) => {
   const {
     onSuccessRedirect,
     showAdvancedError = true,

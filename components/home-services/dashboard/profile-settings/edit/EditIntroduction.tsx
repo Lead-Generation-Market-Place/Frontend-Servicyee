@@ -4,16 +4,15 @@ import { Button } from "@/components/ui/button";
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Textarea } from "@/components/ui/textarea";
-import { useUpdateProfessional } from "@/hooks/mutations/useUpdateProfessional";
 import { Lightbulb, Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { professionalSchema, ProfessionalFormData } from "@/schemas/professional/professional";
-import { useGetProfessional } from "@/hooks/usegetProfessionalById";
+import {  useGetProfessionalbyUserId, useUpdateProfessionalbyUserId } from "@/hooks/useProfessional";
 import { useRouter } from "next/navigation";
 const EditIntroduction = () => {
   const router = useRouter()
-  const { data: professional, isLoading: isFetching } = useGetProfessional();
-  const mutation = useUpdateProfessional();
+  const { data: professional, isLoading: isFetching } = useGetProfessionalbyUserId();
+  const mutation = useUpdateProfessionalbyUserId();
   const { handleSubmit, control, reset, formState: { errors } } = useForm<ProfessionalFormData>({
     resolver: zodResolver(professionalSchema),
     defaultValues: { introduction: '' },
