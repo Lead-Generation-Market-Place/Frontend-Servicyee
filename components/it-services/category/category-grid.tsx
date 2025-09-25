@@ -9,6 +9,7 @@ import {
   Bitcoin,
 } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
 
 const categories = [
   {
@@ -137,12 +138,11 @@ export function CategoryGrid() {
                 {/* Content Area */}
                 <div className="space-y-2">
                   {category.items.map((item, itemIndex) => (
-                    <div
-                      key={itemIndex}
-                      className="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer flex items-center group/item"
-                    >
+                    <div key={itemIndex} className="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer flex items-center group/item">
                       <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mr-3 group-hover/item:bg-blue-500 transition-colors"></div>
-                      {item}
+                        <Link href={`/it-services/search/?${item}`}  >
+                          {item}
+                        </Link>
                     </div>
                   ))}
                 </div>
