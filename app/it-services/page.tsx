@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import { HeroSection } from "@/components/it-services/sections/main-page/hero-section"
 import { TrendingServices  } from "@/components/it-services/service/trending-services"
 import { ServiceGrid } from "@/components/it-services/service/service-grid"
@@ -9,8 +10,12 @@ export default function HomePage() {
       <main className="flex-1">
         <HeroSection />
         <PopularCategories />
-        <TrendingServices />
-        <ServiceGrid />
+        <Suspense>
+          <TrendingServices />
+        </Suspense>
+        <Suspense>
+          <ServiceGrid />
+        </Suspense>
       </main>
     </div>
   )
