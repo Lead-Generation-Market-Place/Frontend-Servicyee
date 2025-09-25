@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";  
 
 type Order = {
   title: string;
@@ -48,6 +49,7 @@ function getStatusBadge(status: Order["status"]) {
 }
 
 function OrdersTable({ orders }: { orders: Order[] }) {
+  const router = useRouter();
   return (
     <div className="w-full overflow-x-auto">
       <Table className="min-w-full h-auto">
@@ -63,7 +65,7 @@ function OrdersTable({ orders }: { orders: Order[] }) {
         </TableHeader>
         <TableBody>
           {orders.map((order, index) => (
-            <TableRow key={index}>
+            <TableRow key={index} onClick={()=>router.push("/it-services/order/1/")}  className="cursor-pointer">
               <TableCell>
                 <div className="flex items-center gap-3">
                   <Avatar className="h-9 w-9">
