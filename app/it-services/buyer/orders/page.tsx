@@ -18,6 +18,7 @@ import {
   AlertCircle,
   ShoppingBag,
 } from "lucide-react"
+import Link from "next/link"
 
 const orders = [
   {
@@ -232,10 +233,12 @@ export default function OrdersPage() {
                             <div className="text-right">
                               <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">{order.amount}</p>
                               <div className="space-y-2">
+                                <Link  href={"/it-services/order/1/"}>
                                 <Button size="sm" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white">
                                   View Details
                                 </Button>
-                                <Button size="sm" variant="outline" className="w-full bg-transparent dark:bg-transparent border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100">
+                                </Link>
+                                <Button size="sm" variant="outline" className="w-full my-2 bg-transparent dark:bg-transparent border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100">
                                   <MessageSquare className="w-4 h-4 mr-2" />
                                   Message
                                 </Button>
