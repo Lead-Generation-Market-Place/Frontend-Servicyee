@@ -173,7 +173,7 @@ export default function SubCategories() {
     const firstChild = scrollRef.current.children[0] as HTMLElement | undefined
     const width = firstChild?.clientWidth ?? 160
     const gap = 12
-    scrollRef.current.scrollBy({ left: dir * (width + gap), behavior: "smooth" })
+    scrollRef.current.scrollBy({ left: dir * (width + gap) })
   }
 
   const handleSelectSubCategory = (title: string) => {

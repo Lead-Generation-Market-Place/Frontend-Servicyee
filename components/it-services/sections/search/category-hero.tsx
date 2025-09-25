@@ -17,7 +17,7 @@ export function CategoryHero({
   gradient = "from-orange-50 to-pink-50",
 }: CategoryHeroProps) {
   return (
-    <div className={`bg-gradient-to-r ${gradient} min-h-[22rem] sm:min-h-[24rem] py-4 px-4`}>
+    <div className={`bg-gradient-to-r ${gradient} min-h-[18rem] sm:min-h-[20rem] lg:min-h-[22rem] py-4 px-4`}>
       <div className="max-w-7xl mx-auto h-full">
         <div
           className="
@@ -63,18 +63,18 @@ export function CategoryHero({
               <span>How Servicyee Works</span>
             </Button>
           </div>
-          {/* Image: below text on sm, right of text on lg+ */}
-          <div className="w-full lg:w-1/2 flex justify-center lg:justify-end mt-6 lg:mt-0">
-            <div className="w-full max-w-[220px] sm:max-w-[320px] md:max-w-xs lg:max-w-md">
+          {/* Image: hidden on md and below, visible on lg+ with fixed height */}
+          <div className="hidden lg:flex w-full lg:w-1/2 justify-center lg:justify-end mt-6 lg:mt-0">
+            <div className="w-full max-w-md">
               <Image
                 src={illustration}
                 alt={`${category} illustration`}
-                className="w-full h-auto object-contain"
+                className="w-full h-64 xl:h-80 object-contain"
                 width={400}
-                height={260}
+                height={320}
                 priority
                 unoptimized
-                sizes="(max-width: 640px) 90vw, (max-width: 1024px) 50vw, 400px"
+                sizes="(min-width: 1024px) 400px, 0px"
               />
             </div>
           </div>
