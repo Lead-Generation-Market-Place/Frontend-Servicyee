@@ -6,6 +6,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Eye, Edit, MoreHorizontal } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 type Service = {
   title: string;
@@ -90,6 +92,8 @@ function getStatusBadge(status: Service["status"]) {
 }
 
 function ServicesTable({ services }: { services: Service[] }) {
+  const router = useRouter();
+
   return (
     <div className="w-full overflow-x-auto">
       <Table className="min-w-full">
@@ -107,7 +111,7 @@ function ServicesTable({ services }: { services: Service[] }) {
         </TableHeader>
         <TableBody>
           {services.map((service, idx) => (
-            <TableRow key={idx}>
+            <TableRow key={idx} onClick={()=>router.push("/it-services/create-service/")} className="cursor-pointer">
               <TableCell>
                 <div className="w-12 h-12 rounded-lg overflow-hidden flex items-center justify-center">
                   <img 
@@ -178,7 +182,9 @@ export default function ServicesPage() {
             <h1 className="text-3xl font-bold text-gray-950 dark:text-gray-100 mb-1">Services & Gigs</h1>
             <p className="text-gray-600 dark:text-gray-400">Manage your service offerings and track performance.</p>
           </div>
+          <Link href={"/it-services/create-service/"}>
           <Button className="w-full sm:w-auto">Create New Service</Button>
+          </Link>
         </div>
 
         {/* Simple Tabs */}

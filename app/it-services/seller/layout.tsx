@@ -32,13 +32,13 @@ export default function DashboardLayout({
     { label: "Orders", href: "/it-services/seller/orders", icon: "cart" },
     { label: "Earnings", href: "/it-services/seller/earnings", icon: "dollar" },
     {
-      label: "Profile & Settings",
+      label: "Message and Logout",
       href: "/analytics",
       hasDropdown: true,
       dropdownItems: [
-        { label: "Profile", href: "/it-services/profile" },
-        { label: "Billing", href: "/it-services/seller/billing" },
-        { label: "Settings", href: "/it-services/seller/settings" },
+        // { label: "Profile", href: "/it-services/profile" },
+        // { label: "Billing", href: "/it-services/seller/billing" },
+        // { label: "Settings", href: "/it-services/seller/settings" },
         { label: "Messages", href: "/it-services/seller/messages" },
         { label: "Logout", href: "/it-services/seller/logout" },
       ],

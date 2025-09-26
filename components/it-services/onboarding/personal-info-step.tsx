@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Progress } from "@/components/ui/progress"
 import { Upload, Check, X } from "lucide-react"
 
 interface PersonalInfoStepProps {
@@ -71,46 +70,33 @@ export function PersonalInfoStep({ onNext, onBack, formData, currentStep, totalS
     onNext({ personalInfo })
   }
 
-  const completionRate = Math.round(((currentStep - 2) / (totalSteps - 4)) * 100)
 
   return (
     <div className="max-w-6xl mx-auto bg-background">
 
       {/* Progress Steps */}
-      <div className="border-b border-border bg-background flex justify-between">
-        <div className=" px-4 py-4">
-          <div className="flex items-center gap-4">
+      <div className="border-b border-border bg-background">
+        <div className="px-4 py-4">
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4 min-w-0">
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full bg-green-600 flex items-center justify-center">
-                <Check className="w-4 h-4 text-white" />
+              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-green-600 flex items-center justify-center">
+                <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
               </div>
-              <span className="text-sm font-medium text-green-600">Personal Info</span>
+              <span className="text-xs sm:text-sm font-medium text-green-600">Personal Info</span>
             </div>
-            <div className="w-4 h-px bg-border"></div>
+            <div className="hidden sm:block w-6 sm:w-8 h-px bg-border"></div>
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full border-2 border-muted-foreground text-muted-foreground flex items-center justify-center text-sm">
+              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 border-muted-foreground text-muted-foreground flex items-center justify-center text-[10px] sm:text-sm">
                 2
               </div>
-              <span className="text-sm text-muted-foreground">Professional Info</span>
+              <span className="text-xs sm:text-sm text-muted-foreground">Professional Info</span>
             </div>
-            <div className="w-4 h-px bg-border"></div>
+            <div className="hidden sm:block w-6 sm:w-8 h-px bg-border"></div>
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full border-2 border-muted-foreground text-muted-foreground flex items-center justify-center text-sm">
+              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 border-muted-foreground text-muted-foreground flex items-center justify-center text-[10px] sm:text-sm">
                 3
               </div>
-              <span className="text-sm text-muted-foreground">Account Security</span>
-            </div>
-          </div>
-        </div>
-
-  
-        <div className=" px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-muted-foreground">Completion Rate: {completionRate}%</span>
-              <div className="w-32">
-                <Progress value={completionRate} className="h-2" />
-              </div>
+              <span className="text-xs sm:text-sm text-muted-foreground">Account Security</span>
             </div>
           </div>
         </div>

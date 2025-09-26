@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
 import { Check, Mail, Phone } from "lucide-react"
 
 interface AccountSecurityStepProps {
@@ -25,24 +24,10 @@ export function AccountSecurityStep({ onNext, onBack, formData, currentStep, tot
     onNext({ accountSecurity })
   }
 
-  const completionRate = 80
 
   return (
     <div className="bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-foreground">fiverr.</h1>
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-muted-foreground">Completion Rate: {completionRate}%</span>
-              <div className="w-32">
-                <Progress value={completionRate} className="h-2" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
+     
 
       {/* Progress Steps */}
       <div className="border-b border-border bg-background">

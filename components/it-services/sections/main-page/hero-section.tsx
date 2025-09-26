@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, ChevronDown, MapPin, Filter, X } from 'lucide-react';
+import { Search, ChevronDown, MapPin} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import {
   DropdownMenu,
@@ -39,7 +39,7 @@ const locations = [
   'Phoenix, AZ',
   'Philadelphia, PA',
   'San Antonio, TX',
-  'San Diego, CA',
+  'San Diego, CA', 
   'Dallas, TX',
 ];
 
@@ -48,8 +48,6 @@ export function HeroSection() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedLocation, setSelectedLocation] = useState('Current Location');
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
-  const [showMapFilter, setShowMapFilter] = useState(false);
-  const [radius, setRadius] = useState(25);
   const router = useRouter();
   const locationRef = useRef<HTMLDivElement>(null);
 
@@ -70,7 +68,7 @@ export function HeroSection() {
     if (searchQuery) params.set('query', searchQuery);
     if (selectedCategory !== 'all') params.set('category', selectedCategory);
     if (selectedLocation !== 'Current Location') params.set('location', selectedLocation);
-    if (showMapFilter) params.set('radius', radius.toString());
+    // if (showMapFilter) params.set('radius', radius.toString());
     
     router.push(`/it-services/search/?${params.toString()}`);
   };
@@ -81,7 +79,7 @@ export function HeroSection() {
   };
 
   return (
-    <section className="relative bg-[#204c3f] text-white overflow-hidden min-h-[60vh] sm:min-h-[70vh] z-0 ">
+    <section className="relative bg-[#204c3f] text-white overflow-hidden min-h-[40vh] sm:min-h-[50vh] z-0 ">
       {/* Topographic contour lines background */}
       <div className="absolute inset-0 opacity-5">
         <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
@@ -129,24 +127,33 @@ export function HeroSection() {
                 {/* Main Search Row */}
                 <div className="flex flex-col lg:flex-row gap-4">
                   {/* Search Input */}
-                  <div className="flex-1 relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <div className="flex-1 relative group">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
                     <Input
                       type="text"
                       placeholder="What service are you looking for?"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10 pr-4 py-3 border-0 focus:ring-2 focus:ring-[#1dbf73] text-gray-900 placeholder-gray-500 rounded-lg"
+                      className="
+                        pl-10 pr-4 py-6
+                        border-2 border-gray-200
+                        group-hover:border-[#1dbf73] group-hover:shadow-md
+                        focus:border-[#1dbf73] focus:ring-2 focus:ring-[#1dbf73]
+                        transition-all duration-200
+                        text-gray-900 placeholder-gray-500
+                        rounded-lg outline-none
+                        bg-white
+                      "
                     />
                   </div>
 
                   {/* Category Filter */}
                   <div className="w-full lg:w-64">
                     <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
+                      <DropdownMenuTrigger asChild >
                         <Button 
                           variant="outline" 
-                          className="w-full justify-between py-3 px-4 text-gray-700 border-gray-300 hover:border-gray-400"
+                          className="w-full justify-between py-6 px-4 text-black border-gray-300  hover:text-black dark:hover:text-black hover:border-[#1dbf73] group-hover:shadow-md"
                         >
                           {categories.find(cat => cat.value === selectedCategory)?.label || 'All Categories'}
                           <ChevronDown className="w-4 h-4" />
@@ -170,7 +177,7 @@ export function HeroSection() {
                   <div className="w-full lg:w-64 relative" ref={locationRef}>
                     <Button
                       variant="outline"
-                      className="w-full justify-between py-3 px-4 text-gray-700 border-gray-300 hover:border-gray-400"
+                      className="w-full justify-between py-6 px-4 text-black border-gray-300  hover:text-black hover:border-[#1dbf73] group-hover:shadow-md"
                       onClick={() => setShowLocationDropdown(!showLocationDropdown)}
                     >
                       <div className="flex items-center">
@@ -188,7 +195,7 @@ export function HeroSection() {
                         {locations.map((location) => (
                           <button
                             key={location}
-                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors "
                             onClick={() => handleLocationSelect(location)}
                           >
                             {location}
@@ -209,42 +216,8 @@ export function HeroSection() {
 
                 {/* Filter Options Row */}
                 <div className="flex flex-wrap items-center gap-4 mt-4 pt-4 border-t border-gray-200">
-                  {/* Map Filter Toggle */}
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant={showMapFilter ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setShowMapFilter(!showMapFilter)}
-                      className={`flex items-center gap-2 ${
-                        showMapFilter 
-                          ? 'bg-[#1dbf73] hover:bg-[#19a463] text-white' 
-                          : 'text-gray-700 border-gray-300'
-                      }`}
-                    >
-                      <Filter className="w-4 h-4" />
-                      Map Filter
-                      {showMapFilter && <X className="w-3 h-3" onClick={(e) => { e.stopPropagation(); setShowMapFilter(false); }} />}
-                    </Button>
-                  </div>
-
-                  {/* Radius Slider (shown when map filter is active) */}
-                  {showMapFilter && (
-                    <div className="flex items-center gap-3 ml-4">
-                      <span className="text-sm text-gray-600">Radius:</span>
-                      <input
-                        type="range"
-                        min="5"
-                        max="100"
-                        value={radius}
-                        onChange={(e) => setRadius(Number(e.target.value))}
-                        className="w-24 accent-[#1dbf73]"
-                      />
-                      <span className="text-sm font-medium text-gray-700 min-w-[60px]">{radius} miles</span>
-                    </div>
-                  )}
-
                   {/* Filter Tags */}
-                  <div className="flex text-black  dark:text-white items-center gap-2 ml-auto">
+                  <div className="flex text-black  items-center gap-2 ml-auto">
                     <span className="text-xs text-gray-500">Quick filters:</span>
                     <Button variant="outline" size="sm" className="text-xs px-3 py-1 h-7">
                       Top Rated
