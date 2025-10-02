@@ -2,8 +2,6 @@
 
 import { useState } from "react"
 import { OnboardingIntro } from "./onboarding-intro"
-import { OnboardingGuidelines } from "./onboarding-guidelines"
-import { OnboardingOverview } from "./onboarding-overview"
 import { PersonalInfoStep } from "./personal-info-step"
 import { ProfessionalInfoStep } from "./professional-info-step"
 import { AccountSecurityStep } from "./account-security-step"
@@ -19,8 +17,6 @@ export function OnboardingFlow() {
 
   const steps = [
     { component: OnboardingIntro, title: "Introduction" },
-    { component: OnboardingGuidelines, title: "Guidelines" },
-    { component: OnboardingOverview, title: "Overview" },
     { component: PersonalInfoStep, title: "Personal Info" },
     { component: ProfessionalInfoStep, title: "Professional Info" },
     { component: AccountSecurityStep, title: "Account Security" },
@@ -41,7 +37,7 @@ export function OnboardingFlow() {
   }
 
   return (
-    <div className="py-16 bg-background ">
+    <div className="bg-background ">
       <CurrentStepComponent
         onNext={handleNext}
         onBack={handleBack}

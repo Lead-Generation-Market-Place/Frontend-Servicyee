@@ -2,8 +2,8 @@
 
 import { useMemo, useRef } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { ServiceCard } from "@/components/it-services/services/service-card"
-import { FreelancerCard } from "@/components/it-services/sections/main-page/freelancer-card"
+import { ServiceCard } from "@/components/it-services/service/service-card"
+import { FreelancerCard } from "@/components/it-services/user/freelancer-card"
 
 type Service = {
   id: number

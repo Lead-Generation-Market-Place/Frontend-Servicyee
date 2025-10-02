@@ -1,13 +1,13 @@
 'use client'
 
-import { ModernServiceHeader } from "@/components/it-services/service/modern-service-header"
-import { ModernServiceGallery } from "@/components/it-services/service/modern-service-gallery"
-import { ModernServiceOverview } from "@/components/it-services/service/modern-service-overview"
-import { ModernPricingPackages } from "@/components/it-services/service/modern-pricing-packages"
-import { ModernSellerInfo } from "@/components/it-services/service/modern-seller-info"
-import { ModernReviewsSection } from "@/components/it-services/service/modern-reviews-section"
-import { ModernFAQSection } from "@/components/it-services/service/modern-faq-section"
-import { ModernRelatedServices } from "@/components/it-services/service/modern-related-services"
+import { ModernServiceHeader } from "@/components/it-services/sections/service/modern-service-header"
+import { ModernServiceGallery } from "@/components/it-services/sections/service/modern-service-gallery"
+import { ModernServiceOverview } from "@/components/it-services/sections/service/modern-service-overview"
+import { ModernPricingPackages } from "@/components/it-services/sections/service/modern-pricing-packages"
+import { ModernSellerInfo } from "@/components/it-services/sections/service/modern-seller-info"
+import { ModernReviewsSection } from "@/components/it-services/sections/service/modern-reviews-section"
+import { ModernFAQSection } from "@/components/it-services/sections/service/modern-faq-section"
+import { ModernRelatedServices } from "@/components/it-services/sections/service/modern-related-services"
 import {
   Breadcrumb,
   BreadcrumbItem,

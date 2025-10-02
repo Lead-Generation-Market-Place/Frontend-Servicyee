@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Progress } from "@/components/ui/progress"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Check, X } from "lucide-react"
 
@@ -250,43 +249,42 @@ export function ProfessionalInfoStep({ onNext, onBack, formData, currentStep, to
     onNext({ professionalInfo: { ...professionalInfo, skills: selectedSkills } })
   }
 
-  const completionRate = Math.round(((currentStep - 2) / (totalSteps - 4)) * 100)
 
   return (
     <div className="max-w-6xl mx-auto bg-background">
       {/* Progress Steps */}
-      <div className="border-b border-border bg-background flex justify-between">
-        <div className=" px-4 py-4">
-          <div className="flex items-center gap-4">
+      <div className="border-b border-border bg-background">
+        <div className="px-4 py-4 grid gap-4 grid-cols-1 md:grid-cols-2 items-center w-full overflow-x-hidden min-w-0">
+          {/* Steps */}
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4 w-full min-w-0">
+            {/* Step 1 */}
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full bg-green-600 flex items-center justify-center">
-                <Check className="w-4 h-4 text-white" />
+              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-green-600 flex items-center justify-center">
+                <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
               </div>
-              <span className="text-sm font-medium text-green-600">Personal Info</span>
+              <span className="text-xs sm:text-sm font-medium text-green-600">Personal Info</span>
             </div>
-            <div className="w-4 h-px bg-border"></div>
+            {/* Divider */}
+            <div className="hidden sm:flex items-center justify-center">
+              <div className="w-6 md:w-8 h-px bg-border"></div>
+            </div>
+            {/* Step 2 */}
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full bg-green-600 flex items-center justify-center">
-                <Check className="w-4 h-4 text-white" />
+              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-green-600 flex items-center justify-center">
+                <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
               </div>
-              <span className="text-sm font-medium text-green-600">Professional Info</span>
+              <span className="text-xs sm:text-sm font-medium text-green-600">Professional Info</span>
             </div>
-            <div className="w-4 h-px bg-border"></div>
+            {/* Divider */}
+            <div className="hidden sm:flex items-center justify-center">
+              <div className="w-6 md:w-8 h-px bg-border"></div>
+            </div>
+            {/* Step 3 */}
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full border-2 border-muted-foreground text-muted-foreground flex items-center justify-center text-sm">
+              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 border-muted-foreground text-muted-foreground flex items-center justify-center text-[10px] sm:text-sm">
                 3
               </div>
-              <span className="text-sm text-muted-foreground">Account Security</span>
-            </div>
-          </div>
-        </div>
-        <div className="px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-muted-foreground">Completion Rate: {completionRate}%</span>
-              <div className="w-32">
-                <Progress value={completionRate} className="h-2" />
-              </div>
+              <span className="text-xs sm:text-sm text-muted-foreground">Account Security</span>
             </div>
           </div>
         </div>
