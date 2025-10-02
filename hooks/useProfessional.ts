@@ -1,25 +1,14 @@
 import {
   getProfessionalById,
-  updateProfessionalDetails,
 } from "@/app/api/services/professional";
-import { UseMutationOptions, useQuery } from "@tanstack/react-query";
+import {  useQuery } from "@tanstack/react-query";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { updateProfessional } from "@/app/api/services/professional";
 import { ProfessionalFormData } from "@/schemas/professional/professional";
 import { toast } from "sonner";
+import apiClient from "@/app/api/axios";
 
-export interface ProfessionalDetails {
-  id: string;
-  business_name: string;
-  founded_year: number;
-  employees: number;
-  website?: string;
-  address_line?: string;
-  zipcode?: string;
-  payment_methods: ("Cash" | "Apple Pay" | "Paypal" | "Stripe" | "Zelle")[];
-  profile_image?: string; // URL of uploaded image
-}
 
 interface UpdateProfessionalPayload {
   id: string;
@@ -133,9 +122,9 @@ export const useUpdateProfessionalbyUserId = (
 };
 export const useProfessionalErrorHandler = () => {
   const handleProfessionalError = (error: Error, context?: string) => {
-    console.error(
-      `Professional Error${context ? ` in ${context}` : ""}:`,
-      error
+    toast.error(
+      `Professional Error${context ? ` in ${context}` : ""}: ${error}`,
+      
     );
 
     toast.error("Professional Operation Failed", {
@@ -201,27 +190,23 @@ export const useProfessionalCache = () => {
   };
 };
 
-type UpdateProfessionalVariables = {
-  id: string;
-  data: Partial<ProfessionalDetails> & { profile_image?: File | string };
-};
 
+//Update Professional Details - Account Setting
 export const useUpdateProfessional = () => {
   const queryClient = useQueryClient();
 
-  const options: UseMutationOptions<
-    ProfessionalDetails,
-    Error,
-    UpdateProfessionalVariables
-  > = {
-    mutationFn: async ({ id, data }) => updateProfessionalDetails({ id, data }),
+  return useMutation({
+    mutationKey: ["updateProfessional"], 
+    mutationFn: async ({ id, data }: { id: string; data: FormData | Record<string, any> }) => {
+      if (!id) throw new Error("Missing professional ID");
+      const config = data instanceof FormData ? {} : { headers: { "Content-Type": "application/json" } };
+      const response = await apiClient.put(`/professionals/${id}/introduction`, data, config);
+      return response.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["professional"] });
+      queryClient.invalidateQueries({ queryKey: ["location"] });
     },
-    onError: (error) => {
-      console.error(error);
-    },
-  };
-
-  return useMutation(options);
+  });
 };
+
