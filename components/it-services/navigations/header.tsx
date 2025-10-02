@@ -1,8 +1,8 @@
 ﻿"use client"
 
-import { useState } from "react"
+import {  useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Grid2X2, Menu, Search } from "lucide-react"
+import { Grid2X2, Menu, Search} from "lucide-react"
 import { CategoriesDropdown } from "./categories-dropdown"
 import Link from "next/link"
 import { Input } from "@/components/ui/input"
@@ -20,11 +20,8 @@ export function Header() {
   }
 
   return (
-    <header
-      className="bg-emerald-800 text-white z-30 sticky top-38 left-0 w-full shadow-sm"
-      style={{ WebkitBackdropFilter: "blur(4px)", backdropFilter: "blur(4px)" }}
-    >
-      <div className="max-w-7xl mx-auto py-4">
+    <header className="bg-emerald-800 text-white relative">
+      <div className="max-w-7xl mx-auto  py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-8">
             <div className="flex items-center space-x-2">
@@ -36,31 +33,22 @@ export function Header() {
               </Link>
             </div>
             <nav className="hidden md:flex items-center space-x-6">
-              <div
-                className="relative"
-                onMouseEnter={() => setIsDropdownOpen(true)}
-                onMouseLeave={() => setIsDropdownOpen(false)}
-              >
-                <button className="hover:text-emerald-200 flex items-center space-x-1 py-2 px-3 rounded-lg hover:bg-emerald-700 transition-colors">
+              <div className="relative" onMouseEnter={() => setIsDropdownOpen(true)} onMouseLeave={() => setIsDropdownOpen(false)}>
+                 <button className="hover:text-emerald-200 flex items-center space-x-1 py-2 px-3 rounded-lg hover:bg-emerald-700 transition-colors">
                   <Grid2X2 className="w-4 h-4" />
                   <span>Categories</span>
-                  <svg
-                    className={`w-4 h-4 ml-1 transition-transform duration-200 ${isDropdownOpen ? "rotate-180" : ""}`}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
+                  <svg className={`w-4 h-4 ml-1 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
                 <CategoriesDropdown isOpen={isDropdownOpen} onClose={() => setIsDropdownOpen(false)} />
               </div>
               <Link href="/it-services/search/" className="hover:text-emerald-200">
-                Browse
+                Browse 
               </Link>
             </nav>
           </div>
-
+          
           <div className="flex items-center space-x-4">
             {/* lg+ full search input */}
             <div className="hidden lg:flex items-center relative">
@@ -92,22 +80,23 @@ export function Header() {
                 </PopoverContent>
               </Popover>
             </div>
-            <Link href={"/it-services/become-seller/"}>
+            <Link href={'/it-services/become-seller/'}>
               <span className="hidden md:inline">Become a Seller</span>
             </Link>
             {/* Sign In Button or User Profile Dropdown */}
             {!isSignedIn ? (
-              <Button variant="secondary" size="sm" onClick={() => setIsSignedIn(true)}>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setIsSignedIn(true)}
+              >
                 Sign In
               </Button>
             ) : (
               <UserProfileDropdown handleSignin={handleSignin} />
             )}
-            <Button
-              className="md:hidden"
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsSidebarOpen(true)}
+            <Button className="md:hidden" variant="ghost" size="sm" 
+            onClick={() => setIsSidebarOpen(true)}
             >
               <Menu className="w-5 h-5" />
             </Button>

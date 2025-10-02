@@ -77,11 +77,11 @@ export default function UserProfileDropdown({handleSignin}: {handleSignin: (val:
       </DropdownMenuItem>
       <DropdownMenuItem className="flex items-center space-x-3 px-4 py-2.5 cursor-pointer"
        onClick={()=>{
-        router.push('/it-services/buyer/wallet/')
+        router.push('/it-services/buyer/billing-history/')
       }}
       >
         <Wallet2 className="w-4 h-4" />
-        <span>Wallet</span>
+        <span>Billing History</span>
       </DropdownMenuItem>
       <DropdownMenuItem className="flex items-center space-x-3 px-4 py-2.5 cursor-pointer"
           onClick={()=>{
