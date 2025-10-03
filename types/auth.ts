@@ -5,17 +5,16 @@ export interface LoginCredentials {
 }
 
 export interface AuthResponse {
-  success: boolean;
-  message?: string;
-  data?: {
-    token: string;
-    user: {
-      id: string;
-      email: string;
-      name: string;
-      // Add other user properties as needed
-    };
+  message: string;
+  token: string;
+  user: {
+    id: string;
+    username: string;
+    email: string;
   };
+  // Optional: include these if your backend might return them in errors
+  success?: boolean;
+  error?: string;
 }
 
 export interface ForgotPasswordData {

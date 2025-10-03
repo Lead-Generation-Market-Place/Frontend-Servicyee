@@ -63,19 +63,16 @@ function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
       console.log("Login successful:", response);
 
       // Store token and user data
-      if (response.data?.token) {
-        localStorage.setItem("authToken", response.data.token);
+      if (response.token) {
+        localStorage.setItem("authToken", response.token);
 
         // Store user data if available
-        if (response.data.user) {
-          localStorage.setItem("user", JSON.stringify(response.data.user));
+        if (response.user) {
+          localStorage.setItem("user", JSON.stringify(response.user));
         }
 
-        // You might want to use a more robust state management solution
-        // For now, we'll use localStorage and redirect
-
-        // Redirect to dashboard or home page
-        router.push("/dashboard");
+        // Redirect to home service dashboard
+        router.push("/home-services/dashboard");
       } else {
         throw new Error("No token received from server");
       }
