@@ -10,7 +10,7 @@ import { useState } from "react";
 import { useGetProfessionalbyUserId } from "@/hooks/useProfessional";
 
 const PersonalDetails = () => {
-  const token = "ad"
+  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZGVjZTliNTk5NjljNzE4YmY3MWYzYSIsImVtYWlsIjoiZXNtYXRAZ21haWwuY29tIiwiaWF0IjoxNzU5NTg2NzExLCJleHAiOjE3NTk2NzMxMTF9.3emH1Qf3_8AC0ZSB-MQqnXVZK2T1aNAlSum0z0pasF4"
   const { data: prov, isLoading, isError, refetch, error } = useGetProfessionalbyUserId(token);
   const {
     data: locations,
@@ -45,7 +45,7 @@ const PersonalDetails = () => {
     return (
       <div className="max-w-6xl mx-auto p-4 text-center">
         <p className="text-red-600 font-semibold mb-2">
-          Oops! Something went wrong while fetching your profile or location.
+          Oops! Something went wrong while fetching your profile or location. 
         </p>
         <p className="text-gray-500 mb-4">
           Please check your internet connection or try again later.
@@ -110,7 +110,7 @@ const PersonalDetails = () => {
               </p>
               <p>
                 {professionalDetails.rating_avg || "N/A"}{" "}
-                <strong className="text-sky-500">Ask for review</strong>
+                <strong className="text-sky-500">Ask for review  </strong>
               </p>
             </div>
           </div>
