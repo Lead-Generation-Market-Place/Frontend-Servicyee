@@ -59,10 +59,15 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 const EditBasicInfo = () => {
+  const token = '12'
   const router = useRouter();
-  const token ="ad" // Static Toten
   const { data: pro, isLoading, isError, refetch } = useGetProfessionalbyUserId(token);
-  const {data: location,isLoading: isLoadingLocation, isError: isErrorLocation,  refetch: refetchLocation, } = useLocationByUserId(token);
+  const {
+    data: location,
+    isLoading: isLoadingLocation,
+    isError: isErrorLocation,
+    refetch: refetchLocation,
+  } = useLocationByUserId(token);
 
   const { mutate: updatePro, isPending } = useUpdateProfessional(token);
   const [retrying, setRetrying] = useState(false);
@@ -206,7 +211,7 @@ const EditBasicInfo = () => {
   return (
     <div className="p-2 md:p-4 max-w-3xl mx-auto">
       <form onSubmit={handleSubmit(onSubmit)}>
-        <h1 className="font-bold text-xl mb-4 md:mb-6">Edit Basic Information</h1>
+        <h1 className="font-bold text-xl mb-4 md:mb-6">Edit Basic Information {location._id}</h1>
 
         {/* Profile Photo */}
         <div className="mt-4">
