@@ -10,14 +10,15 @@ import { useState } from "react";
 import { useGetProfessionalbyUserId } from "@/hooks/useProfessional";
 
 const PersonalDetails = () => {
-  const { data: prov, isLoading, isError, refetch, error } = useGetProfessionalbyUserId();
+  const token = "ad"
+  const { data: prov, isLoading, isError, refetch, error } = useGetProfessionalbyUserId(token);
   const {
     data: locations,
     isLoading: isLoadingLocation,
     isError: isErrorLocation,
     refetch: refetchLocation,
     error: locationError,
-  } = useLocationByUserId();
+  } = useLocationByUserId(token);
   const router = useRouter();
   const [retrying, setRetrying] = useState(false);
 

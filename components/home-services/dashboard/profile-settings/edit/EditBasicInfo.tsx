@@ -60,15 +60,11 @@ type FormValues = z.infer<typeof formSchema>;
 
 const EditBasicInfo = () => {
   const router = useRouter();
-  const { data: pro, isLoading, isError, refetch } = useGetProfessionalbyUserId();
-  const {
-    data: location,
-    isLoading: isLoadingLocation,
-    isError: isErrorLocation,
-    refetch: refetchLocation,
-  } = useLocationByUserId();
+  const token ="ad" // Static Toten
+  const { data: pro, isLoading, isError, refetch } = useGetProfessionalbyUserId(token);
+  const {data: location,isLoading: isLoadingLocation, isError: isErrorLocation,  refetch: refetchLocation, } = useLocationByUserId(token);
 
-  const { mutate: updatePro, isPending } = useUpdateProfessional();
+  const { mutate: updatePro, isPending } = useUpdateProfessional(token);
   const [retrying, setRetrying] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [formDataLoaded, setFormDataLoaded] = useState(false);
