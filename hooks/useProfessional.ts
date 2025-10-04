@@ -8,11 +8,13 @@ import { updateProfessional } from "@/app/api/services/professional";
 import { ProfessionalFormData } from "@/schemas/professional/professional";
 import { toast } from "sonner";
 import apiClient from "@/app/api/axios";
+import { handleApiError } from "@/lib/errorHandler";
 
 
 interface UpdateProfessionalPayload {
   id: string;
   data: ProfessionalFormData;
+  token: string
 }
 
 export type Professional = {
@@ -25,16 +27,15 @@ interface UseUpdateProfessionalOptions {
   enableOptimisticUpdate?: boolean;
 }
 // Get Professional By User_Id
-export const useGetProfessionalbyUserId = () => {
+export const useGetProfessionalbyUserId = (token:string) => {
   return useQuery({
-    queryKey: ["professionals"],
-    queryFn: getProfessionalById,
+    queryKey: ["professionals", token],
+    queryFn: () => getProfessionalById(token),
     refetchOnWindowFocus: false,
   });
 };
 
-export const useUpdateProfessionalbyUserId = (
-  options: UseUpdateProfessionalOptions = {}
+export const useUpdateProfessionalbyUserId = (options: UseUpdateProfessionalOptions = {}
 ) => {
   const {
     onSuccessRedirect,
@@ -45,7 +46,7 @@ export const useUpdateProfessionalbyUserId = (
   const router = useRouter();
   const mutation = useMutation<Professional, Error, UpdateProfessionalPayload>({
     mutationFn: async (payload) => {
-      return await updateProfessional(payload.id, payload.data);
+      return await updateProfessional(payload.id, payload.data, payload.token);
     },
     onMutate: async (payload) => {
       if (!enableOptimisticUpdate) return;
@@ -192,16 +193,27 @@ export const useProfessionalCache = () => {
 
 
 //Update Professional Details - Account Setting
-export const useUpdateProfessional = () => {
+export const useUpdateProfessional = (token: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationKey: ["updateProfessional"], 
+    mutationKey: ["updateProfessional"],
     mutationFn: async ({ id, data }: { id: string; data: FormData | Record<string, any> }) => {
       if (!id) throw new Error("Missing professional ID");
-      const config = data instanceof FormData ? {} : { headers: { "Content-Type": "application/json" } };
-      const response = await apiClient.put(`/professionals/${id}/introduction`, data, config);
-      return response.data;
+
+      const config = data instanceof FormData ? {} : { 
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        } 
+      };
+
+      try {
+        const response = await apiClient.put(`/professionals/${id}/introduction`, data, config);
+        return response.data;
+      } catch (error: any) {
+        throw handleApiError(error)
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["professional"] });
@@ -209,4 +221,3 @@ export const useUpdateProfessional = () => {
     },
   });
 };
-
