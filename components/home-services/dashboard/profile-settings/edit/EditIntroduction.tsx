@@ -11,7 +11,8 @@ import {  useGetProfessionalbyUserId, useUpdateProfessionalbyUserId } from "@/ho
 import { useRouter } from "next/navigation";
 const EditIntroduction = () => {
   const router = useRouter()
-  const { data: professional, isLoading: isFetching } = useGetProfessionalbyUserId();
+  const token= "ad"
+  const { data: professional, isLoading: isFetching } = useGetProfessionalbyUserId(token);
   const mutation = useUpdateProfessionalbyUserId();
   const { handleSubmit, control, reset, formState: { errors } } = useForm<ProfessionalFormData>({
     resolver: zodResolver(professionalSchema),
@@ -30,6 +31,7 @@ const EditIntroduction = () => {
     mutation.mutate({
       id: professional._id,
       data: formData,
+      token
     });
   };
 
