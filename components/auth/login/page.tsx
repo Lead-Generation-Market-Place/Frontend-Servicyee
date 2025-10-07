@@ -1,7 +1,6 @@
-// components/auth/login-form.tsx
 "use client";
 import { cn } from "@/lib/utils";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -13,7 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { authAPI } from "@/app/api/auth/login";
+import { useAuth } from "@/components/providers/context/auth-context";
 import { useRouter } from "next/navigation";
 
 function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
@@ -21,9 +20,21 @@ function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
     email: "",
     password: "",
   });
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const { login, isLoading, error, clearError, isAuthenticated } = useAuth();
+  const [redirect, setRedirect] = useState("/home-services/dashboard");
+
   const router = useRouter();
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const r = params.get("redirect") || "/home-services/dashboard";
+    setRedirect(r);
+  }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.replace(redirect);
+    }
+  }, [isAuthenticated, router, redirect]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -31,59 +42,32 @@ function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
       ...prev,
       [id]: value,
     }));
-    // Clear error when user starts typing
-    if (error) setError("");
+    if (error) clearError();
   };
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault(); // This prevents page refresh
-    setIsLoading(true);
-    setError("");
+    e.preventDefault();
+
+    if (!formData.email || !formData.password) {
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      return;
+    }
 
     try {
-      // Validate inputs
-      if (!formData.email || !formData.password) {
-        setError("Please fill in all fields");
-        setIsLoading(false);
-        return;
-      }
-
-      // Email validation
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(formData.email)) {
-        setError("Please enter a valid email address");
-        setIsLoading(false);
-        return;
-      }
-
-      // Call login API
-      const response = await authAPI.login({
-        email: formData.email,
-        password: formData.password,
-      });
-
-      // Handle successful login
-      console.log("Login successful:", response);
-
-      // Redirect to dashboard - using replace to prevent back navigation to login
-      router.replace("/home-services/dashboard");
-      
+      await login(formData.email, formData.password);
     } catch (err) {
-      // Handle errors without page refresh
-      const errorMessage =
-        err instanceof Error ? err.message : "Login failed. Please try again.";
-      setError(errorMessage);
       console.error("Login error:", err);
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const handleSocialLogin = (provider: "apple" | "google") => {
-    setError("");
-    // For social login, redirect to OAuth endpoint
-    // This will cause a page navigation, which is expected for OAuth flow
-    window.location.href = `/api/auth/${provider}`;
+    clearError();
+    const redirectUri = `/api/auth/${provider}?redirect=${encodeURIComponent(redirect)}`;
+    window.location.href = redirectUri;
   };
 
   return (
@@ -160,7 +144,6 @@ function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
                 </span>
               </div>
 
-              {/* Error Message */}
               {error && (
                 <div className="bg-destructive/15 text-destructive text-sm p-3 rounded-md flex items-center gap-2">
                   <svg
