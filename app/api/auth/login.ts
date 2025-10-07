@@ -1,37 +1,106 @@
-import apiClient from "@/app/api/axios";
-import { LoginCredentials, AuthResponse } from "@/types/auth";
+// app/api/auth.ts
+import { api, tokenManager } from "@/app/api/axios";
+
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  // Add other user properties as needed
+}
+
+export interface LoginResponse {
+  user: User;
+  tokens: {
+    accessToken: string;
+    refreshToken: string;
+  };
+}
+
+export interface ApiError {
+  message: string;
+  statusCode: number;
+  error?: string;
+}
 
 export const authAPI = {
-  async login(credentials: LoginCredentials): Promise<AuthResponse> {
+  login: async (credentials: { email: string; password: string }): Promise<LoginResponse> => {
     try {
-      const response = await apiClient.post<AuthResponse>(
-        "/auth/login",
-        credentials
-      );
+      const response = await api.post("/auth/login", credentials);
+      const { accessToken, refreshToken } = response.data.tokens; 
+      const { user } = response.data;
 
-      // Log the response for debugging
-      console.log("Login API Response:", response.data);
+      if (!accessToken) {
+        throw new Error("No access token received from server");
+      }
 
-      return response.data;
+      if (!refreshToken) {
+        throw new Error("No refresh token received from server");
+      }
+
+      // Store tokens using our token manager
+      tokenManager.setTokens(accessToken, refreshToken);
+      
+      return { user, tokens: { accessToken, refreshToken } };
     } catch (error: any) {
-      console.error("API Error details:", error);
-
+      // Enhanced error handling
       if (error.response) {
         // Server responded with error status
-        const errorMessage =
-          error.response.data?.message ||
-          `Login failed (${error.response.status})`;
-
-        throw new Error(errorMessage);
-      } else if (error.code === "ECONNABORTED") {
-        throw new Error(
-          "Request timeout. Please check your connection and try again."
-        );
+        const serverError: ApiError = {
+          message: error.response.data?.message || "Login failed",
+          statusCode: error.response.status,
+          error: error.response.data?.error
+        };
+        
+        // Specific error messages based on status code
+        switch (error.response.status) {
+          case 400:
+            serverError.message = "Invalid email or password format";
+            break;
+          case 401:
+            serverError.message = "Invalid email or password";
+            break;
+          case 404:
+            serverError.message = "Account not found";
+            break;
+          case 429:
+            serverError.message = "Too many login attempts. Please try again later.";
+            break;
+          case 500:
+            serverError.message = "Server error. Please try again later.";
+            break;
+        }
+        
+        throw new Error(serverError.message);
       } else if (error.request) {
+        // Network error
         throw new Error("Network error. Please check your connection.");
       } else {
-        throw new Error("An unexpected error occurred");
+        // Other errors
+        throw new Error(error.message || "Login failed. Please try again.");
       }
     }
   },
+
+  logout: async (): Promise<void> => {
+    try {
+      // Call logout endpoint to invalidate tokens on server
+      await api.post('/auth/logout');
+    } catch (error) {
+      console.error('Logout API call failed:', error);
+      // Continue with client-side cleanup even if server call fails
+    } finally {
+      // Always clear tokens client-side
+      tokenManager.clearTokens();
+    }
+  },
+
+  getCurrentUser: async (): Promise<User> => {
+    const response = await api.get('/auth/me');
+    return response.data;
+  },
+
+  // Check if user is authenticated
+  isAuthenticated: (): boolean => {
+    return tokenManager.isAuthenticated();
+  }
 };

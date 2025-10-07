@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { updateProfessional } from "@/app/api/services/professional";
 import { ProfessionalFormData } from "@/schemas/professional/professional";
 import { toast } from "sonner";
-import apiClient from "@/app/api/axios";
+import {api} from "@/app/api/axios";
 import { handleApiError } from "@/lib/errorHandler";
 
 
@@ -209,7 +209,7 @@ export const useUpdateProfessional = (token: string) => {
       };
 
       try {
-        const response = await apiClient.put(`/professionals/${id}/introduction`, data, config);
+        const response = await api.put(`/professionals/${id}/introduction`, data, config);
         return response.data;
       } catch (error: any) {
         throw handleApiError(error)

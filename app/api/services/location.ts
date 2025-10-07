@@ -1,9 +1,9 @@
 import { handleApiError } from "@/lib/errorHandler";
-import apiClient from "../axios";
+import {api} from "../axios";
 
 export const getLocationByUserId = async (token: string) => {
   try {
-    const response = await apiClient.get("/location/pro", {
+    const response = await api.get("/location/pro", {
       headers: {
         Authorization: `Bearer ${token}`,
       },

@@ -1,3 +1,4 @@
+// components/auth/login-form.tsx
 "use client";
 import { cn } from "@/lib/utils";
 import React, { useState } from "react";
@@ -35,7 +36,7 @@ function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
   };
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault(); // This prevents page refresh
     setIsLoading(true);
     setError("");
 
@@ -43,6 +44,7 @@ function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
       // Validate inputs
       if (!formData.email || !formData.password) {
         setError("Please fill in all fields");
+        setIsLoading(false);
         return;
       }
 
@@ -50,10 +52,11 @@ function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(formData.email)) {
         setError("Please enter a valid email address");
+        setIsLoading(false);
         return;
       }
 
-      // Call your login API
+      // Call login API
       const response = await authAPI.login({
         email: formData.email,
         password: formData.password,
@@ -62,21 +65,11 @@ function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
       // Handle successful login
       console.log("Login successful:", response);
 
-      // Store token and user data
-      if (response.token) {
-        localStorage.setItem("authToken", response.token);
-
-        // Store user data if available
-        if (response.user) {
-          localStorage.setItem("user", JSON.stringify(response.user));
-        }
-
-        // Redirect to home service dashboard
-        router.push("/home-services/dashboard");
-      } else {
-        throw new Error("No token received from server");
-      }
+      // Redirect to dashboard - using replace to prevent back navigation to login
+      router.replace("/home-services/dashboard");
+      
     } catch (err) {
+      // Handle errors without page refresh
       const errorMessage =
         err instanceof Error ? err.message : "Login failed. Please try again.";
       setError(errorMessage);
@@ -86,23 +79,11 @@ function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
     }
   };
 
-  const handleSocialLogin = async (provider: "apple" | "google") => {
-    try {
-      setIsLoading(true);
-      setError("");
-      // TODO: Implement social login logic here, e.g., redirect to OAuth endpoint
-      // Example:
-      window.location.href = `/api/auth/${provider}`;
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error
-          ? err.message
-          : `Failed to initiate ${provider} login`;
-      setError(errorMessage);
-      console.error(`${provider} login error:`, err);
-    } finally {
-      setIsLoading(false);
-    }
+  const handleSocialLogin = (provider: "apple" | "google") => {
+    setError("");
+    // For social login, redirect to OAuth endpoint
+    // This will cause a page navigation, which is expected for OAuth flow
+    window.location.href = `/api/auth/${provider}`;
   };
 
   return (
@@ -217,7 +198,7 @@ function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
                   <div className="flex items-center">
                     <Label htmlFor="password">Password</Label>
                     <Link
-                      href="/auth/Forgot-password"
+                      href="/auth/forgot-password"
                       className="ml-auto text-sm underline-offset-4 hover:underline"
                     >
                       Forgot your password?
