@@ -1,37 +1,112 @@
-import apiClient from "@/app/api/axios";
-import { LoginCredentials, AuthResponse } from "@/types/auth";
+// app/api/auth.ts
+import { api, tokenManager } from "@/app/api/axios";
 
-export const authAPI = {
-  async login(credentials: LoginCredentials): Promise<AuthResponse> {
+export interface User {
+  id: string;
+  email: string;
+  username: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface LoginResponse {
+  user: User;
+  tokens: {
+    accessToken: string;
+    refreshToken: string;
+  };
+}
+
+export interface ApiError {
+  message: string;
+  statusCode: number;
+  error?: string;
+}
+
+class AuthService {
+  async login(credentials: {
+    email: string;
+    password: string;
+  }): Promise<LoginResponse> {
     try {
-      const response = await apiClient.post<AuthResponse>(
-        "/auth/login",
-        credentials
-      );
+      const response = await api.post("/auth/login", credentials);
+      const { accessToken, refreshToken } = response.data.tokens;
+      const { user } = response.data;
 
-      // Log the response for debugging
-      console.log("Login API Response:", response.data);
+      if (!accessToken) {
+        throw new Error("No access token received from server");
+      }
 
-      return response.data;
+      if (!refreshToken) {
+        throw new Error("No refresh token received from server");
+      }
+
+      tokenManager.setTokens(accessToken, refreshToken);
+
+      return { user, tokens: { accessToken, refreshToken } };
     } catch (error: any) {
-      console.error("API Error details:", error);
-
       if (error.response) {
-        // Server responded with error status
-        const errorMessage =
-          error.response.data?.message ||
-          `Login failed (${error.response.status})`;
+        const serverError: ApiError = {
+          message: error.response.data?.message || "Login failed",
+          statusCode: error.response.status,
+          error: error.response.data?.error,
+        };
 
-        throw new Error(errorMessage);
-      } else if (error.code === "ECONNABORTED") {
-        throw new Error(
-          "Request timeout. Please check your connection and try again."
-        );
+        switch (error.response.status) {
+          case 400:
+            serverError.message = "Invalid email or password format";
+            break;
+          case 401:
+            serverError.message = "Invalid email or password";
+            break;
+          case 404:
+            serverError.message = "Account not found";
+            break;
+          case 429:
+            serverError.message =
+              "Too many login attempts. Please try again later.";
+            break;
+          case 500:
+            serverError.message = "Server error. Please try again later.";
+            break;
+        }
+
+        throw new Error(serverError.message);
       } else if (error.request) {
         throw new Error("Network error. Please check your connection.");
       } else {
-        throw new Error("An unexpected error occurred");
+        throw new Error(error.message || "Login failed. Please try again.");
       }
     }
-  },
-};
+  }
+
+  async logout(): Promise<void> {
+    try {
+      await api.post("/auth/logout");
+    } catch (error) {
+      console.error("Logout API call failed:", error);
+    } finally {
+      tokenManager.clearTokens();
+    }
+  }
+
+  async getCurrentUser(): Promise<User> {
+    console.warn("/auth/me endpoint not implemented, using fallback");
+    throw new Error(
+      "User profile endpoint not available. " +
+        "Please implement /auth/me endpoint on backend, " +
+        "or modify frontend to use user data from login response."
+    );
+  }
+
+  isAuthenticated(): boolean {
+    return tokenManager.isAuthenticated();
+  }
+
+  async refreshUser(): Promise<User> {
+    const user = await this.getCurrentUser();
+    return user;
+  }
+}
+
+export const authAPI = new AuthService();

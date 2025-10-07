@@ -1,76 +1,75 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { useLocationByUserId } from "@/hooks/useLocation";
-import { useGetProfessionalbyUserId, useUpdateProfessional } from "@/hooks/useProfessional";
+import { useRouter } from "next/navigation";
 import { Pencil, Loader2 } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useAuth } from "@/components/providers/context/auth-context";
+import { useLocationByUserId } from "@/hooks/useLocation";
+import { useGetProfessionalbyUserId, useUpdateProfessional } from "@/hooks/useProfessional";
 
 type PaymentMethod = "Cash" | "Apple Pay" | "Paypal" | "Stripe" | "Zelle";
 const paymentOptions: PaymentMethod[] = ["Cash", "Apple Pay", "Paypal", "Stripe", "Zelle"];
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
-
-// Type guard for payment methods
-const isValidPaymentMethod = (method: unknown): method is PaymentMethod => {
-  return typeof method === 'string' && paymentOptions.includes(method as PaymentMethod);
-};
 
 const formSchema = z.object({
   business_name: z.string().min(1, "Business name is required"),
-  founded_year: z.string()
-    .refine((val) => val === "" || (!isNaN(Number(val)) && Number(val) >= 1900 && Number(val) <= new Date().getFullYear()), {
-      message: "Year must be a valid number between 1900 and current year",
-    })
-    .optional(),
-  employees: z.string()
+  founded_year: z
+    .string()
+    .optional()
+    .refine(
+      (val) => val === "" || (!isNaN(Number(val)) && Number(val) >= 1900 && Number(val) <= new Date().getFullYear()),
+      { message: "Year must be a valid number between 1900 and current year" }
+    ),
+  employees: z
+    .string()
+    .optional()
     .refine((val) => val === "" || (!isNaN(Number(val)) && Number(val) >= 0), {
       message: "Employees must be a valid non-negative number",
-    })
-    .optional(),
-  website: z.string()
+    }),
+  website: z
+    .string()
+    .optional()
     .refine((val) => val === "" || z.string().url().safeParse(val).success, {
       message: "Please enter a valid URL",
-    })
-    .optional(),
+    }),
   address_line: z.string().min(1, "Address is required"),
   zipcode: z.string().min(1, "Zipcode is required"),
-  payment_methods: z.array(z.enum(["Cash", "Apple Pay", "Paypal", "Stripe", "Zelle"]))
-    .min(1, "At least one payment method is required"),
-  profile_image: z.instanceof(FileList)
-    .refine((files) => files.length === 0 || files[0]?.size <= MAX_FILE_SIZE, {
-      message: "Max file size is 10MB.",
-    })
-    .refine((files) => files.length === 0 || ACCEPTED_IMAGE_TYPES.includes(files[0]?.type), {
-      message: "Only .jpg, .jpeg, and .png files are accepted.",
-    })
+  payment_methods: z.array(z.enum(["Cash", "Apple Pay", "Paypal", "Stripe", "Zelle"])).min(1),
+  profile_image: z
+    .instanceof(FileList)
     .optional()
-    .nullable(),
+    .nullable()
+    .refine((files) => !files?.length || files[0].size <= MAX_FILE_SIZE, "Max file size is 10MB")
+    .refine(
+      (files) => !files?.length || ACCEPTED_IMAGE_TYPES.includes(files[0].type),
+      "Only .jpg, .jpeg, and .png files are accepted."
+    ),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
-const EditBasicInfo = () => {
-  const token = '12'
+export default function EditBasicInfo() {
   const router = useRouter();
-  const { data: pro, isLoading, isError, refetch } = useGetProfessionalbyUserId(token);
-  const {
-    data: location,
-    isLoading: isLoadingLocation,
-    isError: isErrorLocation,
-    refetch: refetchLocation,
-  } = useLocationByUserId(token);
+  const { isAuthenticated, isLoading: authLoading, getAccessToken } = useAuth();
+  const token = getAccessToken();
+
+  const shouldFetch = useMemo(() => !!token && !authLoading, [token, authLoading]);
+
+  const { data: pro, isLoading: loadingPro, isError: errorPro, refetch: refetchPro } =
+    useGetProfessionalbyUserId(shouldFetch ? token : null);
+  const { data: location, isLoading: loadingLoc, isError: errorLoc, refetch: refetchLoc } =
+    useLocationByUserId(token || "");
 
   const { mutate: updatePro, isPending } = useUpdateProfessional(token);
-  const [retrying, setRetrying] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [formDataLoaded, setFormDataLoaded] = useState(false);
 
@@ -78,8 +77,8 @@ const EditBasicInfo = () => {
     register,
     handleSubmit,
     control,
-    watch,
     reset,
+    watch,
     formState: { errors, isDirty },
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -95,35 +94,30 @@ const EditBasicInfo = () => {
     },
   });
 
-  // Reset form when professional or location data changes
+  // ✅ Populate form once data available
   useEffect(() => {
-    if ((pro || location) && !formDataLoaded) {
-      const paymentMethods = pro?.payment_methods || [];
-      
-      const validPaymentMethods = paymentMethods.filter(isValidPaymentMethod);
-
+    if (pro && location && !formDataLoaded) {
       reset({
-        business_name: pro?.business_name || "",
-        founded_year: pro?.founded_year?.toString() || "",
-        employees: pro?.employees?.toString() || "",
-        website: pro?.website || "",
-        address_line: location?.address_line || "",
-        zipcode: location?.zipcode || "",
-        payment_methods: validPaymentMethods,
-        profile_image: undefined,
+        business_name: pro.business_name || "",
+        founded_year: pro.founded_year?.toString() || "",
+        employees: pro.employees?.toString() || "",
+        website: pro.website || "",
+        address_line: location.address_line || "",
+        zipcode: location.zipcode || "",
+        payment_methods: pro.payment_methods?.filter((m: string) =>
+          paymentOptions.includes(m as PaymentMethod)
+        ) as PaymentMethod[],
       });
-      setPreviewImage(pro?.profile_image || null);
+      setPreviewImage(pro.profile_image || null);
       setFormDataLoaded(true);
     }
   }, [pro, location, reset, formDataLoaded]);
 
-  // Watch profile image input to update preview
+  // ✅ Handle profile image preview
   const watchedImage = watch("profile_image");
   useEffect(() => {
-    if (watchedImage && watchedImage.length > 0 && watchedImage[0] instanceof File) {
+    if (watchedImage?.length && watchedImage[0] instanceof File) {
       const file = watchedImage[0];
-      
-      // Validate file before creating preview
       if (file.size <= MAX_FILE_SIZE && ACCEPTED_IMAGE_TYPES.includes(file.type)) {
         const reader = new FileReader();
         reader.onloadend = () => setPreviewImage(reader.result as string);
@@ -132,88 +126,79 @@ const EditBasicInfo = () => {
     }
   }, [watchedImage]);
 
+  // ✅ Submit handler
   const onSubmit = async (values: FormValues) => {
-    if (!pro?._id) return;
+    if (!pro?._id || !token) return;
 
-    try {
-      const formData = new FormData();
-      formData.append("business_name", values.business_name || "");
-      
-      // Convert string values back to numbers for API if they exist
-      if (values.founded_year && values.founded_year.trim() !== "") {
-        formData.append("founded_year", values.founded_year);
+    const formData = new FormData();
+    Object.entries(values).forEach(([key, val]) => {
+      if (key === "profile_image" && val instanceof FileList && val[0]) {
+        formData.append(key, val[0]);
+      } else if (key === "payment_methods") {
+        formData.append(key, JSON.stringify(val));
+      } else if (typeof val === "string" && val.trim() !== "") {
+        formData.append(key, val);
       }
-      
-      if (values.employees && values.employees.trim() !== "") {
-        formData.append("employees", values.employees);
-      }
-      
-      formData.append("website", values.website || "");
-      formData.append("address_line", values.address_line || "");
-      formData.append("zipcode", values.zipcode || "");
-      formData.append("payment_methods", JSON.stringify(values.payment_methods || []));
+    });
 
-      // Only append profile_image if a new file is selected
-      if (values.profile_image && values.profile_image.length > 0 && values.profile_image[0] instanceof File) {
-        formData.append("profile_image", values.profile_image[0]);
+    updatePro(
+      { id: pro._id, data: formData },
+      {
+        onSuccess: async () => {
+          await Promise.all([refetchPro(), refetchLoc()]);
+          router.back();
+        },
       }
-
-      updatePro(
-        { id: pro._id, data: formData },
-        {
-          onSuccess: () => {
-            refetch();
-            refetchLocation();
-            router.back(); 
-          },
-        }
-      );
-    } catch {
-      // Error handling would be done by the mutation's onError callback
-    }
+    );
   };
 
-  if (isLoading || isLoadingLocation || retrying) {
+  // ✅ Handle states
+  if (authLoading || loadingPro || loadingLoc) {
     return (
-      <div className="max-w-6xl mx-auto p-4 space-y-5 animate-pulse">
-        <div className="h-6 bg-gray-300 rounded w-32"></div>
-        <div className="h-6 bg-gray-300 rounded w-64"></div>
-        <div className="h-40 bg-gray-200 rounded"></div>
+      <div className="max-w-3xl mx-auto p-4 text-center">
+        <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-sky-600" />
+        <p>Loading your profile...</p>
       </div>
     );
   }
 
-  if (isError || isErrorLocation) {
+  if (!isAuthenticated || !token) {
     return (
-      <div className="max-w-6xl mx-auto p-4 text-center">
-        <p className="text-red-600 font-semibold mb-2">
-          Oops! Something went wrong while fetching your profile or location.
-        </p>
-        <p className="text-gray-500 mb-4">
-          Please check your internet connection or try again later.
-        </p>
-        <Button
-          disabled={retrying}
-          onClick={async () => {
-            setRetrying(true);
-            await refetch();
-            await refetchLocation();
-            setRetrying(false);
-          }}
-          className="bg-sky-500 text-white hover:bg-sky-600"
-        >
-          {retrying ? "Retrying..." : "Retry"}
+      <div className="text-center py-10">
+        <p className="text-gray-600">Please sign in to edit your business information.</p>
+        <Button className="mt-3 bg-sky-500 text-white" onClick={() => router.push("/login")}>
+          Go to Login
         </Button>
       </div>
     );
   }
 
-  return (
-    <div className="p-2 md:p-4 max-w-3xl mx-auto">
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <h1 className="font-bold text-xl mb-4 md:mb-6">Edit Basic Information {location._id}</h1>
+  if (errorPro || errorLoc) {
+    return (
+      <div className="text-center py-10">
+        <p className="text-red-600 font-semibold mb-2">
+          Failed to load your profile or location.
+        </p>
+        <Button
+          onClick={() => {
+            refetchPro();
+            refetchLoc();
+          }}
+          className="bg-sky-500 text-white"
+        >
+          Retry
+        </Button>
+      </div>
+    );
+  }
 
-        {/* Profile Photo */}
+  // ✅ Main Form UI
+  return (
+    <div className="p-4 max-w-3xl mx-auto">
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <h1 className="font-bold text-xl mb-6">Edit Basic Information</h1>
+
+        {/* Profile Image */}
         <div className="mt-4">
           <p className="text-sm font-semibold">Profile Photo</p>
           <div className="relative w-fit mt-2">
@@ -242,29 +227,25 @@ const EditBasicInfo = () => {
             </span>
           </div>
           {errors.profile_image && (
-            <p className="text-red-600 text-sm mt-1">{errors.profile_image.message as string}</p>
+            <p className="text-red-600 text-sm mt-1">{errors.profile_image.message}</p>
           )}
         </div>
 
-        {/* Other Inputs */}
+        {/* Text Inputs */}
         {[
-          { label: "Business Name", name: "business_name", type: "text", required: true },
-          { label: "Year Founded", name: "founded_year", type: "text", required: false, placeholder: "e.g., 2022" },
-          { label: "Number of Employees", name: "employees", type: "text", required: false, placeholder: "e.g., 10" },
-          { label: "Website", name: "website", type: "text", required: false, placeholder: "e.g., https://example.com" },
-          { label: "Address", name: "address_line", type: "text", required: true },
-          { label: "Zip Code", name: "zipcode", type: "text", required: true },
+          { label: "Business Name", name: "business_name", required: true },
+          { label: "Year Founded", name: "founded_year" },
+          { label: "Number of Employees", name: "employees" },
+          { label: "Website", name: "website" },
+          { label: "Address", name: "address_line", required: true },
+          { label: "Zip Code", name: "zipcode", required: true },
         ].map((field) => (
           <div key={field.name} className="mt-4">
             <label className="text-sm font-semibold">
               {field.label}
               {field.required && <span className="text-red-500 ml-1">*</span>}
             </label>
-            <Input
-              type={field.type}
-              placeholder={field.placeholder}
-              {...register(field.name as keyof FormValues)}
-            />
+            <Input {...register(field.name as keyof FormValues)} />
             {errors[field.name as keyof FormValues] && (
               <p className="text-red-600 text-sm mt-1">
                 {errors[field.name as keyof FormValues]?.message as string}
@@ -276,48 +257,41 @@ const EditBasicInfo = () => {
         {/* Payment Methods */}
         <div className="mt-6">
           <p className="text-lg font-semibold">Payment Methods Accepted</p>
-          <p className="text-sm text-gray-600 mb-3">
-            Current selection: {pro?.payment_methods?.join(", ") || "None selected"}
-          </p>
           <Controller
             control={control}
             name="payment_methods"
             render={({ field }) => (
-              <div>
-                <div className="grid grid-cols-2 gap-2 mt-3">
-                  {paymentOptions.map((method) => (
-                    <label key={method} className="flex items-center gap-2 cursor-pointer select-none">
-                      <Checkbox
-                        checked={field.value.includes(method)}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
-                            field.onChange([...field.value, method]);
-                          } else {
-                            field.onChange(field.value.filter((v: PaymentMethod) => v !== method));
-                          }
-                        }}
-                      />
-                      {method}
-                    </label>
-                  ))}
-                </div>
-                {errors.payment_methods && (
-                  <p className="text-red-600 text-sm mt-2 font-medium">{errors.payment_methods.message}</p>
-                )}
+              <div className="grid grid-cols-2 gap-2 mt-3">
+                {paymentOptions.map((method) => (
+                  <label key={method} className="flex items-center gap-2 cursor-pointer select-none">
+                    <Checkbox
+                      checked={field.value.includes(method)}
+                      onCheckedChange={(checked) =>
+                        checked
+                          ? field.onChange([...field.value, method])
+                          : field.onChange(field.value.filter((m) => m !== method))
+                      }
+                    />
+                    {method}
+                  </label>
+                ))}
               </div>
             )}
           />
+          {errors.payment_methods && (
+            <p className="text-red-600 text-sm mt-2">{errors.payment_methods.message}</p>
+          )}
         </div>
 
         {/* Actions */}
-        <div className="flex justify-end gap-3 mt-6">
+        <div className="flex justify-end gap-3 mt-8">
           <Button variant="outline" type="button" onClick={() => router.back()}>
             Cancel
           </Button>
           <Button
             type="submit"
-            disabled={isPending || !isDirty}
-            className="bg-sky-500 text-white flex items-center gap-2 hover:bg-sky-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
+            disabled={isPending || !isDirty || !token}
+            className="bg-sky-500 text-white flex items-center gap-2 hover:bg-sky-600 disabled:bg-gray-400"
           >
             {isPending && <Loader2 className="w-4 h-4 animate-spin" />}
             {isPending ? "Saving..." : "Save"}
@@ -326,6 +300,4 @@ const EditBasicInfo = () => {
       </form>
     </div>
   );
-};
-
-export default EditBasicInfo;
+}

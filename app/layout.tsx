@@ -7,6 +7,7 @@ import React from "react";
 import { ThemeProvider } from "@/components/providers/theme/theme-provider";
 import QueryProvider from "@/components/providers/context/QueryProvider";
 import { SidebarProvider } from "@/components/providers/context/SidebarContext";
+import { AuthProvider } from "@/components/providers/context/auth-context";
 
 // Configure inter font with all needed weights and subsets
 const poppins = Inter({
@@ -40,7 +41,9 @@ export default function RootLayout({
         >
           <QueryProvider>
             <SidebarProvider>
-              {children}
+              <AuthProvider>
+                {children}
+              </AuthProvider>
               <Toaster position="top-right" reverseOrder={false} />
             </SidebarProvider>
           </QueryProvider>

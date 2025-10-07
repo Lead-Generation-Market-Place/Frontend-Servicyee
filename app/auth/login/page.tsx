@@ -4,7 +4,7 @@ import React from "react"
 import dynamic from "next/dynamic"
 
 // Dynamically import login component
-const Login = dynamic(() => import("@/components/auth/login/page").then(mod => mod.default))
+const Login = dynamic(() => import("@/components/auth/login/page"))
 
 export default function LoginPage() {
   return (

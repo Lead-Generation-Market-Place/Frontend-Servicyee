@@ -1,4 +1,4 @@
-import apiClient from "../axios";
+import {api} from "../axios";
 import { ProfessionalFormData } from "@/schemas/professional/professional";
 import { handleApiError } from "@/lib/errorHandler";
 
@@ -8,7 +8,7 @@ export type Professional = {
 };
 export const getProfessionalById = async (token: string) => {
   try {
-    const response = await apiClient.get("/professionals/pro", {
+    const response = await api.get("/professionals/pro", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -25,7 +25,7 @@ export const updateProfessional = async (
   token: string
 ): Promise<Professional> => {
   try {
-    const response = await apiClient.put(`/professionals/${id}`, data, {
+    const response = await api.put(`/professionals/${id}`, data, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

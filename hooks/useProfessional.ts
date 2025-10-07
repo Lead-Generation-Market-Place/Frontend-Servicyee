@@ -1,75 +1,129 @@
 import {
   getProfessionalById,
+  updateProfessional,
 } from "@/app/api/services/professional";
-import {  useQuery } from "@tanstack/react-query";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { updateProfessional } from "@/app/api/services/professional";
 import { ProfessionalFormData } from "@/schemas/professional/professional";
 import { toast } from "sonner";
-import apiClient from "@/app/api/axios";
+import { api } from "@/app/api/axios";
 import { handleApiError } from "@/lib/errorHandler";
 
+// 🎯 Define comprehensive Professional interface
+export interface Professional {
+  id: string;
+  introduction: string;
+  business_name?: string;
+  phone?: string;
+  website?: string;
+  founded_year?: string;
+  employees?: string;
+  profile_image?: string;
+  rating_avg?: number;
+  user_id?: string;
+}
 
 interface UpdateProfessionalPayload {
   id: string;
   data: ProfessionalFormData;
-  token: string
+  token: string;
 }
 
-export type Professional = {
-  id: string;
-  introduction: string;
-};
 interface UseUpdateProfessionalOptions {
   onSuccessRedirect?: string;
   showAdvancedError?: boolean;
   enableOptimisticUpdate?: boolean;
 }
-// Get Professional By User_Id
-export const useGetProfessionalbyUserId = (token:string) => {
+
+// 🎯 FIXED: Define proper context type for onMutate
+interface MutationContext {
+  previousProfessional?: Professional;
+}
+
+// 🎯 FIXED: Get Professional By User_Id with proper token handling
+export const useGetProfessionalbyUserId = (token: string | null) => {
   return useQuery({
-    queryKey: ["professionals", token],
-    queryFn: () => getProfessionalById(token),
+    queryKey: ["professional", "current", token],
+    queryFn: async () => {
+      if (!token) {
+        throw new Error("Authentication token is required");
+      }
+      return await getProfessionalById(token);
+    },
+    enabled: !!token,
     refetchOnWindowFocus: false,
+    staleTime: 5 * 60 * 1000,
+    retry: (failureCount, error: Error) => {
+      if (error.message.includes("401") || error.message.includes("403")) {
+        return false;
+      }
+      return failureCount < 2;
+    },
   });
 };
 
-export const useUpdateProfessionalbyUserId = (options: UseUpdateProfessionalOptions = {}
+// 🎯 FIXED: Update Professional with proper TypeScript context
+export const useUpdateProfessionalbyUserId = (
+  token: string | null,
+  options: UseUpdateProfessionalOptions = {}
 ) => {
   const {
     onSuccessRedirect,
     showAdvancedError = true,
     enableOptimisticUpdate = true,
   } = options;
+  
   const queryClient = useQueryClient();
   const router = useRouter();
-  const mutation = useMutation<Professional, Error, UpdateProfessionalPayload>({
+
+  const mutation = useMutation<
+    Professional, 
+    Error, 
+    Omit<UpdateProfessionalPayload, 'token'>,
+    MutationContext // ✅ Add context type here
+  >({
     mutationFn: async (payload) => {
-      return await updateProfessional(payload.id, payload.data, payload.token);
+      if (!token) {
+        throw new Error("Authentication token is required");
+      }
+      return await updateProfessional(payload.id, payload.data, token);
     },
     onMutate: async (payload) => {
       if (!enableOptimisticUpdate) return;
+
+      // ✅ Cancel any ongoing queries for this professional
       await queryClient.cancelQueries({
-        queryKey: ["professional", payload.id],
+        queryKey: ["professional", "current", token],
       });
+
+      // ✅ Snapshot the previous value
       const previousProfessional = queryClient.getQueryData<Professional>([
-        "professional",
-        payload.id,
+        "professional", "current", token
       ]);
+
+      // ✅ Optimistically update to the new value
       if (previousProfessional) {
-        queryClient.setQueryData<Professional>(["professional", payload.id], {
-          ...previousProfessional,
-          ...payload.data,
-        });
+        queryClient.setQueryData<Professional>(
+          ["professional", "current", token], 
+          {
+            ...previousProfessional,
+            ...payload.data,
+          }
+        );
       }
+
+      // ✅ Return context with proper typing
       return { previousProfessional };
     },
-    onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["professional"] });
-      queryClient.invalidateQueries({
-        queryKey: ["professional", variables.id],
+    onSuccess: () => {
+      // ✅ Invalidate and refetch
+      queryClient.invalidateQueries({ 
+        queryKey: ["professional", "current", token] 
       });
+      queryClient.invalidateQueries({ 
+        queryKey: ["professional"] 
+      });
+      
       toast.success("Professional updated successfully!", {
         duration: 3000,
         position: "top-center",
@@ -81,10 +135,17 @@ export const useUpdateProfessionalbyUserId = (options: UseUpdateProfessionalOpti
         router.back();
       }
     },
+    onError: (error: Error, variables, context) => {
+      // ✅ TypeScript now knows context has previousProfessional
+      if (context?.previousProfessional) {
+        queryClient.setQueryData(
+          ["professional", "current", token],
+          context.previousProfessional
+        );
+      }
 
-    onError: (error, variables) => {
       if (showAdvancedError) {
-        toast.error("Advanced Professional Update Failed", {
+        toast.error("Professional Update Failed", {
           description: `Error: ${error.message}`,
           duration: 5000,
           position: "top-center",
@@ -97,15 +158,18 @@ export const useUpdateProfessionalbyUserId = (options: UseUpdateProfessionalOpti
         toast.error(`Failed to update professional: ${error.message}`);
       }
     },
-    retry: (failureCount, error) => {
+    retry: (failureCount, error: Error) => {
+      if (error.message.includes("401") || error.message.includes("403")) {
+        return false;
+      }
       if (error.message.includes("Network")) {
         return failureCount < 3;
       }
       return false;
     },
-
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
+
   return {
     ...mutation,
     updateProfessional: mutation.mutate,
@@ -121,12 +185,79 @@ export const useUpdateProfessionalbyUserId = (options: UseUpdateProfessionalOpti
     },
   };
 };
+
+// 🎯 FIXED: Update Professional Details - Account Setting
+export const useUpdateProfessional = (token: string | null) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ["updateProfessional", "introduction", token],
+    mutationFn: async ({ 
+      id, 
+      data 
+    }: { 
+      id: string; 
+      data: FormData | Record<string, any> 
+    }) => {
+      if (!token) {
+        throw new Error("Authentication token is required");
+      }
+      
+      if (!id) {
+        throw new Error("Missing professional ID");
+      }
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          ...(data instanceof FormData 
+            ? {} 
+            : { "Content-Type": "application/json" }
+          )
+        }
+      };
+
+      try {
+        const response = await api.put(
+          `/professionals/${id}/introduction`, 
+          data, 
+          config
+        );
+        return response.data;
+      } catch (error: any) {
+        throw handleApiError(error);
+      }
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData<Professional>(
+        ["professional", "current", token],
+        (old) => old ? { ...old, ...data } : data
+      );
+      
+      queryClient.invalidateQueries({ 
+        queryKey: ["professional", "current", token] 
+      });
+      queryClient.invalidateQueries({ 
+        queryKey: ["professional"] 
+      });
+      queryClient.invalidateQueries({ 
+        queryKey: ["location"] 
+      });
+      
+      toast.success("Professional details updated successfully!");
+    },
+    onError: (error: Error) => {
+      toast.error("Failed to update professional details", {
+        description: error.message,
+      });
+    },
+  });
+};
+
+// 🎯 IMPROVED: Professional Error Handler
 export const useProfessionalErrorHandler = () => {
   const handleProfessionalError = (error: Error, context?: string) => {
-    toast.error(
-      `Professional Error${context ? ` in ${context}` : ""}: ${error}`,
-      
-    );
+    console.error(`Professional Error${context ? ` in ${context}` : ""}:`, error);
 
     toast.error("Professional Operation Failed", {
       description: `Context: ${context || "General"}\nError: ${error.message}`,
@@ -138,86 +269,103 @@ export const useProfessionalErrorHandler = () => {
       severity: error.message.includes("Network") ? "high" : "medium",
       timestamp: new Date().toISOString(),
       context,
+      message: error.message,
     };
   };
 
   return { handleProfessionalError };
 };
+
+// 🎯 IMPROVED: Professional Cache Utilities
 export const useProfessionalCache = () => {
   const queryClient = useQueryClient();
+  
   const updateProfessionalCache = (
     professionalId: string,
-    updates: Partial<Professional>
+    updates: Partial<Professional>,
+    token?: string | null
   ) => {
-    queryClient.setQueryData<Professional>(
-      ["professional", professionalId],
-      (old) => {
-        if (!old) return undefined;
-        return { ...old, ...updates };
-      }
-    );
+    const queryKey = token 
+      ? ["professional", "current", token] 
+      : ["professional", professionalId];
+    
+    queryClient.setQueryData<Professional>(queryKey, (old) => {
+      if (!old) return undefined;
+      return { ...old, ...updates };
+    });
   };
 
   const getProfessionalFromCache = (
-    professionalId: string
+    professionalId?: string,
+    token?: string | null
   ): Professional | undefined => {
-    return queryClient.getQueryData<Professional>([
-      "professional",
-      professionalId,
-    ]);
+    const queryKey = token 
+      ? ["professional", "current", token] 
+      : ["professional", professionalId];
+    
+    return queryClient.getQueryData<Professional>(queryKey);
   };
 
-  const prefetchProfessional = async (professionalId: string) => {
+  const prefetchProfessional = async (professionalId?: string, token?: string | null) => {
+    const queryKey = token 
+      ? ["professional", "current", token] 
+      : ["professional", professionalId];
+    
     await queryClient.prefetchQuery({
-      queryKey: ["professional", professionalId],
-      queryFn: () =>
-        queryClient.getQueryData(["professional", professionalId]) ||
-        Promise.reject("No cache available"),
+      queryKey,
+      queryFn: () => queryClient.getQueryData(queryKey) || Promise.reject("No cache available"),
     });
+  };
+
+  const invalidateProfessional = (professionalId?: string, token?: string | null) => {
+    if (professionalId || token) {
+      const queryKey = token 
+        ? ["professional", "current", token] 
+        : ["professional", professionalId];
+      
+      queryClient.invalidateQueries({ queryKey });
+    }
+    queryClient.invalidateQueries({ queryKey: ["professional"] });
   };
 
   return {
     updateProfessionalCache,
     getProfessionalFromCache,
     prefetchProfessional,
-    invalidateProfessional: (professionalId?: string) => {
-      if (professionalId) {
-        queryClient.invalidateQueries({
-          queryKey: ["professional", professionalId],
-        });
-      }
-      queryClient.invalidateQueries({ queryKey: ["professional"] });
-    },
+    invalidateProfessional,
   };
 };
 
+// 🎯 NEW: Professional Hook Factory for consistent token handling
+export const useProfessional = (token: string | null) => {
+  const professionalQuery = useGetProfessionalbyUserId(token);
+  const professionalCache = useProfessionalCache();
+  const errorHandler = useProfessionalErrorHandler();
 
-//Update Professional Details - Account Setting
-export const useUpdateProfessional = (token: string) => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationKey: ["updateProfessional"],
-    mutationFn: async ({ id, data }: { id: string; data: FormData | Record<string, any> }) => {
-      if (!id) throw new Error("Missing professional ID");
-
-      const config = data instanceof FormData ? {} : { 
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
-        } 
-      };
-
-      try {
-        const response = await apiClient.put(`/professionals/${id}/introduction`, data, config);
-        return response.data;
-      } catch (error: any) {
-        throw handleApiError(error)
+  return {
+    // Query state
+    ...professionalQuery,
+    
+    // Cache utilities
+    ...professionalCache,
+    
+    // Error handling
+    ...errorHandler,
+    
+    // Convenience properties
+    professional: professionalQuery.data,
+    isEmpty: !professionalQuery.data?.id,
+    
+    // Combined actions
+    refetchProfessional: professionalQuery.refetch,
+    updateProfessionalCache: (updates: Partial<Professional>) => {
+      if (professionalQuery.data?.id) {
+        professionalCache.updateProfessionalCache(
+          professionalQuery.data.id, 
+          updates, 
+          token
+        );
       }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["professional"] });
-      queryClient.invalidateQueries({ queryKey: ["location"] });
-    },
-  });
+  };
 };
