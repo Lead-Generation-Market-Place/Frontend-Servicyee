@@ -91,14 +91,31 @@ class AuthService {
   }
 
   async getCurrentUser(): Promise<User> {
-    console.warn("/auth/me endpoint not implemented, using fallback");
-    throw new Error(
-      "User profile endpoint not available. " +
-        "Please implement /auth/me endpoint on backend, " +
-        "or modify frontend to use user data from login response."
-    );
-  }
+    try {
+      const accessToken = tokenManager.getAccessToken();
+      if (!accessToken) throw new Error("No access token found. Please log in again.");
 
+      const response = await api.get("/auth/me", {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      if (!response.data) {
+        throw new Error("No user data returned from /auth/me endpoint.");
+      }
+
+      return response.data as User;
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        console.warn("Session expired, logging out...");
+        await this.logout();
+        throw new Error("Session expired. Please log in again.");
+      }
+
+      throw new Error(error.message || "Failed to fetch current user.");
+    }
+  }
   isAuthenticated(): boolean {
     return tokenManager.isAuthenticated();
   }
