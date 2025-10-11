@@ -3,10 +3,8 @@ import { motion, Variants } from "framer-motion";
 import { useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { useTheme } from "next-themes";
 
 const PopularSearch = () => {
-  const { theme } = useTheme();
   const carouselRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
@@ -152,19 +150,7 @@ const PopularSearch = () => {
                         </h3>
                       </div>
                       <div className="opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke={theme === "dark" ? "#7dd3fc" : "#0284c7"}
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="m9 18 6-6-6-6" />
-                        </svg>
+                        <ChevronRight />
                       </div>
                     </div>
                   </div>

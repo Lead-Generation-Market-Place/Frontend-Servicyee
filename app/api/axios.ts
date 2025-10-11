@@ -10,3 +10,7 @@ import axios from "axios";
   timeout: 10000,
 });
 export default apiClient;
+// 
+ export const getStaticURL = () => {
+  return "https://servicyee-backend.onrender.com/api/v1";
+ }

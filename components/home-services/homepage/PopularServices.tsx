@@ -1,22 +1,42 @@
+"use client";
 import React, { useState, useEffect } from "react";
 import { motion, Variants } from "framer-motion";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
+import { ServiceType } from "@/types/service/services";
+import Image from "next/image";
+import { getStaticURL } from "@/app/api/axios";
 
 interface PopularSubCategory {
-  id: number;
+  id: string;
   name: string;
   slug: string;
-  image: string;
+  image_url: string;
 }
 
-const SubCategories = () => {
-  const [isMounted, setIsMounted] = useState(false);
+interface PopularServicesProps {
+  popularServices: ServiceType[];
+}
 
-  // Wait until after hydration to show animations and handle dark mode
+const PopularServices = ({ popularServices }: PopularServicesProps) => {
+  const [isMounted, setIsMounted] = useState(false);
+  const [services, setServices] = useState<PopularSubCategory[]>([]);
+
+  const API_BASE_URL = getStaticURL();
+
   useEffect(() => {
     setIsMounted(true);
-  }, []);
+    // Transform the API data to match component needs
+    if (popularServices && popularServices.length > 0) {
+      const transformedServices = popularServices.map((service) => ({
+        id: service._id || service._id || String(Math.random()),
+        name: service.name || service.name || "Unnamed Service",
+        slug: service.slug || "default-slug",
+        image_url: service.image_url || "",
+      }));
+      setServices(transformedServices);
+    }
+  }, [popularServices]);
 
   // Variants definitions
   const container: Variants = {
@@ -45,64 +65,7 @@ const SubCategories = () => {
     },
   };
 
-  const subcategories: PopularSubCategory[] = [
-    {
-      id: 1,
-      name: "Roof Repair or Maintenance",
-      slug: "roof_repair",
-      image:
-        "https://images.pexels.com/photos/7641361/pexels-photo-7641361.jpeg",
-    },
-    {
-      id: 2,
-      name: "General Contracting",
-      slug: "general_contracting",
-      image:
-        "https://images.pexels.com/photos/8470031/pexels-photo-8470031.jpeg",
-    },
-    {
-      id: 3,
-      name: "Interior Design",
-      slug: "interior_design",
-      image:
-        "https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg",
-    },
-    {
-      id: 4,
-      name: "Construction Services",
-      slug: "construction_services",
-      image:
-        "https://images.pexels.com/photos/30592258/pexels-photo-30592258.jpeg",
-    },
-    {
-      id: 5,
-      name: "Door Installation",
-      slug: "door_installation",
-      image:
-        "https://images.pexels.com/photos/9051071/pexels-photo-9051071.jpeg",
-    },
-    {
-      id: 6,
-      name: "Floor Repair",
-      slug: "floor_repair",
-      image:
-        "https://images.pexels.com/photos/7491192/pexels-photo-7491192.jpeg",
-    },
-    {
-      id: 7,
-      name: "Junk Removal",
-      slug: "junk_removal",
-      image:
-        "https://images.pexels.com/photos/4498090/pexels-photo-4498090.jpeg",
-    },
-    {
-      id: 8,
-      name: "Kitchen Remodel",
-      slug: "kitchen_remodel",
-      image:
-        "https://images.pexels.com/photos/33257996/pexels-photo-33257996.jpeg",
-    },
-  ];
+  const displayServices = services;
 
   return (
     <section className="my-10 px-4">
@@ -129,56 +92,59 @@ const SubCategories = () => {
               prefetch={true}
             >
               Explore all services
-              {/* Use a consistent color that won't change between server and client */}
               <ChevronRight className="w-4 h-4 text-sky-600" />
             </Link>
           </motion.div>
         </motion.div>
 
-        {/* Categories Grid */}
+        {/* Services Grid - Using img tag for better reliability */}
         <motion.div
           variants={isMounted ? container : undefined}
           initial="hidden"
           animate={isMounted ? "show" : "hidden"}
           className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4"
         >
-          {subcategories.map(({ id, name, slug, image }) => (
-            <motion.div
-              key={id}
-              variants={isMounted ? item : undefined}
-              className="col-span-1"
-            >
-              <Link
-                href={`/home-services/professional-service/${slug}`}
-                className="group block h-full rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300"
-                aria-label={`Browse ${name} services`}
-                prefetch={true}
+          {displayServices.map(({ id, name, slug, image_url }) => {
+            return (
+              <motion.div
+                key={id}
+                variants={isMounted ? item : undefined}
+                className="col-span-1"
               >
-                {/* Card with background image */}
-                <div
-                  className="h-40 bg-cover bg-center relative"
-                  style={{ backgroundImage: `url(${image})` }}
+                <Link
+                  href={`/home-services/professional-service/${slug}`}
+                  className="group block h-full rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 bg-gray-100 dark:bg-gray-800"
+                  aria-label={`Browse ${name} services`}
+                  prefetch={true}
                 >
-                  {/* Gradient overlay for better text visibility */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-
-                  {/* Service name positioned at bottom left */}
-                  <div className="absolute bottom-0 left-0 p-3 text-white">
-                    <h3 className="text-sm font-semibold line-clamp-2">
-                      {name}
-                    </h3>
-                    <span className="text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      View professionals →
-                    </span>
+                  <div className="h-40 relative overflow-hidden">
+                    <Image
+                      src={`${API_BASE_URL}/${image_url}`}
+                      alt={name}
+                      width={100}
+                      height={40}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    {/* Gradient overlay for better text visibility */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+                    {/* Service name positioned at bottom left */}
+                    <div className="absolute bottom-0 left-0 p-3 text-white">
+                      <h3 className="text-sm font-semibold line-clamp-2">
+                        {name}
+                      </h3>
+                      <span className="text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        View professionals →
+                      </span>
+                    </div>
                   </div>
-                </div>
-              </Link>
-            </motion.div>
-          ))}
+                </Link>
+              </motion.div>
+            );
+          })}
         </motion.div>
       </div>
     </section>
   );
 };
 
-export default SubCategories;
+export default PopularServices;
