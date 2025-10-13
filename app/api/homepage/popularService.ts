@@ -1,7 +1,7 @@
-import apiClient from "../axios";
+import { api } from "../axios";
 export const getPopularServices = async () => {
     try {
-        const response = await apiClient.get('/popular-services');
+        const response = await api.get('/popular-services');
         return response.data;
     } catch (error) {
         console.log("Error: ", error);
@@ -10,7 +10,7 @@ export const getPopularServices = async () => {
 
 export const getSubcategoriesServices = async () => {
     try {
-        const response = await apiClient.get('/subcategory-services');
+        const response = await api.get('/subcategory-services');
         return response.data;
     } catch (error) {
         console.log("Error fetching subcategories' services", error);
