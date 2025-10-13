@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,7 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { authAPI } from "@/app/api/auth/login";
+import { useAuth } from "@/components/providers/context/auth-context";
 import { useRouter } from "next/navigation";
 
 function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
@@ -20,9 +20,21 @@ function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
     email: "",
     password: "",
   });
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const { login, isLoading, error, clearError, isAuthenticated } = useAuth();
+  const [redirect, setRedirect] = useState("/home-services/dashboard");
+
   const router = useRouter();
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const r = params.get("redirect") || "/home-services/dashboard";
+    setRedirect(r);
+  }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.replace(redirect);
+    }
+  }, [isAuthenticated, router, redirect]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -30,79 +42,32 @@ function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
       ...prev,
       [id]: value,
     }));
-    // Clear error when user starts typing
-    if (error) setError("");
+    if (error) clearError();
   };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    setError("");
+
+    if (!formData.email || !formData.password) {
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      return;
+    }
 
     try {
-      // Validate inputs
-      if (!formData.email || !formData.password) {
-        setError("Please fill in all fields");
-        return;
-      }
-
-      // Email validation
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(formData.email)) {
-        setError("Please enter a valid email address");
-        return;
-      }
-
-      // Call your login API
-      const response = await authAPI.login({
-        email: formData.email,
-        password: formData.password,
-      });
-
-      // Handle successful login
-      console.log("Login successful:", response);
-
-      // Store token and user data
-      if (response.token) {
-        localStorage.setItem("authToken", response.token);
-
-        // Store user data if available
-        if (response.user) {
-          localStorage.setItem("user", JSON.stringify(response.user));
-        }
-
-        // Redirect to home service dashboard
-        router.push("/home-services/dashboard");
-      } else {
-        throw new Error("No token received from server");
-      }
+      await login(formData.email, formData.password);
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Login failed. Please try again.";
-      setError(errorMessage);
       console.error("Login error:", err);
-    } finally {
-      setIsLoading(false);
     }
   };
 
-  const handleSocialLogin = async (provider: "apple" | "google") => {
-    try {
-      setIsLoading(true);
-      setError("");
-      // TODO: Implement social login logic here, e.g., redirect to OAuth endpoint
-      // Example:
-      window.location.href = `/api/auth/${provider}`;
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error
-          ? err.message
-          : `Failed to initiate ${provider} login`;
-      setError(errorMessage);
-      console.error(`${provider} login error:`, err);
-    } finally {
-      setIsLoading(false);
-    }
+  const handleSocialLogin = (provider: "apple" | "google") => {
+    clearError();
+    const redirectUri = `/api/auth/${provider}?redirect=${encodeURIComponent(redirect)}`;
+    window.location.href = redirectUri;
   };
 
   return (
@@ -179,7 +144,6 @@ function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
                 </span>
               </div>
 
-              {/* Error Message */}
               {error && (
                 <div className="bg-destructive/15 text-destructive text-sm p-3 rounded-md flex items-center gap-2">
                   <svg
@@ -217,7 +181,7 @@ function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
                   <div className="flex items-center">
                     <Label htmlFor="password">Password</Label>
                     <Link
-                      href="/auth/Forgot-password"
+                      href="/auth/forgot-password"
                       className="ml-auto text-sm underline-offset-4 hover:underline"
                     >
                       Forgot your password?

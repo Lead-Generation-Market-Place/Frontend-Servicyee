@@ -1,33 +1,52 @@
 "use client";
-
 import { useLocationByUserId } from "@/hooks/useLocation";
 import { Button } from "@/components/ui/button";
 import { Globe, LocateIcon, Phone, Timer, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useGetProfessionalbyUserId } from "@/hooks/useProfessional";
+import { useAuth } from "@/components/providers/context/auth-context"; // Import security system
 
 const PersonalDetails = () => {
-  const { data: prov, isLoading, isError, refetch, error } = useGetProfessionalbyUserId();
+  // 🔐 Get security information from context
+  const { 
+    user,                    // Current user data
+    isAuthenticated,         // Is user logged in?
+    isLoading: authLoading,  // Is security checking credentials?
+    getAccessToken,          // Get current security token
+  } = useAuth();
+  const router = useRouter();
+  const [retrying, setRetrying] = useState(false);
+  const token = getAccessToken();
+
+  // 📡 Fetch professional data with dynamic token
+  const { 
+    data: prov, 
+    isLoading, 
+    isError, 
+    refetch, 
+    error 
+  } = useGetProfessionalbyUserId(token || "");
+
   const {
     data: locations,
     isLoading: isLoadingLocation,
     isError: isErrorLocation,
     refetch: refetchLocation,
     error: locationError,
-  } = useLocationByUserId();
-  const router = useRouter();
-  const [retrying, setRetrying] = useState(false);
+  } = useLocationByUserId(token || "");
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.push('/auth/login?redirect=/home-services/dashboard');
+    }
+  }, [isAuthenticated, authLoading, router]);
 
   const professionalDetails = prov || {};
   const locationsDetails = locations || {};
-
-  // ------------------------------
-  // Loading Skeleton
-  // ------------------------------
-  if (isLoading || isLoadingLocation || retrying) {
+  // Show loading if security is still checking OR data is loading
+  if (authLoading || isLoading || isLoadingLocation || retrying) {
     return (
       <div className="max-w-6xl mx-auto p-4 space-y-5 animate-pulse">
         <div className="h-6 bg-gray-300 rounded w-32"></div>
@@ -37,47 +56,45 @@ const PersonalDetails = () => {
     );
   }
 
-  // ------------------------------
+
   // Error State
-  // ------------------------------
   if (isError || isErrorLocation) {
     return (
       <div className="max-w-6xl mx-auto p-4 text-center">
         <p className="text-red-600 font-semibold mb-2">
-          Oops! Something went wrong while fetching your profile or location.
+          Oops! Something went wrong while fetching your profile or location. 
         </p>
         <p className="text-gray-500 mb-4">
           Please check your internet connection or try again later.
         </p>
         {error?.message && <p className="text-gray-400 text-sm mb-2">Profile Error: {error.message}</p>}
         {locationError?.message && <p className="text-gray-400 text-sm mb-4">Location Error: {locationError.message}</p>}
-        <Button
-          disabled={retrying}
-          onClick={async () => {
-            setRetrying(true);
-            await refetch();
-            await refetchLocation();
-            setRetrying(false);
-          }}
-          className="bg-sky-500 text-white hover:bg-sky-600"
-        >
-          {retrying ? "Retrying..." : "Retry"}
-        </Button>
+        
+        <div className="flex gap-2 justify-center">
+          <Button
+            disabled={retrying}
+            onClick={async () => {
+              setRetrying(true);
+              await refetch();
+              await refetchLocation();
+              setRetrying(false);
+            }}
+            className="bg-sky-500 text-white hover:bg-sky-600"
+          >
+            {retrying ? "Retrying..." : "Retry"}
+          </Button>
+          
+        </div>
       </div>
     );
   }
-
-  // ------------------------------
   // Default professional fallback
-  // ------------------------------
   const professional = {
-    id: professionalDetails.id || 33,
-    phone: professionalDetails.phone || "N/A",
+    id: professionalDetails.id || user?.id || "unknown", // 🆕 Use context user as fallback
+    phone: professionalDetails.phone || user?.email || "N/A", // 🆕 Use context user email
   };
 
-  // ------------------------------
   // Prepare full address
-  // ------------------------------
   const fullAddress = [
     locationsDetails.address_line,
     locationsDetails.city,
@@ -85,7 +102,7 @@ const PersonalDetails = () => {
     locationsDetails.zipcode,
     locationsDetails.country,
   ]
-    .filter(Boolean) // remove undefined/null
+    .filter(Boolean)
     .join(", ") || "N/A";
 
   return (
@@ -105,11 +122,11 @@ const PersonalDetails = () => {
             </div>
             <div>
               <p className="text-lg font-semibold">
-                {professionalDetails.business_name || "No Name"}
+                {professionalDetails.business_name || user?.username || "No Name"} {/* 🆕 Use context username */}
               </p>
               <p>
                 {professionalDetails.rating_avg || "N/A"}{" "}
-                <strong className="text-sky-500">Ask for review</strong>
+                <strong className="text-sky-500">Ask for review  </strong>
               </p>
             </div>
           </div>
@@ -136,6 +153,8 @@ const PersonalDetails = () => {
           >
             View your profile as customer
           </Button>
+          
+
         </div>
 
         {/* Details */}

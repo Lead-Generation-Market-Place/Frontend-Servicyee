@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { Toaster } from "react-hot-toast";
+
 import React from "react";
 import { ThemeProvider } from "@/components/providers/theme/theme-provider";
 import QueryProvider from "@/components/providers/context/QueryProvider";
 import { SidebarProvider } from "@/components/providers/context/SidebarContext";
+import { AuthProvider } from "@/components/providers/context/auth-context";
 
 // Configure inter font with all needed weights and subsets
 const poppins = Inter({
@@ -37,7 +40,12 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <QueryProvider>
-            <SidebarProvider>{children}</SidebarProvider>
+            <SidebarProvider>
+              <AuthProvider>
+                {children}
+              </AuthProvider>
+              <Toaster position="top-right" reverseOrder={false} />
+            </SidebarProvider>
           </QueryProvider>
         </ThemeProvider>
       </body>

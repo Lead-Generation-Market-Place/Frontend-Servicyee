@@ -1,12 +1,15 @@
-import apiClient from "../axios";
+import { handleApiError } from "@/lib/errorHandler";
+import {api} from "../axios";
 
-
-export const getLocationByUserId = async () => {
+export const getLocationByUserId = async (token: string) => {
   try {
-   const response = await apiClient.get('/location/pro');
-   return response.data;
+    const response = await api.get("/location/pro", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
   } catch (error) {
-    console.error("Error fetching location data:", error);
-    throw error;
+    throw handleApiError(error);
   }
-}
+};

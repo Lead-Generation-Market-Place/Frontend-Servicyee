@@ -1,12 +1,12 @@
 import { getLocationByUserId } from "@/app/api/services/location";
 import { useQuery } from "@tanstack/react-query";
 
-export const useLocationByUserId = () => {
+
+
+export const useLocationByUserId = (token:string) => {
   return useQuery({
-    queryKey: ["locations"],
-    queryFn: getLocationByUserId,
+    queryKey: ["locations", token],
+    queryFn: ()=> getLocationByUserId(token),
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
   });
 };
