@@ -32,6 +32,8 @@ class AuthTokenManager {
     }
   }
 
+
+
   getAccessToken(): string | null {
     if (!this.accessToken && typeof window !== 'undefined') {
       // Try to recover from sessionStorage on page refresh
@@ -142,3 +144,7 @@ api.interceptors.response.use(
 );
 
 export { api };
+
+ export const getStaticURL = () => {
+  return "https://servicyee-backend.onrender.com/uploads/service";
+ }

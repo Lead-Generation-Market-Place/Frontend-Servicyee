@@ -3,117 +3,55 @@ import { motion } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
 import Breadcrumbs from "@/components/home-services/homepage/Breadcrumbs";
 import { ServiceCard } from "@/components/home-services/homepage/ServiceCard";
-
-// Sample data structure
-const categoriesWithServices = [
-  {
-    id: "cleaning",
-    name: "Cleaning Services",
-
-    services: [
-      {
-        id: 1,
-        title: "House Cleaning",
-        slug: "house_cleaning",
-        text: "Professional cleaning for your entire home",
-        season: "all",
-        imageUrl: "/assets/home-service/service (1).jpg",
-      },
-      {
-        id: 2,
-        title: "Carpet Cleaning",
-        slug: "carpet_cleaning",
-        text: "Deep cleaning for carpets and rugs",
-        season: "all",
-        imageUrl: "/assets/home-service/service (2).jpg",
-      },
-      {
-        id: 3,
-        title: "Yard Cleaning",
-        slug: "yard_cleaning",
-        text: "Professional cleaning for your entire home",
-        season: "all",
-        imageUrl: "/assets/home-service/service (1).jpg",
-      },
-      {
-        id: 4,
-        title: "Roof Cleaning",
-        slug: "roof_cleaning",
-        text: "Deep cleaning for carpets and rugs",
-        season: "all",
-        imageUrl: "/assets/home-service/service (2).jpg",
-      },
-    ],
-  },
-  {
-    id: "landscaping",
-    name: "Landscaping",
-    services: [
-      {
-        id: 5,
-        title: "Lawn Trimming",
-        slug: "lawn_triming",
-        text: "Professional lawn maintenance",
-        season: "spring",
-        imageUrl: "/assets/home-service/service (3).jpg",
-      },
-      {
-        id: 6,
-        title: "Lawn Care",
-        slug: "lwan_care",
-        text: "Professional lawn maintenance",
-        season: "spring",
-        imageUrl: "/assets/home-service/service (3).jpg",
-      },
-      {
-        id: 7,
-        title: "Garden Design",
-        slug: "garden design",
-        text: "Professional lawn maintenance",
-        season: "spring",
-        imageUrl: "/assets/home-service/service (3).jpg",
-      },
-    ],
-  },
-  {
-    id: "painting",
-    name: "Painting",
-    services: [
-      {
-        id: 8,
-        title: "Interior Painting",
-        slug: "interior_painting",
-        text: "High-quality interior painting services",
-        season: "fall",
-        imageUrl: "/assets/home-service/service (4).jpg",
-      },
-      {
-        id: 9,
-        title: "Interior Design",
-        slug: "interior_design",
-        text: "High-quality interior painting services",
-        season: "fall",
-        imageUrl: "/assets/home-service/service (4).jpg",
-      },
-    ],
-  },
-];
+import { getSubcategoriesServices } from "@/app/api/homepage/popularService";
+import { SubcategoryWithServicesType } from "@/types/service/services";
 
 export default function ExploreCategoriesPage() {
-  const [activeCategory, setActiveCategory] = useState(
-    categoriesWithServices[0].id
-  );
+  const [activeCategory, setActiveCategory] = useState<string>("");
+  const [subcategoriesServices, setSubcategoriesServices] = useState<
+    SubcategoryWithServicesType[]
+  >([]);
+  const [loading, setLoading] = useState(true);
   const servicesRef = useRef<HTMLDivElement>(null);
   const categoryRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
-  // Store category refs
+  // Fetch data on component mount
   useEffect(() => {
-    categoriesWithServices.forEach((category) => {
-      categoryRefs.current[category.id] = document.getElementById(
-        category.id
-      ) as HTMLDivElement;
-    });
+    fetchSubcategoriesServices();
   }, []);
+
+  // Set category refs after data is loaded and DOM is rendered
+  useEffect(() => {
+    if (subcategoriesServices.length > 0) {
+      // Set the first category as active by default
+      setActiveCategory(subcategoriesServices[0]._id);
+
+      // Use setTimeout to ensure DOM is rendered before accessing elements
+      setTimeout(() => {
+        subcategoriesServices.forEach((category) => {
+          const element = document.getElementById(`category-${category._id}`);
+          if (element) {
+            categoryRefs.current[category._id] = element as HTMLDivElement;
+          }
+        });
+      }, 100);
+    }
+  }, [subcategoriesServices]);
+
+  // API call for data
+  const fetchSubcategoriesServices = async () => {
+    try {
+      setLoading(true);
+      const response = await getSubcategoriesServices();
+      // Assuming your API returns the data directly or as response.data
+      // Adjust based on your actual API response structure
+      setSubcategoriesServices(response?.data || response || []);
+    } catch (error) {
+      console.log("error: ", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const scrollToCategory = (categoryId: string) => {
     setActiveCategory(categoryId);
@@ -129,6 +67,43 @@ export default function ExploreCategoriesPage() {
       });
     }
   };
+
+  // Update active category on scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      if (subcategoriesServices.length === 0) return;
+
+      const categoryElements = subcategoriesServices
+        .map((category) => ({
+          id: category._id,
+          element: categoryRefs.current[category._id],
+        }))
+        .filter((item) => item.element);
+
+      if (categoryElements.length === 0) return;
+
+      const scrollPosition = window.scrollY + 100; // Offset for sticky header
+
+      for (let i = categoryElements.length - 1; i >= 0; i--) {
+        const category = categoryElements[i];
+        if (category.element && category.element.offsetTop <= scrollPosition) {
+          setActiveCategory(category.id);
+          break;
+        }
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [subcategoriesServices]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-lg">Loading categories...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen transition-colors duration-300 dark:bg-gray-900 dark:text-gray-100 bg-gray-50 text-gray-900">
@@ -155,21 +130,21 @@ export default function ExploreCategoriesPage() {
               <div className="sticky top-24">
                 <h2 className="text-lg font-semibold mb-4">Categories</h2>
                 <div className="space-y-2">
-                  {categoriesWithServices.map((category) => (
+                  {subcategoriesServices.map((category) => (
                     <motion.button
-                      key={category.id}
+                      key={category._id}
                       whileHover={{ x: 5 }}
                       whileTap={{ scale: 0.98 }}
-                      onClick={() => scrollToCategory(category.id)}
+                      onClick={() => scrollToCategory(category._id)}
                       className={`w-full text-left px-4 py-3 rounded-lg transition-colors ${
-                        activeCategory === category.id
+                        activeCategory === category._id
                           ? "bg-sky-100 dark:bg-sky-900 text-sky-700 dark:text-sky-200"
                           : "hover:bg-gray-100 dark:hover:bg-gray-800"
                       }`}
                     >
                       {category.name}
                       <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">
-                        ({category.services.length})
+                        ({category.services?.length || 0})
                       </span>
                     </motion.button>
                   ))}
@@ -186,14 +161,14 @@ export default function ExploreCategoriesPage() {
               className="lg:w-3/4"
             >
               <div className="space-y-12">
-                {categoriesWithServices.map((category) => (
+                {subcategoriesServices.map((category) => (
                   <div
-                    key={category.id}
-                    id={category.id}
+                    key={category._id}
+                    id={`category-${category._id}`} // Use unique ID with prefix
                     className="scroll-mt-20"
                     ref={(el: HTMLDivElement | null) => {
                       if (el) {
-                        categoryRefs.current[category.id] = el;
+                        categoryRefs.current[category._id] = el;
                       }
                     }}
                   >
@@ -206,24 +181,30 @@ export default function ExploreCategoriesPage() {
                       {category.name}
                     </motion.h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {category.services.map((service) => (
-                        <motion.div
-                          key={service.id}
-                          initial={{ opacity: 0, y: 20 }}
-                          whileInView={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.3 }}
-                          viewport={{ once: true, margin: "-50px" }}
-                        >
-                          <ServiceCard
-                            id={service.id}
-                            slug={service.slug}
-                            title={service.title}
-                            text={service.text}
-                            season={service.season}
-                            imageUrl={service.imageUrl}
-                          />
-                        </motion.div>
-                      ))}
+                      {category.services && category.services.length > 0 ? (
+                        category.services.map((service) => (
+                          <motion.div
+                            key={service._id}
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.3 }}
+                            viewport={{ once: true, margin: "-50px" }}
+                          >
+                            <ServiceCard
+                              id={service._id}
+                              slug={service.slug}
+                              title={service.name}
+                              text={service.description}
+                              season={"all"} // You might want to get this from your service data
+                              imageUrl={service.image_url}
+                            />
+                          </motion.div>
+                        ))
+                      ) : (
+                        <div className="col-span-full text-center py-8 text-gray-500 dark:text-gray-400">
+                          No services available in this category
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}

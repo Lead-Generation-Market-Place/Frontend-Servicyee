@@ -1,10 +1,11 @@
+import { getStaticURL } from "@/app/api/axios";
 import { motion } from "framer-motion";
 import { Heart, Tags } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
 interface ServiceCardProps {
-  id: number;
+  id: string;
   title: string;
   slug: string;
   text: string;
@@ -28,6 +29,8 @@ export function ServiceCard({
   showSeason = true,
   href = `/home-services/professional-service/${slug}`,
 }: ServiceCardProps) {
+  const API_BASE_URL = getStaticURL();
+  console.log(API_BASE_URL, imageUrl);
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -41,7 +44,7 @@ export function ServiceCard({
           {/* Image with gradient overlay */}
           <div className="relative h-40 overflow-hidden">
             <Image
-              src={imageUrl}
+              src={`${API_BASE_URL}/${imageUrl}`}
               alt={title}
               fill
               className="object-cover transition-transform duration-500 group-hover:scale-110"

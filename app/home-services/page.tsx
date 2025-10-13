@@ -4,6 +4,9 @@ import PopularSearch from "@/components/home-services/homepage/PopularSearch";
 import dynamic from "next/dynamic";
 import { Skeleton } from "@/components/ui/skeleton";
 import PopularLocation from "@/components/home-services/homepage/PopularLocation";
+import { useEffect, useState } from "react";
+import { getPopularServices } from "../api/homepage/popularService";
+import { ServiceType } from "@/types/service/services";
 
 // Skeleton components
 const TitlePageSkeleton = () => (
@@ -32,7 +35,6 @@ const TitlePage = dynamic(
   () => import("@/components/home-services/homepage/TitlePage"),
   {
     loading: () => <TitlePageSkeleton />,
-    // Remove ssr: false since component is already client-side
   }
 );
 
@@ -69,6 +71,25 @@ const AllCategories = dynamic(
 );
 
 const HomeServicesPage = () => {
+  const [popularServices, setPopularServices] = useState<ServiceType[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchPopularServices = async () => {
+    try {
+      setLoading(true);
+      const services = await getPopularServices();
+      setPopularServices(services?.data || []);
+    } catch (error) {
+      console.log("Error fetching popular services: ", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPopularServices();
+  }, []);
+
   return (
     <div className="relative bg-white dark:bg-gray-900 border border-white dark:border-gray-900">
       <Breadcrumbs
@@ -77,7 +98,8 @@ const HomeServicesPage = () => {
 
       <TitlePage />
 
-      <PopularServices />
+      {!loading && <PopularServices popularServices={popularServices} />}
+
       <FeaturedServices />
       <CategoryServices />
       <AllCategories />
