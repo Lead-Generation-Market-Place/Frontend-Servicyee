@@ -1,5 +1,4 @@
 'use client'
-
 import React, { useState } from "react";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Loader2 } from 'lucide-react';
@@ -7,35 +6,50 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { Command, CommandInput, CommandItem, CommandList, CommandEmpty } from '@/components/ui/command';
-import { useRegister } from '@/hooks/auth/useRegister';
+import { useRegister } from '@/hooks/RegisterPro/useRegister';
 import { RegisterFormData } from '@/types/auth/register';
+const CategoriesData = [
+    { id: '1', name: 'Construction' },
+    { id: '2', name: 'Electrical' },
+];
 
 const subCategoriesData = [
-    { id: '1', name: 'Plumbing' },
-    { id: '2', name: 'Electrical' },
-    { id: '3', name: 'Carpentry' },
+    { id: '1', name: 'Plumbing', categoryId: '1' },
+    { id: '2', name: 'Carpentry', categoryId: '1' },
+    { id: '3', name: 'Wiring', categoryId: '2' },
+    { id: '4', name: 'Appliance Repair', categoryId: '2' },
 ];
 
 const servicesData = [
     { id: '101', name: 'Leak Fixing', subCategoryId: '1' },
     { id: '102', name: 'Pipe Installation', subCategoryId: '1' },
-    { id: '103', name: 'Wiring Repair', subCategoryId: '2' },
-    { id: '104', name: 'Fan Installation', subCategoryId: '2' },
-    { id: '105', name: 'Furniture Repair', subCategoryId: '3' },
-    { id: '106', name: 'Door Installation', subCategoryId: '3' },
+    { id: '103', name: 'Wiring Repair', subCategoryId: '3' },
+    { id: '104', name: 'Fan Installation', subCategoryId: '3' },
+    { id: '105', name: 'Furniture Repair', subCategoryId: '2' },
+    { id: '106', name: 'Door Installation', subCategoryId: '2' },
 ];
+
 
 export default function Register() {
     const [selectedSubCategories, setSelectedSubCategories] = useState<string[]>([]);
+    const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
     const [selectedServices, setSelectedServices] = useState<string[]>([]);
 
     const { register, isPending } = useRegister();
 
+    const toggleCategory = (id: string) => {
+        setSelectedCategories(prev =>
+            prev.includes(id) ? prev.filter(item => item !== id) : [id] // only one category at a time
+        );
+        setSelectedSubCategories([]); // reset subcategories when category changes
+        setSelectedServices([]); // reset services when category changes
+    };
+
     const toggleSubCategory = (id: string) => {
         setSelectedSubCategories(prev =>
-            prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+            prev.includes(id) ? prev.filter(item => item !== id) : [id] // only one subcategory at a time
         );
-        setSelectedServices([]);
+        setSelectedServices([]); // reset services when subcategory changes
     };
 
     const toggleService = (id: string) => {
@@ -44,6 +58,12 @@ export default function Register() {
         );
     };
 
+    // 🔹 Filter subcategories based on selected category
+    const filteredSubCategories = subCategoriesData.filter(sub =>
+        selectedCategories.includes(sub.categoryId)
+    );
+
+    // 🔹 Filter services based on selected subcategory
     const filteredServices = servicesData.filter(s =>
         selectedSubCategories.includes(s.subCategoryId)
     );
@@ -58,8 +78,8 @@ export default function Register() {
             // @ts-ignore
             values[key] = value;
         });
-
         values.subCategories = selectedSubCategories;
+        values.categories = selectedCategories;
         values.services = selectedServices;
 
         await register(values);
@@ -89,11 +109,11 @@ export default function Register() {
                                 </div>
                             </div>
 
-                            {/* Business Type */}
+                            {/* This is the Business Type */}
                             <div className="sm:col-span-3">
                                 <label htmlFor="category" className="block text-sm/6 font-medium text-gray-900 dark:text-white">Business Type</label>
                                 <div className="mt-1.5">
-                                    <Select name="category">
+                                    <Select name="businessType">
                                         <SelectTrigger className="w-full text-[13px] bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
                                             <SelectValue placeholder="Select a category" />
                                         </SelectTrigger>
@@ -108,8 +128,53 @@ export default function Register() {
                                 </div>
                             </div>
 
+                            {/* Category Selection */}
+                            <div className="sm:col-span-3">
+                                <label className="block text-sm font-medium text-gray-900 dark:text-white mb-1.5">
+                                    Select Category
+                                </label>
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            className="w-full text-[13px] bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white justify-start"
+                                        >
+                                            {selectedCategories.length > 0
+                                                ? `${selectedCategories.length} selected`
+                                                : 'Select Category'}
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-[100%] p-0">
+                                        <Command>
+                                            <CommandInput className='rounded-[4px]' placeholder="Search Categories..." />
+                                            <CommandEmpty>No category found.</CommandEmpty>
+                                            <CommandList>
+                                                {CategoriesData.map((item) => (
+                                                    <CommandItem key={item.id} onSelect={() => toggleCategory(item.id)}>
+                                                        <div className="flex justify-between w-full text-sm">
+                                                            <span>{item.name}</span>
+                                                            {selectedCategories.includes(item.id) && <span>✓</span>}
+                                                        </div>
+                                                    </CommandItem>
+                                                ))}
+                                            </CommandList>
+                                        </Command>
+                                    </PopoverContent>
+                                </Popover>
+                                <div className="mt-2 flex flex-wrap gap-2">
+                                    {selectedCategories.map((id) => {
+                                        const name = CategoriesData.find((c) => c.id === id)?.name;
+                                        return (
+                                            <Badge key={id} className="bg-[#0077B6] rounded-[2px] text-white hover:bg-[#0077B6]">
+                                                {name}
+                                            </Badge>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
                             {/* Sub-Categories */}
-                            <div className="sm:col-span-full">
+                            <div className="sm:col-span-3">
                                 <label className="block text-sm font-medium text-gray-900 dark:text-white mb-1.5">
                                     Select Sub-Categories
                                 </label>
@@ -118,21 +183,22 @@ export default function Register() {
                                         <Button
                                             variant="outline"
                                             className="w-full text-[13px] bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white justify-start"
+                                            disabled={filteredSubCategories.length === 0}
                                         >
                                             {selectedSubCategories.length > 0
                                                 ? `${selectedSubCategories.length} selected`
                                                 : 'Select sub-categories'}
                                         </Button>
                                     </PopoverTrigger>
-                                    <PopoverContent className="w-[100%]  p-0">
-                                        <Command >
+                                    <PopoverContent className="w-[100%] p-0">
+                                        <Command>
                                             <CommandInput className='rounded-[4px]' placeholder="Search sub-categories..." />
                                             <CommandEmpty>No sub-category found.</CommandEmpty>
-                                            <CommandList >
-                                                {subCategoriesData.map((item) => (
+                                            <CommandList>
+                                                {filteredSubCategories.map((item) => (
                                                     <CommandItem key={item.id} onSelect={() => toggleSubCategory(item.id)}>
-                                                        <div className=" flex justify-between w-full text-sm">
-                                                            <span className='py-1 rounded-[4px]'>{item.name}</span>
+                                                        <div className="flex justify-between w-full text-sm">
+                                                            <span>{item.name}</span>
                                                             {selectedSubCategories.includes(item.id) && <span>✓</span>}
                                                         </div>
                                                     </CommandItem>
@@ -154,7 +220,7 @@ export default function Register() {
                             </div>
 
                             {/* Services */}
-                            <div className="sm:col-span-full">
+                            <div className="sm:col-span-3">
                                 <label className="block text-sm font-medium text-gray-900 dark:text-white mb-1.5">
                                     Select Services
                                 </label>
@@ -178,7 +244,7 @@ export default function Register() {
                                                 {filteredServices.map((item) => (
                                                     <CommandItem key={item.id} onSelect={() => toggleService(item.id)}>
                                                         <div className="flex justify-between w-full text-sm">
-                                                            <span className='py-1 rounded-[4px]'>{item.name}</span>
+                                                            <span>{item.name}</span>
                                                             {selectedServices.includes(item.id) && <span>✓</span>}
                                                         </div>
                                                     </CommandItem>
@@ -198,7 +264,6 @@ export default function Register() {
                                     })}
                                 </div>
                             </div>
-
                             {/* Country */}
                             <div className="sm:col-span-3">
                                 <label htmlFor="country" className="block text-sm/6 font-medium text-gray-900 dark:text-white">Country</label>
@@ -216,7 +281,7 @@ export default function Register() {
                                 </div>
                             </div>
                             {/* Street Address */}
-                            <div className="sm:col-span-3">
+                            <div className="sm:col-span-full">
                                 <label htmlFor="streetAddress" className="block text-sm/6 font-medium text-gray-900 dark:text-white">Street address</label>
                                 <div className="mt-1.5">
                                     <input

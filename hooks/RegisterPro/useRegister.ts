@@ -1,8 +1,8 @@
-// hooks/useRegister.ts
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { RegisterFormData } from "@/types/auth/register";
 import { registerUser } from "@/app/api/auth/register";
+import toast from "react-hot-toast";
 
 export function useRegister() {
   const [isPending, setIsPending] = useState(false);
@@ -13,9 +13,12 @@ export function useRegister() {
     try {
       await registerUser(data);
       router.push("/home-services/dashboard/services/step-2");
-    } catch (error: any) {
-      console.error(error.message || error);
-      alert(error.message || "Something went wrong");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Something went wrong. Please try again.");
+      }
     } finally {
       setIsPending(false);
     }
