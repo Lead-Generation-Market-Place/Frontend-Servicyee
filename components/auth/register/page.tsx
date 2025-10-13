@@ -19,16 +19,14 @@ const subCategoriesData = [
     { id: '3', name: 'Wiring', categoryId: '2' },
     { id: '4', name: 'Appliance Repair', categoryId: '2' },
 ];
-
 const servicesData = [
-    { id: '101', name: 'Leak Fixing', subCategoryId: '1' },
-    { id: '102', name: 'Pipe Installation', subCategoryId: '1' },
-    { id: '103', name: 'Wiring Repair', subCategoryId: '3' },
-    { id: '104', name: 'Fan Installation', subCategoryId: '3' },
-    { id: '105', name: 'Furniture Repair', subCategoryId: '2' },
-    { id: '106', name: 'Door Installation', subCategoryId: '2' },
+    { id: '68e6876ce5690430fb1cf2e7', name: 'Leak Fixing', subCategoryId: '1' },
+    { id: '68e6876ce5690430fb1cf2e5', name: 'Pipe Installation', subCategoryId: '1' },
+    { id: '68e6876ce5690430fb1cf2e3', name: 'Wiring Repair', subCategoryId: '3' },
+    { id: '68e6876ce5690430fb1cf2e4', name: 'Fan Installation', subCategoryId: '3' },
+    { id: '68e6876ce5690430fb1cf20', name: 'Furniture Repair', subCategoryId: '2' },
+    { id: '68e6876ce5690430fb1cf21', name: 'Door Installation', subCategoryId: '2' },
 ];
-
 
 export default function Register() {
     const [selectedSubCategories, setSelectedSubCategories] = useState<string[]>([]);
@@ -80,7 +78,7 @@ export default function Register() {
         });
         values.subCategories = selectedSubCategories;
         values.categories = selectedCategories;
-        values.services = selectedServices;
+        values.services_id = selectedServices;
 
         await register(values);
     };
