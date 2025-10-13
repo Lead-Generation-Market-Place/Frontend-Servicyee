@@ -1,6 +1,4 @@
 
-
-
 import axios from "axios";
 
  const apiClient = axios.create({
@@ -12,5 +10,5 @@ import axios from "axios";
 export default apiClient;
 // 
  export const getStaticURL = () => {
-  return "https://servicyee-backend.onrender.com/api/v1";
+  return "https://servicyee-backend.onrender.com/uploads/service";
  }

@@ -7,3 +7,12 @@ export const getPopularServices = async () => {
         console.log("Error: ", error);
     }
 }
+
+export const getSubcategoriesServices = async () => {
+    try {
+        const response = await apiClient.get('/subcategory-services');
+        return response.data;
+    } catch (error) {
+        console.log("Error fetching subcategories' services", error);
+    }
+}
