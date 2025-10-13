@@ -14,6 +14,7 @@ export interface RegisterFormData {
   password: string;
   repassword: string;
   subCategories: string[];
+  categories: string[];
   services: string[];
 }
 
