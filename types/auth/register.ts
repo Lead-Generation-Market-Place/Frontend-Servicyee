@@ -15,7 +15,7 @@ export interface RegisterFormData {
   repassword: string;
   subCategories: string[];
   categories: string[];
-  services: string[];
+  services_id: string[];
 }
 
 export interface RegisterResponse {
