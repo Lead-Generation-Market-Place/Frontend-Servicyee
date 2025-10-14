@@ -1,5 +1,8 @@
 'use client'
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -7,7 +10,8 @@ import { Button } from '@/components/ui/button';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { Command, CommandInput, CommandItem, CommandList, CommandEmpty } from '@/components/ui/command';
 import { useRegister } from '@/hooks/RegisterPro/useRegister';
-import { RegisterFormData } from '@/types/auth/register';
+import { ProfessionalStepOne, ProfessionalStepOneSchemaType } from '@/schemas/professional/professional';
+
 const CategoriesData = [
     { id: '1', name: 'Construction' },
     { id: '2', name: 'Electrical' },
@@ -19,6 +23,7 @@ const subCategoriesData = [
     { id: '3', name: 'Wiring', categoryId: '2' },
     { id: '4', name: 'Appliance Repair', categoryId: '2' },
 ];
+
 const servicesData = [
     { id: '68e6876ce5690430fb1cf2e7', name: 'Leak Fixing', subCategoryId: '1' },
     { id: '68e6876ce5690430fb1cf2e5', name: 'Pipe Installation', subCategoryId: '1' },
@@ -32,60 +37,241 @@ export default function Register() {
     const [selectedSubCategories, setSelectedSubCategories] = useState<string[]>([]);
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
     const [selectedServices, setSelectedServices] = useState<string[]>([]);
+    const [countryValue, setCountryValue] = useState<string>('');
+    const [businessTypeValue, setBusinessTypeValue] = useState<string>('');
+    const [formErrors, setFormErrors] = useState<{
+        categories?: string;
+        subCategories?: string;
+        services?: string;
+        country?: string;
+        businessType?: string;
+        passwordMatch?: string;
+    }>({});
+    const [hasSubmitted, setHasSubmitted] = useState(false);
 
-    const { register, isPending } = useRegister();
+    const { register: registerUser, isPending } = useRegister();
+
+    const {
+        register,
+        handleSubmit,
+        setValue,
+        watch,
+        formState: { errors },
+        trigger,
+        clearErrors, // Added clearErrors
+    } = useForm<ProfessionalStepOneSchemaType>({
+        resolver: zodResolver(ProfessionalStepOne),
+        mode: 'onChange',
+        defaultValues: {
+            categories: [],
+            subCategories: [],
+            services_id: [],
+            country: '',
+            businessType: '',
+            username: '',
+            website: '',
+            streetAddress: '',
+            city: '',
+            region: '',
+            postalCode: '',
+            firstName: '',
+            lastName: '',
+            email: '',
+            phone: '',
+            password: '',
+            repassword: '',
+        }
+    });
+
+    // Watch password and repassword fields
+    const password = watch('password');
+    const repassword = watch('repassword');
+
+    // Update form values when selection changes
+    useEffect(() => {
+        setValue('categories', selectedCategories, { shouldValidate: hasSubmitted });
+        if (selectedCategories.length > 0) {
+            setFormErrors(prev => ({ ...prev, categories: undefined }));
+            clearErrors('categories');
+        }
+    }, [selectedCategories, setValue, hasSubmitted, clearErrors]);
+
+    useEffect(() => {
+        setValue('subCategories', selectedSubCategories, { shouldValidate: hasSubmitted });
+        if (selectedSubCategories.length > 0) {
+            setFormErrors(prev => ({ ...prev, subCategories: undefined }));
+            clearErrors('subCategories');
+        }
+    }, [selectedSubCategories, setValue, hasSubmitted, clearErrors]);
+
+    useEffect(() => {
+        setValue('services_id', selectedServices, { shouldValidate: hasSubmitted });
+        if (selectedServices.length > 0) {
+            setFormErrors(prev => ({ ...prev, services: undefined }));
+            clearErrors('services_id');
+        }
+    }, [selectedServices, setValue, hasSubmitted, clearErrors]);
+
+    useEffect(() => {
+        if (countryValue) {
+            setValue('country', countryValue, { shouldValidate: hasSubmitted });
+            setFormErrors(prev => ({ ...prev, country: undefined }));
+            clearErrors('country');
+        }
+    }, [countryValue, setValue, hasSubmitted, clearErrors]);
+
+    useEffect(() => {
+        if (businessTypeValue) {
+            setValue('businessType', businessTypeValue, { shouldValidate: hasSubmitted });
+            setFormErrors(prev => ({ ...prev, businessType: undefined }));
+            clearErrors('businessType');
+        }
+    }, [businessTypeValue, setValue, hasSubmitted, clearErrors]);
+
+    // Clear password match error when passwords match
+    useEffect(() => {
+        if (password && repassword && password === repassword) {
+            setFormErrors(prev => ({ ...prev, passwordMatch: undefined }));
+        }
+    }, [password, repassword]);
 
     const toggleCategory = (id: string) => {
         setSelectedCategories(prev =>
-            prev.includes(id) ? prev.filter(item => item !== id) : [id] // only one category at a time
+            prev.includes(id) ? prev.filter(item => item !== id) : [id]
         );
-        setSelectedSubCategories([]); // reset subcategories when category changes
-        setSelectedServices([]); // reset services when category changes
+        setSelectedSubCategories([]);
+        setSelectedServices([]);
+        setFormErrors(prev => ({ ...prev, categories: undefined }));
+        clearErrors('categories');
     };
 
     const toggleSubCategory = (id: string) => {
         setSelectedSubCategories(prev =>
-            prev.includes(id) ? prev.filter(item => item !== id) : [id] // only one subcategory at a time
+            prev.includes(id) ? prev.filter(item => item !== id) : [id]
         );
-        setSelectedServices([]); // reset services when subcategory changes
+        setSelectedServices([]);
+        setFormErrors(prev => ({ ...prev, subCategories: undefined }));
+        clearErrors('subCategories');
     };
 
     const toggleService = (id: string) => {
         setSelectedServices(prev =>
             prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
         );
+        setFormErrors(prev => ({ ...prev, services: undefined }));
+        clearErrors('services_id');
     };
 
-    // 🔹 Filter subcategories based on selected category
+    const handleCountryChange = (value: string) => {
+        setCountryValue(value);
+        setValue('country', value, { shouldValidate: hasSubmitted });
+        setFormErrors(prev => ({ ...prev, country: undefined }));
+        clearErrors('country');
+    };
+
+    const handleBusinessTypeChange = (value: string) => {
+        setBusinessTypeValue(value);
+        setValue('businessType', value, { shouldValidate: hasSubmitted });
+        setFormErrors(prev => ({ ...prev, businessType: undefined }));
+        clearErrors('businessType');
+    };
+
     const filteredSubCategories = subCategoriesData.filter(sub =>
         selectedCategories.includes(sub.categoryId)
     );
 
-    // 🔹 Filter services based on selected subcategory
     const filteredServices = servicesData.filter(s =>
         selectedSubCategories.includes(s.subCategoryId)
     );
 
-    const handlePreview = async (e: React.FormEvent) => {
-        e.preventDefault();
-        const form = e.currentTarget as HTMLFormElement;
-        const data = new FormData(form);
-        const values: RegisterFormData = {} as RegisterFormData;
 
-        data.forEach((value, key) => {
-            // @ts-ignore
-            values[key] = value;
-        });
-        values.subCategories = selectedSubCategories;
-        values.categories = selectedCategories;
-        values.services_id = selectedServices;
+    const validateAllFields = React.useCallback(async () => {
+        const errors: typeof formErrors = {};
 
-        await register(values);
+        // Check password match
+        if (password !== repassword) {
+            errors.passwordMatch = "Passwords do not match";
+        }
+
+        // Check required selections only after submission attempt
+        if (hasSubmitted) {
+            if (selectedCategories.length === 0) {
+                errors.categories = "Please select at least one category";
+            }
+            if (selectedSubCategories.length === 0) {
+                errors.subCategories = "Please select at least one sub-category";
+            }
+            if (selectedServices.length === 0) {
+                errors.services = "Please select at least one service";
+            }
+            if (!countryValue) {
+                errors.country = "Please select a country";
+            }
+            if (!businessTypeValue) {
+                errors.businessType = "Please select a business type";
+            }
+            if (businessTypeValue) {
+                errors.businessType = "";
+            }
+            if (selectedCategories.length > 0) {
+                errors.categories = "";
+            }
+            if (selectedSubCategories.length > 0) {
+                errors.subCategories = "";
+            }
+            if (selectedServices.length > 0) {
+                errors.services = "";
+            }
+            if (countryValue) {
+                errors.country = "";
+            }
+        }
+
+        setFormErrors(errors);
+        return Object.keys(errors).length === 0;
+    }, [password, repassword, selectedCategories, selectedSubCategories, selectedServices, countryValue, businessTypeValue, hasSubmitted]);
+
+    // Validate on relevant changes
+    useEffect(() => {
+        if (hasSubmitted) {
+            validateAllFields();
+        }
+    }, [password,  repassword, selectedCategories, selectedSubCategories, selectedServices, countryValue, businessTypeValue, hasSubmitted, validateAllFields]);
+
+    const onSubmit = async (data: ProfessionalStepOneSchemaType) => {
+        setHasSubmitted(true);
+
+        // Trigger form validation first
+        const isValid = await trigger();
+        const customValidationValid = await validateAllFields();
+
+        if (!isValid || !customValidationValid) {
+            return;
+        }
+
+        const submitData = {
+            ...data,
+            categories: selectedCategories,
+            subCategories: selectedSubCategories,
+            services_id: selectedServices
+        };
+
+        await registerUser(submitData);
+    };
+
+    // Helper component to display error messages
+    const ErrorMessage = ({ message }: { message?: string }) => {
+        if (!message) return null;
+        return (
+            <p className="mt-1 text-sm text-[12px] text-red-600 dark:text-red-400">
+                {message}
+            </p>
+        );
     };
 
     return (
         <>
-            <form onSubmit={handlePreview} className="max-w-4xl mx-auto bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md shadow-md p-12 space-y-8 divide-y divide-gray-200 dark:divide-gray-700">
+            <form onSubmit={handleSubmit(onSubmit)} className="max-w-4xl mx-auto bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md shadow-md p-12 space-y-8 divide-y divide-gray-200 dark:divide-gray-700">
                 <div className="space-y-8">
                     <div className="border-b border-gray-900/10 dark:border-gray-700 pb-6">
                         <h2 className="text-base/7 font-semibold text-gray-900 dark:text-white">Business Information:</h2>
@@ -100,18 +286,19 @@ export default function Register() {
                                 <div className="mt-1.5">
                                     <input
                                         id="username"
-                                        name="username"
                                         type="text"
                                         className="block w-full text-[13px] rounded-[4px] bg-white dark:bg-gray-900 px-3 py-2 text-gray-900 dark:text-white outline-1 outline-gray-300 dark:outline-gray-600 focus:outline-1 focus:outline-[#0077B6]"
+                                        {...register('username')}
                                     />
+                                    <ErrorMessage message={errors.username?.message} />
                                 </div>
                             </div>
 
-                            {/* This is the Business Type */}
+                            {/* Business Type */}
                             <div className="sm:col-span-3">
-                                <label htmlFor="category" className="block text-sm/6 font-medium text-gray-900 dark:text-white">Business Type</label>
+                                <label htmlFor="businessType" className="block text-sm/6 font-medium text-gray-900 dark:text-white">Business Type</label>
                                 <div className="mt-1.5">
-                                    <Select name="businessType">
+                                    <Select onValueChange={handleBusinessTypeChange} value={businessTypeValue}>
                                         <SelectTrigger className="w-full text-[13px] bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
                                             <SelectValue placeholder="Select a category" />
                                         </SelectTrigger>
@@ -123,6 +310,8 @@ export default function Register() {
                                             <SelectItem value="grocery">Grocery</SelectItem>
                                         </SelectContent>
                                     </Select>
+                                    <ErrorMessage message={formErrors.businessType} />
+                                    <ErrorMessage message={errors.businessType?.message} />
                                 </div>
                             </div>
 
@@ -169,6 +358,8 @@ export default function Register() {
                                         );
                                     })}
                                 </div>
+                                <ErrorMessage message={formErrors.categories} />
+                                <ErrorMessage message={errors.categories?.message} />
                             </div>
 
                             {/* Sub-Categories */}
@@ -185,7 +376,7 @@ export default function Register() {
                                         >
                                             {selectedSubCategories.length > 0
                                                 ? `${selectedSubCategories.length} selected`
-                                                : 'Select sub-categories'}
+                                                : filteredSubCategories.length === 0 ? 'No sub-categories available' : 'Select sub-categories'}
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent className="w-[100%] p-0">
@@ -215,6 +406,8 @@ export default function Register() {
                                         );
                                     })}
                                 </div>
+                                <ErrorMessage message={formErrors.subCategories} />
+                                <ErrorMessage message={errors.subCategories?.message} />
                             </div>
 
                             {/* Services */}
@@ -231,7 +424,7 @@ export default function Register() {
                                         >
                                             {selectedServices.length > 0
                                                 ? `${selectedServices.length} selected`
-                                                : 'Select services'}
+                                                : filteredServices.length === 0 ? 'No services available' : 'Select services'}
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent className="w-[100%] p-0">
@@ -261,12 +454,15 @@ export default function Register() {
                                         );
                                     })}
                                 </div>
+                                <ErrorMessage message={formErrors.services} />
+                                <ErrorMessage message={errors.services_id?.message} />
                             </div>
+
                             {/* Country */}
                             <div className="sm:col-span-3">
                                 <label htmlFor="country" className="block text-sm/6 font-medium text-gray-900 dark:text-white">Country</label>
                                 <div className="mt-1.5">
-                                    <Select name="country">
+                                    <Select onValueChange={handleCountryChange} value={countryValue}>
                                         <SelectTrigger className="w-full text-[13px] bg-white dark:bg-gray-900 rounded-[4px] border-gray-300 py-2 dark:border-gray-600 text-gray-900 dark:text-white">
                                             <SelectValue placeholder="Select country" />
                                         </SelectTrigger>
@@ -276,18 +472,22 @@ export default function Register() {
                                             <SelectItem value="Others">Others</SelectItem>
                                         </SelectContent>
                                     </Select>
+                                    <ErrorMessage message={formErrors.country} />
+                                    <ErrorMessage message={errors.country?.message} />
                                 </div>
                             </div>
+
                             {/* Street Address */}
                             <div className="sm:col-span-full">
                                 <label htmlFor="streetAddress" className="block text-sm/6 font-medium text-gray-900 dark:text-white">Street address</label>
                                 <div className="mt-1.5">
                                     <input
                                         id="streetAddress"
-                                        name="streetAddress"
                                         type="text"
                                         className="block w-full text-[13px] rounded-[4px] bg-white dark:bg-gray-900 px-3 py-2 text-gray-900 dark:text-white outline-1 outline-gray-300 dark:outline-gray-600 focus:outline-1 focus:outline-[#1ba0e7]"
+                                        {...register('streetAddress')}
                                     />
+                                    <ErrorMessage message={errors.streetAddress?.message} />
                                 </div>
                             </div>
 
@@ -297,10 +497,11 @@ export default function Register() {
                                 <div className="mt-1.5">
                                     <input
                                         id="city"
-                                        name="city"
                                         type="text"
                                         className="block w-full text-[13px] rounded-[4px] bg-white dark:bg-gray-900 px-3 py-2 text-gray-900 dark:text-white outline-1 outline-gray-300 dark:outline-gray-600 focus:outline-1 focus:outline-[#0077B6]"
+                                        {...register('city')}
                                     />
+                                    <ErrorMessage message={errors.city?.message} />
                                 </div>
                             </div>
 
@@ -310,10 +511,11 @@ export default function Register() {
                                 <div className="mt-1.5">
                                     <input
                                         id="region"
-                                        name="region"
                                         type="text"
                                         className="block w-full text-[13px] rounded-[4px] bg-white dark:bg-gray-900 px-3 py-2 text-gray-900 dark:text-white outline-1 outline-gray-300 dark:outline-gray-600 focus:outline-1 focus:outline-[#0077B6]"
+                                        {...register('region')}
                                     />
+                                    <ErrorMessage message={errors.region?.message} />
                                 </div>
                             </div>
 
@@ -323,10 +525,11 @@ export default function Register() {
                                 <div className="mt-1.5">
                                     <input
                                         id="postalCode"
-                                        name="postalCode"
                                         type="text"
                                         className="block w-full text-[13px] rounded-[4px] bg-white dark:bg-gray-900 px-3 py-2 text-gray-900 dark:text-white outline-1 outline-gray-300 dark:outline-gray-600 focus:outline-1 focus:outline-[#0077B6]"
+                                        {...register('postalCode')}
                                     />
+                                    <ErrorMessage message={errors.postalCode?.message} />
                                 </div>
                             </div>
 
@@ -336,9 +539,10 @@ export default function Register() {
                                 <div className="mt-1.5">
                                     <input
                                         id="website"
-                                        name="website"
                                         type="text"
                                         className="block w-full text-[13px] rounded-[4px] bg-white dark:bg-gray-900 px-3 py-2 text-gray-900 dark:text-white outline-1 outline-gray-300 dark:outline-gray-600 focus:outline-1 focus:outline-[#0077B6]"
+                                        {...register('website')}
+
                                     />
                                 </div>
                             </div>
@@ -354,10 +558,11 @@ export default function Register() {
                                 <div className="mt-1.5">
                                     <input
                                         id="firstName"
-                                        name="firstName"
                                         type="text"
                                         className="block w-full text-[13px] rounded-[4px] bg-white dark:bg-gray-900 px-3 py-2 text-gray-900 dark:text-white outline-1 outline-gray-300 dark:outline-gray-600 focus:outline-1 focus:outline-[#0077B6]"
+                                        {...register('firstName')}
                                     />
+                                    <ErrorMessage message={errors.firstName?.message} />
                                 </div>
                             </div>
 
@@ -366,10 +571,11 @@ export default function Register() {
                                 <div className="mt-1.5">
                                     <input
                                         id="lastName"
-                                        name="lastName"
                                         type="text"
                                         className="block w-full text-[13px] rounded-[4px] bg-white dark:bg-gray-900 px-3 py-2 text-gray-900 dark:text-white outline-1 outline-gray-300 dark:outline-gray-600 focus:outline-1 focus:outline-[#0077B6]"
+                                        {...register('lastName')}
                                     />
+                                    <ErrorMessage message={errors.lastName?.message} />
                                 </div>
                             </div>
 
@@ -378,10 +584,11 @@ export default function Register() {
                                 <div className="mt-1.5">
                                     <input
                                         id="email"
-                                        name="email"
                                         type="email"
                                         className="block w-full text-[13px] rounded-[4px] bg-white dark:bg-gray-900 px-3 py-2 text-gray-900 dark:text-white outline-1 outline-gray-300 dark:outline-gray-600 focus:outline-1 focus:outline-[#0077B6]"
+                                        {...register('email')}
                                     />
+                                    <ErrorMessage message={errors.email?.message} />
                                 </div>
                             </div>
 
@@ -390,32 +597,38 @@ export default function Register() {
                                 <div className="mt-1.5">
                                     <input
                                         id="phone"
-                                        name="phone"
                                         type="text"
                                         className="block w-full text-[13px] rounded-[4px] bg-white dark:bg-gray-900 px-3 py-2 text-gray-900 dark:text-white outline-1 outline-gray-300 dark:outline-gray-600 focus:outline-1 focus:outline-[#0077B6]"
+                                        {...register('phone')}
                                     />
+                                    <ErrorMessage message={errors.phone?.message} />
                                 </div>
                             </div>
+
                             <div className="sm:col-span-3">
                                 <label htmlFor="password" className="block text-sm/6 font-medium text-gray-900 dark:text-white">Password</label>
                                 <div className="mt-1.5">
                                     <input
                                         id="password"
-                                        name="password"
-                                        type="text"
+                                        type="password"
                                         className="block w-full text-[13px] rounded-[4px] bg-white dark:bg-gray-900 px-3 py-2 text-gray-900 dark:text-white outline-1 outline-gray-300 dark:outline-gray-600 focus:outline-1 focus:outline-[#0077B6]"
+                                        {...register('password')}
                                     />
+                                    <ErrorMessage message={errors.password?.message} />
                                 </div>
                             </div>
+
                             <div className="sm:col-span-3">
-                                <label htmlFor="password" className="block text-sm/6 font-medium text-gray-900 dark:text-white">Re-Enter Password</label>
+                                <label htmlFor="repassword" className="block text-sm/6 font-medium text-gray-900 dark:text-white">Re-Enter Password</label>
                                 <div className="mt-1.5">
                                     <input
                                         id="repassword"
-                                        name="repassword"
-                                        type="text"
+                                        type="password"
                                         className="block w-full text-[13px] rounded-[4px] bg-white dark:bg-gray-900 px-3 py-2 text-gray-900 dark:text-white outline-1 outline-gray-300 dark:outline-gray-600 focus:outline-1 focus:outline-[#0077B6]"
+                                        {...register('repassword')}
                                     />
+                                    <ErrorMessage message={errors.repassword?.message} />
+                                    <ErrorMessage message={formErrors.passwordMatch} />
                                 </div>
                             </div>
                         </div>
@@ -427,7 +640,7 @@ export default function Register() {
                     <button type="button" className="text-sm/6 font-semibold text-gray-900 dark:text-white">Cancel</button>
                     <button
                         type="submit"
-                        className="inline-flex items-center gap-2 rounded-[4px] bg-[#0077B6] px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-[#35a5e1] focus-visible:outline-1 focus-visible:[]outline-[#0077B6]fset-2 focus-visible:outline-[#0077B6]"
+                        className="inline-flex items-center gap-2 rounded-[4px] bg-[#0077B6] px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-[#35a5e1] focus-visible:outline-1 focus-visible:outline-[#0077B6] focus-visible:outline-offset-2"
                         disabled={isPending}
                     >
                         {isPending && <Loader2 className="w-4 h-4 animate-spin" />}

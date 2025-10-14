@@ -8,7 +8,9 @@ export function useRegister() {
   const [isPending, setIsPending] = useState(false);
   const router = useRouter();
 
+
   const register = async (data: RegisterFormData) => {
+    console.log(data.website)
     setIsPending(true);
     try {
       await registerUser(data);
