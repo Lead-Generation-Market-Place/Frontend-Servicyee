@@ -3,7 +3,7 @@ export type ServiceType = {
   _id: string;
   name: string;
   slug: string;
-  subcategory_id: string; // Changed to string to match your API response
+  subcategory_id: string;
   is_active: boolean;
   image_url: string;
   description: string;

@@ -5,8 +5,14 @@ import dynamic from "next/dynamic";
 import { Skeleton } from "@/components/ui/skeleton";
 import PopularLocation from "@/components/home-services/homepage/PopularLocation";
 import { useEffect, useState } from "react";
-import { getPopularServices } from "../api/homepage/popularService";
-import { ServiceType } from "@/types/service/services";
+import {
+  getPopularServices,
+  getSubcategoriesServices,
+} from "../api/homepage/popularService";
+import {
+  ServiceType,
+  SubcategoryWithServicesType,
+} from "@/types/service/services";
 
 // Skeleton components
 const TitlePageSkeleton = () => (
@@ -72,6 +78,9 @@ const AllCategories = dynamic(
 
 const HomeServicesPage = () => {
   const [popularServices, setPopularServices] = useState<ServiceType[]>([]);
+  const [subcategoryServices, setSubcategoryServices] = useState<
+    SubcategoryWithServicesType[]
+  >([]);
   const [loading, setLoading] = useState(true);
 
   const fetchPopularServices = async () => {
@@ -86,8 +95,20 @@ const HomeServicesPage = () => {
     }
   };
 
+  const fetchSubcategoryService = async () => {
+    try {
+      const response = await getSubcategoriesServices();
+      // Pass the entire response object to CategoryServices
+      setSubcategoryServices(response);
+    } catch (error) {
+      console.log("Error getting Services: ", error);
+      setSubcategoryServices([]);
+    }
+  };
+
   useEffect(() => {
     fetchPopularServices();
+    fetchSubcategoryService();
   }, []);
 
   return (
@@ -101,7 +122,7 @@ const HomeServicesPage = () => {
       {!loading && <PopularServices popularServices={popularServices} />}
 
       <FeaturedServices />
-      <CategoryServices />
+      <CategoryServices subcategoryService={subcategoryServices} />
       <AllCategories />
       <PopularLocation />
       <PopularSearch />

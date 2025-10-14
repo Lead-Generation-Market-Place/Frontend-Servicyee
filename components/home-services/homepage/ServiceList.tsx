@@ -8,7 +8,7 @@ const ServiceList = () => {
 
   const featured_services = [
     {
-      id: 1,
+      id: "1",
       title: "House cleaning",
       slug: "house_cleaning",
       text: "Cleaning kitchen and rooms with yard and lawn",
@@ -17,7 +17,7 @@ const ServiceList = () => {
       location: "urban",
     },
     {
-      id: 2,
+      id: "2",
       title: "Carpet cleaning",
       slug: "carpet_cleaning",
       text: "Cleaning carpet with providing extra service on housing",
@@ -26,7 +26,7 @@ const ServiceList = () => {
       location: "urban",
     },
     {
-      id: 3,
+      id: "3",
       title: "Lawn trimming & cleaning",
       slug: "lawn_triming",
       text: "Maintaining lawn with trimming and beautification",
@@ -35,7 +35,7 @@ const ServiceList = () => {
       location: "suburban",
     },
     {
-      id: 4,
+      id: "4",
       title: "Interior painting",
       slug: "inteior_painting",
       text: "Design with paint and color mixing according to your desire",
@@ -44,7 +44,7 @@ const ServiceList = () => {
       location: "urban",
     },
     {
-      id: 5,
+      id: "5",
       title: "Roofing",
       slug: "roofing",
       text: "Maintain and installing quality roof to keep you safe and warm",
