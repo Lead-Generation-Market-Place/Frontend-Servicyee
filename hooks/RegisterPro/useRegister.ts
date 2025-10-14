@@ -10,10 +10,10 @@ export function useRegister() {
 
 
   const register = async (data: RegisterFormData) => {
-    console.log(data.website)
     setIsPending(true);
     try {
-      await registerUser(data);
+      const response = await registerUser(data);
+      localStorage.setItem("professionalData", JSON.stringify(response.professional));
       router.push("/home-services/dashboard/services/step-2");
     } catch (error: unknown) {
       if (error instanceof Error) {

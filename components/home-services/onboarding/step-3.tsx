@@ -4,19 +4,20 @@ import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import { ProgressBar } from "@/components/home-services/onboarding/ProgressBar";
 const ONBOARDING_STEPS = [
-  { id: 1, name: 'Profile' },
-  { id: 2, name: 'Reviews' },
-  { id: 3, name: 'Preferences' },
-  { id: 4, name: 'Location' },
-  { id: 5, name: 'Payment' },
-  { id: 6, name: 'Background' },
+    { id: 1, name: 'Profile' },
+    { id: 2, name: 'Reviews' },
+    { id: 3, name: 'Preferences' },
+    { id: 4, name: 'Location' },
+    { id: 5, name: 'Payment' },
+    { id: 6, name: 'Background' },
 ];
 
 
 const BusinessName = () => {
     const router = useRouter()
     const [loading, setLoading] = useState(false);
-
+    const professionalData = JSON.parse(localStorage.getItem("professionalData") || "{}");
+    const [businessName, setBusinessName] = useState(professionalData.professional.business_name || '');
     const [currentStep] = useState(1);
     const HandleBusiness = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -52,10 +53,13 @@ const BusinessName = () => {
                                 id="businessName"
                                 type="text"
                                 placeholder="Business Name"
-                                name='businessName'
+                                name="businessName"
+                                value={businessName}                 // controlled value
+                                onChange={(e) => setBusinessName(e.target.value)} // update state on change
                                 required
                                 className="mt-1 block w-full text-[13px] px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-[4px] focus:outline-none focus:ring-2 focus:ring-[#0096C7] focus:border-transparent text-gray-800 dark:text-white dark:bg-gray-800 text-sm"
                             />
+
 
                             <div>
                                 <button
