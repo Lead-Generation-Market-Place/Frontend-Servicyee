@@ -1,64 +1,19 @@
 import React from "react";
-
 import { motion, Variants } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { ServiceCard } from "./ServiceCard";
 
-const AllServices = () => {
+interface SubcategoryServiceProps {
+  subcategoryService: any; // The API response object
+}
+
+const CategoryServices = ({ subcategoryService }: SubcategoryServiceProps) => {
   const carouselRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
-
-  const Categories = {
-    "Cleaning and Maintenance": [
-      {
-        id: 1,
-        title: "House cleaning",
-        slug: "house_cleaning",
-        text: "Cleaning kitchen and rooms with yard and lawn",
-        season: "summer",
-        imageUrl: "/assets/home-service/service (1).jpg",
-      },
-      {
-        id: 2,
-        title: "Carpet cleaning",
-        slug: "carpet_cleaning",
-        text: "Cleaning carpet with providing extra service on housing",
-        season: "summer",
-        imageUrl: "/assets/home-service/service (2).jpg",
-      },
-      {
-        id: 3,
-        title: "Lawn triming & cleaning",
-        slug: "lawn_triming",
-        text: "Maintianing lawn with triming and beautification",
-        season: "spring",
-        imageUrl: "/assets/home-service/service (3).jpg",
-      },
-    ],
-    "Remodel and Installation": [
-      {
-        id: 4,
-        title: "Interior painting",
-        slug: "interior_painting",
-        text: "Design with paint and color mixing according to your desire",
-        season: "fall",
-        imageUrl: "/assets/home-service/service (4).jpg",
-      },
-      {
-        id: 5,
-        title: "Roofing",
-        slug: "roofing",
-        text: "Maintain and installing quality roof to keep you safe and warm",
-        season: "winter",
-        imageUrl: "/assets/home-service/service (5).jpg",
-      },
-    ],
-  };
 
   // Animation variants
   const container: Variants = {
@@ -71,19 +26,6 @@ const AllServices = () => {
       },
     },
   };
-
-  // const item: Variants = {
-  //   hidden: { opacity: 0, y: 20 },
-  //   show: {
-  //     opacity: 1,
-  //     y: 0,
-  //     transition: {
-  //       type: "spring" as const,
-  //       stiffness: 100,
-  //       damping: 10
-  //     }
-  //   }
-  // };
 
   // Carousel controls for each category
   const handlePrev = (category: string) => {
@@ -125,11 +67,74 @@ const AllServices = () => {
     setIsDragging(false);
   };
 
+  // Transform the API data to match the expected format
+  // Transform the API data to match the expected format
+  const transformSubcategoryData = () => {
+    // Check if we have the data array from the API response
+    if (
+      !subcategoryService ||
+      !subcategoryService.success ||
+      !Array.isArray(subcategoryService.data)
+    ) {
+      console.log("No valid subcategoryService data found");
+      return {};
+    }
+
+    const categories: { [key: string]: any[] } = {};
+
+    subcategoryService.data.forEach((subcategory: any) => {
+      // Only show categories that have services
+      if (
+        subcategory &&
+        subcategory.services &&
+        Array.isArray(subcategory.services) &&
+        subcategory.services.length > 0
+      ) {
+        const services = subcategory.services.map((service: any) => {
+          return {
+            id: service._id?.toString() || Math.random().toString(),
+            title: service.name || "Unnamed Service",
+            slug: service.slug || "unknown-service",
+            text: service.description || "Service description",
+            season: "all",
+            imageUrl: service.image_url,
+          };
+        });
+
+        const categoryName = subcategory.name || "Uncategorized";
+
+        if (!categories[categoryName]) {
+          categories[categoryName] = [];
+        }
+        categories[categoryName].push(...services);
+      }
+    });
+
+    return categories;
+  };
+
+  const categories = transformSubcategoryData();
+
+  // If no data is available, show a loading state or empty message
+  if (Object.keys(categories).length === 0) {
+    return (
+      <div className="mb-10 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center py-12">
+            <p className="text-gray-500 dark:text-gray-400">
+              No services available at the moment.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="mb-10 px-4">
       <div className="max-w-6xl mx-auto">
         {/* Categories with their services */}
-        {Object.entries(Categories).map(([category, services]) => (
+        {Object.entries(categories).map(([category, services]) => (
           <div key={category} className="mb-12">
             {/* Category Header */}
             <div className="flex items-center justify-between mb-6">
@@ -137,7 +142,7 @@ const AllServices = () => {
                 {category}
               </h3>
               <Link
-                href="#"
+                href={`/services?category=${encodeURIComponent(category)}`}
                 className="text-sm text-sky-600 hover:underline dark:text-sky-400 flex items-center gap-1"
               >
                 View all
@@ -181,7 +186,7 @@ const AllServices = () => {
                 className="flex justify-center items-center overflow-x-auto scrollbar-hide snap-x snap-mandatory gap-6 pb-4 -mx-4 px-4"
                 style={{ cursor: isDragging ? "grabbing" : "grab" }}
               >
-                {services.map((service) => (
+                {services.map((service: any) => (
                   <ServiceCard
                     key={service.id}
                     {...service}
@@ -197,4 +202,4 @@ const AllServices = () => {
   );
 };
 
-export default AllServices;
+export default CategoryServices;
