@@ -1,6 +1,5 @@
 export interface RegisterFormData {
   username: string;
-  category: string;
   country: string;
   streetAddress: string;
   city: string;
