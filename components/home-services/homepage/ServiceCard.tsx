@@ -30,7 +30,6 @@ export function ServiceCard({
   href = `/home-services/professional-service/${slug}`,
 }: ServiceCardProps) {
   const API_BASE_URL = getStaticURL();
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
