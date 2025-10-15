@@ -25,3 +25,12 @@ export const getFeaturedServices = async () => {
         console.log("Error getting featured services: ", error);
     }
 }
+
+export const getAllServices = async () => {
+    try {
+        const response = await api.get('/services');
+        return response.data;
+    } catch (error) {
+        console.log("Error getting services: ", error);
+    }
+}
