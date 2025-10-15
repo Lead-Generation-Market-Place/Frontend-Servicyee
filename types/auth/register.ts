@@ -20,7 +20,7 @@ export interface RegisterFormData {
 export interface RegisterResponse {
   success: boolean;
   message: string;
-  userId?: string;
+  user_id?: string;
   professional?: {
     id: string;
     username: string;

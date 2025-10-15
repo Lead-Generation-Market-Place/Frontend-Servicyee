@@ -7,8 +7,10 @@ import {
 } from "@/app/api/services/ProAccount";
 import toast from "react-hot-toast";
 import { useMutation } from "@tanstack/react-query";
+import { useAuth } from "@/components/providers/context/auth-context";
 
 export function useRegister() {
+  const { login } = useAuth();
   const [isPending, setIsPending] = useState(false);
   const router = useRouter();
 
@@ -20,6 +22,8 @@ export function useRegister() {
         "professionalData",
         JSON.stringify(response.professional)
       );
+      await login(data.email, data.password);
+
       router.push("/home-services/dashboard/services/step-2");
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -41,7 +45,19 @@ export function useUpdateBusinessName() {
     mutationKey: ["UpdateBusinessName"],
     mutationFn: (data: { businessName: string; id: string }) =>
       UpdateBusinessName(data),
-    onSuccess: () => {
+    onSuccess: (updatedProfessional) => {
+
+      const storedData = localStorage.getItem("professionalData");
+      if (storedData) {
+        const parsedData = JSON.parse(storedData);
+
+        if (parsedData.professional) {
+          parsedData.professional.business_name =
+            updatedProfessional.professional.business_name;
+        }
+        localStorage.setItem("professionalData", JSON.stringify(parsedData));
+      }
+
       router.push(`/home-services/dashboard/services/step-4`);
     },
     onError: (error: any) => {
