@@ -67,47 +67,26 @@ const CategoryServices = ({ subcategoryService }: SubcategoryServiceProps) => {
     setIsDragging(false);
   };
 
-  // Transform the API data to match the expected format
-  // Transform the API data to match the expected format
   const transformSubcategoryData = () => {
-    // Check if we have the data array from the API response
-    if (
-      !subcategoryService ||
-      !subcategoryService.success ||
-      !Array.isArray(subcategoryService.data)
-    ) {
-      console.log("No valid subcategoryService data found");
-      return {};
+    const categories: Record<string, any[]> = {};
+
+    if (!subcategoryService || !Array.isArray(subcategoryService.data)) {
+      console.warn("No valid subcategoryService data found");
+      return categories;
     }
 
-    const categories: { [key: string]: any[] } = {};
-
     subcategoryService.data.forEach((subcategory: any) => {
-      // Only show categories that have services
-      if (
-        subcategory &&
-        subcategory.services &&
-        Array.isArray(subcategory.services) &&
-        subcategory.services.length > 0
-      ) {
-        const services = subcategory.services.map((service: any) => {
-          return {
-            id: service._id?.toString() || Math.random().toString(),
-            title: service.name || "Unnamed Service",
-            slug: service.slug || "unknown-service",
-            text: service.description || "Service description",
-            season: "all",
-            imageUrl: service.image_url,
-          };
-        });
+      const { name, services } = subcategory;
+      if (!services?.length) return;
 
-        const categoryName = subcategory.name || "Uncategorized";
-
-        if (!categories[categoryName]) {
-          categories[categoryName] = [];
-        }
-        categories[categoryName].push(...services);
-      }
+      categories[name || "Uncategorized"] = services.map((service: any) => ({
+        id: service._id,
+        title: service.name,
+        slug: service.slug,
+        text: service.description,
+        imageUrl: service.image_url,
+        season: "all",
+      }));
     });
 
     return categories;
@@ -131,7 +110,7 @@ const CategoryServices = ({ subcategoryService }: SubcategoryServiceProps) => {
   }
 
   return (
-    <div className="mb-10 px-4">
+    <div className="mb-10">
       <div className="max-w-6xl mx-auto">
         {/* Categories with their services */}
         {Object.entries(categories).map(([category, services]) => (
@@ -183,14 +162,14 @@ const CategoryServices = ({ subcategoryService }: SubcategoryServiceProps) => {
                 onMouseMove={(e) => duringDrag(e, category)}
                 onMouseUp={endDrag}
                 onMouseLeave={endDrag}
-                className="flex justify-center items-center overflow-x-auto scrollbar-hide snap-x snap-mandatory gap-6 pb-4 -mx-4 px-4"
+                className="flex justify-center items-center overflow-x-auto scrollbar-hide snap-x snap-mandatory gap-6 pb-4"
                 style={{ cursor: isDragging ? "grabbing" : "grab" }}
               >
                 {services.map((service: any) => (
                   <ServiceCard
                     key={service.id}
                     {...service}
-                    className="w-[calc(100%-2rem)] sm:w-64 snap-center"
+                    className="w-[280px] sm:w-[calc(25%-18px)] lg:w-[calc(25%-18px)] flex-shrink-0 snap-center"
                   />
                 ))}
               </motion.div>

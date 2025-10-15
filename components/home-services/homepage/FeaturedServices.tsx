@@ -1,62 +1,31 @@
 import React from "react";
-
 import { motion, Variants } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { ServiceCard } from "./ServiceCard";
+import { ServiceType } from "@/types/service/services";
 
-const FeaturedServices = () => {
+interface FeaturedServicesProps {
+  featuredServices: ServiceType[];
+}
+
+const FeaturedServices = ({ featuredServices }: FeaturedServicesProps) => {
   const carouselRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
+  // Transform API data to match ServiceCard props
+  const transformedServices = featuredServices.map((service) => ({
+    id: service._id,
+    title: service.name,
+    slug: service.slug,
+    text: service.description,
+    season: "all", // You can modify this based on your data
+    imageUrl: service.image_url,
+  }));
 
-  const featured_service = [
-    {
-      id: "1",
-      title: "House cleaning",
-      slug: "house_cleaning",
-      text: "Cleaning kitchen and rooms with yard and lawn",
-      season: "summer",
-      imageUrl: "/assets/home-service/service (1).jpg",
-    },
-    {
-      id: "2",
-      title: "Carpet cleaning",
-      slug: "carpet_cleaning",
-      text: "Cleaning carpet with providing extra service on housing",
-      season: "summer",
-      imageUrl: "/assets/home-service/service (2).jpg",
-    },
-    {
-      id: "3",
-      title: "Lawn triming & cleaning",
-      slug: "lawn_triming",
-      text: "Maintianing lawn with triming and beautification",
-      season: "spring",
-      imageUrl: "/assets/home-service/service (3).jpg",
-    },
-    {
-      id: "4",
-      title: "Interior painting",
-      slug: "interior_painting",
-      text: "Design with paint and color mixing according to your desire",
-      season: "fall",
-      imageUrl: "/assets/home-service/service (4).jpg",
-    },
-    {
-      id: "5",
-      title: "Roofing",
-      slug: "roofing",
-      text: "Maintain and installing quality roof to keep you safe and warm",
-      season: "winter",
-      imageUrl: "/assets/home-service/service (5).jpg",
-    },
-  ];
-
-  // Properly typed variants
+  // Animation variants
   const container: Variants = {
     hidden: { opacity: 0 },
     show: {
@@ -67,19 +36,6 @@ const FeaturedServices = () => {
       },
     },
   };
-
-  // const item: Variants = {
-  //   hidden: { opacity: 0, y: 20 },
-  //   show: {
-  //     opacity: 1,
-  //     y: 0,
-  //     transition: {
-  //       type: "spring" as const,
-  //       stiffness: 100,
-  //       damping: 10
-  //     }
-  //   }
-  // };
 
   // Carousel controls
   const handlePrev = () => {
@@ -173,11 +129,11 @@ const FeaturedServices = () => {
             className="flex overflow-x-auto scrollbar-hide snap-x snap-mandatory gap-6 pb-4 -mx-4 px-4"
             style={{ cursor: isDragging ? "grabbing" : "grab" }}
           >
-            {featured_service.map((service) => (
+            {transformedServices.map((service) => (
               <ServiceCard
                 key={service.id}
                 {...service}
-                className="w-[calc(100%-2rem)] sm:w-64 snap-center"
+                className="w-[280px] sm:w-[calc(25%-18px)] lg:w-[calc(25%-18px)] flex-shrink-0 snap-center"
               />
             ))}
           </motion.div>
