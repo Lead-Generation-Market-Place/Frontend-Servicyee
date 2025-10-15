@@ -1,8 +1,9 @@
 import { CheckCircle, Star, Loader2, BadgeCheck, Clock } from 'lucide-react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import { ProgressBar } from "@/components/home-services/onboarding/ProgressBar";
+import { useUpdateBusinessName } from '@/hooks/RegisterPro/useRegister';
+import z from 'zod'
 const ONBOARDING_STEPS = [
     { id: 1, name: 'Profile' },
     { id: 2, name: 'Reviews' },
@@ -12,17 +13,28 @@ const ONBOARDING_STEPS = [
     { id: 6, name: 'Background' },
 ];
 
+const businessNameSchema = z.object({
+    businessName: z.string().min(3, "Business name must be at least 3 characters").max(100, "Business name must be at most 100 characters"),
+});
+
 
 const BusinessName = () => {
-    const router = useRouter()
-    const [loading, setLoading] = useState(false);
     const professionalData = JSON.parse(localStorage.getItem("professionalData") || "{}");
     const [businessName, setBusinessName] = useState(professionalData.professional.business_name || '');
     const [currentStep] = useState(1);
+    const [error, setError] = useState(""); 
+
+    const { mutate, isPending } = useUpdateBusinessName();
+
     const HandleBusiness = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setLoading(true)
-        router.push(`/home-services/dashboard/services/step-4`);
+        const result = businessNameSchema.safeParse({ businessName });
+        if (!result.success) {
+            setError(result.error.issues[0].message);
+            return
+        }
+        setError("");
+        mutate({ businessName: businessName, id: professionalData.professional._id })
     }
     return (
         <div>
@@ -54,11 +66,11 @@ const BusinessName = () => {
                                 type="text"
                                 placeholder="Business Name"
                                 name="businessName"
-                                value={businessName}                 // controlled value
-                                onChange={(e) => setBusinessName(e.target.value)} // update state on change
-                                required
+                                value={businessName}
+                                onChange={(e) => setBusinessName(e.target.value)}
                                 className="mt-1 block w-full text-[13px] px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-[4px] focus:outline-none focus:ring-2 focus:ring-[#0096C7] focus:border-transparent text-gray-800 dark:text-white dark:bg-gray-800 text-sm"
                             />
+                            {error && <p className="text-red-500  text-[12px] mt-1">{error}</p>} {/* Display validation error */}
 
 
                             <div>
@@ -66,9 +78,9 @@ const BusinessName = () => {
                                     className={`
                       mt-6 w-full text-white text-[13px] py-2 px-2 rounded-[4px]
                       transition duration-300
-                      ${loading ? 'bg-[#0077B6]/70 cursor-not-allowed' : 'bg-[#0077B6] hover:bg-[#005f8e]'}
+                      ${isPending ? 'bg-[#0077B6]/70 cursor-not-allowed' : 'bg-[#0077B6] hover:bg-[#005f8e]'}
                     `}>
-                                    {loading && <Loader2 className="h-4 w-4 animate-spin inline-block mr-2" />}
+                                    {isPending && <Loader2 className="h-4 w-4 animate-spin inline-block mr-2" />}
                                     Next
                                 </button>
 

@@ -15,3 +15,14 @@ export const registerUser = async (
     throw handleApiError(error);
   }
 };
+
+
+export const UpdateBusinessName = async (data: {businessName: string; id: string})=>{
+  try {
+     const response = await api.put(`/professionals/update-business-name/${data.id}`, {business_name: data.businessName});
+     return response.data;    
+  } catch (error) {
+    throw handleApiError(error);
+  }
+
+}
