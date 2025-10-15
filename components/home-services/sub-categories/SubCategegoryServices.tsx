@@ -1,3 +1,4 @@
+import { getStaticURL } from "@/app/api/axios";
 import { motion } from "framer-motion";
 import { Tags, Heart } from "lucide-react";
 import Image from "next/image";
@@ -7,6 +8,7 @@ interface ServicesInterface {
   id: string;
   title: string;
   text: string;
+  slug: string;
   season: string;
   imageUrl: string;
 }
@@ -17,6 +19,8 @@ type ServiceTypeProps = {
 
 const SubCategoryServices = ({ service }: ServiceTypeProps) => {
   const { id, title, text, season, imageUrl } = service;
+  const API_BASE_URL = getStaticURL();
+  console.log("testing service image: ", `/${API_BASE_URL}/${imageUrl}`);
 
   return (
     <div className="">
@@ -25,7 +29,7 @@ const SubCategoryServices = ({ service }: ServiceTypeProps) => {
           {/* Image with gradient overlay */}
           <div className="relative h-36 w-full overflow-hidden">
             <Image
-              src={imageUrl}
+              src={`${API_BASE_URL}/${imageUrl}`}
               alt={title}
               fill
               className="object-cover transition-transform duration-500 group-hover:scale-110"
