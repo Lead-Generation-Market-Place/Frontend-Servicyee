@@ -148,3 +148,7 @@ export { api };
  export const getStaticURL = () => {
   return "https://servicyee-backend.onrender.com/uploads/service";
  }
+
+ export const getSubcategoryStaticURL = () => {
+  return "https://servicyee-backend.onrender.com/uploads/SubCategory";
+ }

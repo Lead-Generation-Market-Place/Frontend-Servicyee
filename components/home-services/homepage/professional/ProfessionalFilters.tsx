@@ -4,8 +4,10 @@ import {
   ChevronDown,
   ChevronUp,
   LandPlot,
-  MapPinPlus,
+  MapPin,
   ArrowDownWideNarrow,
+  X,
+  RotateCcw,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -37,138 +39,220 @@ export default function ProfessionalFilters() {
     );
   };
 
-  return (
-    <div className="flex-1 w-full p-4 bg-white">
-      <div className="mb-6 mt-4 flex flex-row items-center justify-start gap-2 font-bold text-lg border-b border-gray-100">
-        <ArrowDownWideNarrow className="w-5 h-5" />
-        <p>Filters</p>
-      </div>
+  const clearAllFilters = () => {
+    setDistance(null);
+    setLocations([]);
+  };
 
-      {/* Distance Filter */}
-      <div className="mb-4">
-        <div
-          className="flex justify-between items-center cursor-pointer"
-          onClick={() => toggleFilter("distance")}
-        >
-          <div className="flex flex-row items-center justify-start gap-2 text-md text-gray-500 font-medium">
-            <LandPlot className="w-4 h-4" />
-            <p>Distance</p>
+  const removeLocation = (location: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setLocations((prev) => prev.filter((loc) => loc !== location));
+  };
+
+  const hasActiveFilters = distance !== null || locations.length > 0;
+
+  return (
+    <div className="w-full p-6 bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+            <ArrowDownWideNarrow className="w-5 h-5 text-blue-600 dark:text-blue-400" />
           </div>
-          {expandedFilters.distance ? (
-            <ChevronUp className="w-5 h-5 text-gray-500" />
-          ) : (
-            <ChevronDown className="w-5 h-5 text-gray-500" />
-          )}
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+              Filters
+            </h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Refine your search
+            </p>
+          </div>
         </div>
 
+        {hasActiveFilters && (
+          <button
+            onClick={clearAllFilters}
+            className="flex items-center gap-1 px-3 py-1 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+          >
+            <RotateCcw className="w-4 h-4" />
+            Clear all
+          </button>
+        )}
+      </div>
+
+      {/* Active Filters */}
+      {hasActiveFilters && (
+        <div className="mb-6">
+          <div className="flex flex-wrap gap-2">
+            {distance && (
+              <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-sm">
+                Within {distance} miles
+                <button
+                  onClick={() => setDistance(null)}
+                  className="hover:text-blue-900 dark:hover:text-blue-100"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            )}
+            {locations.map((location) => (
+              <span
+                key={location}
+                className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full text-sm"
+              >
+                {location.replace("-", " ")}
+                <button
+                  onClick={(e) => removeLocation(location, e)}
+                  className="hover:text-green-900 dark:hover:text-green-100"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Distance Filter */}
+      <div className="mb-6">
+        <button
+          onClick={() => toggleFilter("distance")}
+          className="flex justify-between items-center w-full p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+              <LandPlot className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div className="text-left">
+              <p className="font-medium text-gray-900 dark:text-white">
+                Distance
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {distance ? `Within ${distance} miles` : "Select distance"}
+              </p>
+            </div>
+          </div>
+          {expandedFilters.distance ? (
+            <ChevronUp className="w-5 h-5 text-gray-400" />
+          ) : (
+            <ChevronDown className="w-5 h-5 text-gray-400" />
+          )}
+        </button>
+
         {expandedFilters.distance && (
-          <div className="space-y-2 mt-2 pl-6 text-gray-500 text-sm">
-            <div
-              className={`flex items-center p-2 rounded-md cursor-pointer ${
-                distance === "134" ? "bg-blue-100" : "hover:bg-gray-100"
-              }`}
-            >
-              <input
-                type="radio"
-                name="mile"
-                id="mile-134"
-                className="mr-2"
-                value="134"
-                checked={distance === "134"}
-                onChange={handleDistanceChange}
-              />
-              <label htmlFor="mile-134" className="cursor-pointer">
-                Within 134 miles
+          <div className="mt-3 ml-4 pl-10 space-y-2">
+            {[
+              { value: "10", label: "Within 10 miles" },
+              { value: "25", label: "Within 25 miles" },
+              { value: "50", label: "Within 50 miles" },
+              { value: "100", label: "Within 100 miles" },
+              { value: "134", label: "Within 134 miles" },
+              { value: "1400", label: "Within 1400 miles" },
+            ].map((option) => (
+              <label
+                key={option.value}
+                className={`flex items-center p-3 rounded-lg cursor-pointer transition-colors ${
+                  distance === option.value
+                    ? "bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800"
+                    : "hover:bg-gray-50 dark:hover:bg-gray-800"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="distance"
+                  value={option.value}
+                  checked={distance === option.value}
+                  onChange={handleDistanceChange}
+                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                />
+                <span className="ml-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {option.label}
+                </span>
               </label>
-            </div>
-            <div
-              className={`flex items-center p-2 rounded-md cursor-pointer ${
-                distance === "1400" ? "bg-blue-100" : "hover:bg-gray-100"
-              }`}
-            >
-              <input
-                type="radio"
-                name="mile"
-                id="mile-1400"
-                className="mr-2"
-                value="1400"
-                checked={distance === "1400"}
-                onChange={handleDistanceChange}
-              />
-              <label htmlFor="mile-1400" className="cursor-pointer">
-                Within 1400 miles
-              </label>
-            </div>
+            ))}
           </div>
         )}
       </div>
 
       {/* Location Filter */}
-      <div className="mb-4">
-        <div
-          className="flex justify-between items-center cursor-pointer"
+      <div className="mb-6">
+        <button
           onClick={() => toggleFilter("location")}
+          className="flex justify-between items-center w-full p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
         >
-          <div className="flex flex-row items-center justify-start gap-2 text-md text-gray-500 font-medium">
-            <MapPinPlus className="w-4 h-4" />
-            <p>Location</p>
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+              <MapPin className="w-4 h-4 text-green-600 dark:text-green-400" />
+            </div>
+            <div className="text-left">
+              <p className="font-medium text-gray-900 dark:text-white">
+                Location
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {locations.length > 0
+                  ? `${locations.length} location${
+                      locations.length > 1 ? "s" : ""
+                    } selected`
+                  : "Select locations"}
+              </p>
+            </div>
           </div>
           {expandedFilters.location ? (
-            <ChevronUp className="w-5 h-5 text-gray-500" />
+            <ChevronUp className="w-5 h-5 text-gray-400" />
           ) : (
-            <ChevronDown className="w-5 h-5 text-gray-500" />
+            <ChevronDown className="w-5 h-5 text-gray-400" />
           )}
-        </div>
+        </button>
 
         {expandedFilters.location && (
-          <div className="space-y-2 mt-2 pl-6 text-gray-500 text-sm">
-            <div
-              className={`flex items-center p-2 rounded-md cursor-pointer ${
-                locations.includes("los-angeles")
-                  ? "bg-blue-100"
-                  : "hover:bg-gray-100"
-              }`}
-            >
-              <input
-                type="checkbox"
-                id="los-angeles"
-                className="mr-2"
-                value="los-angeles"
-                checked={locations.includes("los-angeles")}
-                onChange={handleLocationChange}
-              />
-              <label htmlFor="los-angeles" className="cursor-pointer">
-                Los Angeles
+          <div className="mt-3 ml-4 pl-10 space-y-2">
+            {[
+              { value: "los-angeles", label: "Los Angeles" },
+              { value: "new-york", label: "New York" },
+              { value: "chicago", label: "Chicago" },
+              { value: "miami", label: "Miami" },
+              { value: "seattle", label: "Seattle" },
+              { value: "austin", label: "Austin" },
+            ].map((location) => (
+              <label
+                key={location.value}
+                className={`flex items-center p-3 rounded-lg cursor-pointer transition-colors ${
+                  locations.includes(location.value)
+                    ? "bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800"
+                    : "hover:bg-gray-50 dark:hover:bg-gray-800"
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  value={location.value}
+                  checked={locations.includes(location.value)}
+                  onChange={handleLocationChange}
+                  className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                />
+                <span className="ml-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {location.label}
+                </span>
               </label>
-            </div>
-            <div
-              className={`flex items-center p-2 rounded-md cursor-pointer ${
-                locations.includes("new-york")
-                  ? "bg-blue-100"
-                  : "hover:bg-gray-100"
-              }`}
-            >
-              <input
-                type="checkbox"
-                id="new-york"
-                className="mr-2"
-                value="new-york"
-                checked={locations.includes("new-york")}
-                onChange={handleLocationChange}
-              />
-              <label htmlFor="new-york" className="cursor-pointer">
-                New York
-              </label>
-            </div>
+            ))}
 
             <Link
               href="#"
-              className="text-sm text-blue-500 hover:underline block mt-2"
+              className="flex items-center justify-center gap-1 p-3 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors font-medium"
             >
-              See more
+              View more locations
+              <ChevronDown className="w-4 h-4" />
             </Link>
           </div>
         )}
+      </div>
+
+      {/* Results Count */}
+      <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+        <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
+          {hasActiveFilters
+            ? "Filters applied to your search results"
+            : "No filters applied - showing all results"}
+        </p>
       </div>
     </div>
   );

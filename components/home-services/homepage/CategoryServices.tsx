@@ -68,7 +68,7 @@ const CategoryServices = ({ subcategoryService }: SubcategoryServiceProps) => {
   };
 
   const transformSubcategoryData = () => {
-    const categories: Record<string, any[]> = {};
+    const categories: Record<string, { slug: string; services: any[] }> = {};
 
     if (!subcategoryService || !Array.isArray(subcategoryService.data)) {
       console.warn("No valid subcategoryService data found");
@@ -76,17 +76,20 @@ const CategoryServices = ({ subcategoryService }: SubcategoryServiceProps) => {
     }
 
     subcategoryService.data.forEach((subcategory: any) => {
-      const { name, services } = subcategory;
+      const { name, slug, services } = subcategory;
       if (!services?.length) return;
 
-      categories[name || "Uncategorized"] = services.map((service: any) => ({
-        id: service._id,
-        title: service.name,
-        slug: service.slug,
-        text: service.description,
-        imageUrl: service.image_url,
-        season: "all",
-      }));
+      categories[name || "Uncategorized"] = {
+        slug, // ✅ include slug
+        services: services.map((service: any) => ({
+          id: service._id,
+          title: service.name,
+          slug: service.slug,
+          text: service.description,
+          imageUrl: service.image_url,
+          season: "all",
+        })),
+      };
     });
 
     return categories;
@@ -113,15 +116,15 @@ const CategoryServices = ({ subcategoryService }: SubcategoryServiceProps) => {
     <div className="mb-10">
       <div className="max-w-6xl mx-auto">
         {/* Categories with their services */}
-        {Object.entries(categories).map(([category, services]) => (
-          <div key={category} className="mb-12">
+        {Object.entries(categories).map(([category, { slug, services }]) => (
+          <div key={slug} className="mb-12">
             {/* Category Header */}
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold text-gray-800 dark:text-white">
                 {category}
               </h3>
               <Link
-                href={`/services?category=${encodeURIComponent(category)}`}
+                href={`/home-services/subcategory/${encodeURIComponent(slug)}`}
                 className="text-sm text-sky-600 hover:underline dark:text-sky-400 flex items-center gap-1"
               >
                 View all

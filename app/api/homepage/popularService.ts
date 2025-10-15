@@ -34,3 +34,19 @@ export const getAllServices = async () => {
         console.log("Error getting services: ", error);
     }
 }
+
+export const getSubcategoryServicesBySlug = async (slug: string) => {
+  // Add validation
+  if (!slug || slug.trim() === '') {
+    console.error("Invalid slug provided");
+    return null;
+  }
+  
+  try {
+    const response = await api.get(`/subcategories/${slug}`);
+    return response.data;
+  } catch(error) {
+    console.log("Error getting subcategory services: ", error);
+    throw error; // Re-throw to handle in calling function
+  }
+}
