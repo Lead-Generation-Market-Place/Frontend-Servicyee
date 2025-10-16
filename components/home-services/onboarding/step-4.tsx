@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ProgressBar } from "@/components/home-services/onboarding/ProgressBar";
 import { useBusinessInfo } from "@/hooks/RegisterPro/useRegister";
 import { BusinessInfoPayload } from "@/app/api/services/ProAccount";
+import { getAccessToken } from "@/app/api/axios";
 
 const ONBOARDING_STEPS = [
   { id: 1, name: "Profile" },
@@ -20,7 +21,8 @@ const ONBOARDING_STEPS = [
 const DEFAULT_LOGO = "/service_profile.jpg";
 
 const BusinessInfo = () => {
-  const { mutate } = useBusinessInfo();
+const token = getAccessToken() || ""
+const { mutate } = useBusinessInfo(token);
   const [isPending, setPending] = useState(false);
   const professionalData = JSON.parse(localStorage.getItem("professionalData") || "{}");
   const router = useRouter();

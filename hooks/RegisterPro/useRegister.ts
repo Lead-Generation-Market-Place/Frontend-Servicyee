@@ -10,8 +10,7 @@ import {
 import toast from "react-hot-toast";
 import { useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/components/providers/context/auth-context";
-import  {
-} from "@/components/home-services/onboarding/step-4";
+import {} from "@/components/home-services/onboarding/step-4";
 
 export function useRegister() {
   const { login } = useAuth();
@@ -26,7 +25,16 @@ export function useRegister() {
         "professionalData",
         JSON.stringify(response.professional)
       );
-      await login(data.email, data.password);
+      try {
+        await login(data.email, data.password);
+        router.push("/home-services/dashboard/services/step-2");
+      } catch (loginError) {
+        console.warn(
+          "Registration successful but auto-login failed:",
+          loginError
+        );
+        router.push("/login?message=registration_success");
+      }
 
       router.push("/home-services/dashboard/services/step-2");
     } catch (error: unknown) {
@@ -72,13 +80,12 @@ export function useUpdateBusinessName() {
 }
 
 // Craete Prof Account Business Info - Step 04
-
-export function useBusinessInfo() {
+export function useBusinessInfo(token: string) {
   const router = useRouter();
 
   return useMutation({
     mutationKey: ["BusinessInfo"],
-    mutationFn: (data: BusinessInfoPayload) => saveBusinessInfoAPI(data),
+    mutationFn: (data: BusinessInfoPayload) => saveBusinessInfoAPI(data, token),
     onSuccess: () => {
       router.push("/home-services/dashboard/services/step-5");
     },

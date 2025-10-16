@@ -1,5 +1,4 @@
 'use client'
-
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,6 +10,7 @@ import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover
 import { Command, CommandInput, CommandItem, CommandList, CommandEmpty } from '@/components/ui/command';
 import { useRegister } from '@/hooks/RegisterPro/useRegister';
 import { ProfessionalStepOne, ProfessionalStepOneSchemaType } from '@/schemas/professional/professional';
+import { toast } from 'sonner'; // or your toast library
 
 const CategoriesData = [
     { id: '1', name: 'Construction' },
@@ -49,7 +49,7 @@ export default function Register() {
     }>({});
     const [hasSubmitted, setHasSubmitted] = useState(false);
 
-    const {  registerUser, isPending } = useRegister();
+    const { registerUser, isPending } = useRegister();
 
     const {
         register,
@@ -58,7 +58,7 @@ export default function Register() {
         watch,
         formState: { errors },
         trigger,
-        clearErrors, // Added clearErrors
+        clearErrors,
     } = useForm<ProfessionalStepOneSchemaType>({
         resolver: zodResolver(ProfessionalStepOne),
         mode: 'onChange',
@@ -83,11 +83,9 @@ export default function Register() {
         }
     });
 
-    // Watch password and repassword fields
     const password = watch('password');
     const repassword = watch('repassword');
 
-    // Update form values when selection changes
     useEffect(() => {
         setValue('categories', selectedCategories, { shouldValidate: hasSubmitted });
         if (selectedCategories.length > 0) {
@@ -184,7 +182,6 @@ export default function Register() {
         selectedSubCategories.includes(s.subCategoryId)
     );
 
-
     const validateAllFields = React.useCallback(async () => {
         const errors: typeof formErrors = {};
 
@@ -210,21 +207,6 @@ export default function Register() {
             if (!businessTypeValue) {
                 errors.businessType = "Please select a business type";
             }
-            if (businessTypeValue) {
-                errors.businessType = "";
-            }
-            if (selectedCategories.length > 0) {
-                errors.categories = "";
-            }
-            if (selectedSubCategories.length > 0) {
-                errors.subCategories = "";
-            }
-            if (selectedServices.length > 0) {
-                errors.services = "";
-            }
-            if (countryValue) {
-                errors.country = "";
-            }
         }
 
         setFormErrors(errors);
@@ -236,16 +218,36 @@ export default function Register() {
         if (hasSubmitted) {
             validateAllFields();
         }
-    }, [password,  repassword, selectedCategories, selectedSubCategories, selectedServices, countryValue, businessTypeValue, hasSubmitted, validateAllFields]);
+    }, [password, repassword, selectedCategories, selectedSubCategories, selectedServices, countryValue, businessTypeValue, hasSubmitted, validateAllFields]);
 
+    const validateFormData = (data: ProfessionalStepOneSchemaType) => {
+        const errors = [];
+
+        if (data.categories.length === 0) errors.push("At least one category is required");
+        if (data.subCategories.length === 0) errors.push("At least one sub-category is required");
+        if (data.services_id.length === 0) errors.push("At least one service is required");
+        if (!data.country) errors.push("Country is required");
+        if (!data.businessType) errors.push("Business type is required");
+        if (data.password !== data.repassword) errors.push("Passwords do not match");
+
+        return errors;
+    };
     const onSubmit = async (data: ProfessionalStepOneSchemaType) => {
         setHasSubmitted(true);
+        if (isPending) {
+            toast.error("Please wait while we process your registration");
+            return;
+        }
 
         // Trigger form validation first
         const isValid = await trigger();
         const customValidationValid = await validateAllFields();
+        const formValidationErrors = validateFormData(data);
 
-        if (!isValid || !customValidationValid) {
+        if (!isValid || !customValidationValid || formValidationErrors.length > 0) {
+            if (formValidationErrors.length > 0) {
+                toast.error(formValidationErrors[0]);
+            }
             return;
         }
 
@@ -255,11 +257,9 @@ export default function Register() {
             subCategories: selectedSubCategories,
             services_id: selectedServices
         };
-
         await registerUser(submitData);
     };
 
-    // Helper component to display error messages
     const ErrorMessage = ({ message }: { message?: string }) => {
         if (!message) return null;
         return (
@@ -640,11 +640,11 @@ export default function Register() {
                     <button type="button" className="text-sm/6 font-semibold text-gray-900 dark:text-white">Cancel</button>
                     <button
                         type="submit"
-                        className="inline-flex items-center gap-2 rounded-[4px] bg-[#0077B6] px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-[#35a5e1] focus-visible:outline-1 focus-visible:outline-[#0077B6] focus-visible:outline-offset-2"
+                        className="inline-flex items-center gap-2 rounded-[4px] bg-[#0077B6] px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-[#35a5e1] focus-visible:outline-1 focus-visible:outline-[#0077B6] focus-visible:outline-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
                         disabled={isPending}
                     >
                         {isPending && <Loader2 className="w-4 h-4 animate-spin" />}
-                        Sign Up
+                        {isPending ? "Creating Account..." : "Sign Up"}
                     </button>
                 </div>
             </form>
