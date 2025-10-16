@@ -2,22 +2,26 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { RegisterFormData } from "@/types/auth/register";
 import {
-  registerUser,
+  BusinessInfoPayload,
+  registerUserAPI,
+  saveBusinessInfoAPI,
   UpdateBusinessName,
 } from "@/app/api/services/ProAccount";
 import toast from "react-hot-toast";
 import { useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/components/providers/context/auth-context";
+import  {
+} from "@/components/home-services/onboarding/step-4";
 
 export function useRegister() {
   const { login } = useAuth();
   const [isPending, setIsPending] = useState(false);
   const router = useRouter();
 
-  const register = async (data: RegisterFormData) => {
+  const registerUser = async (data: RegisterFormData) => {
     setIsPending(true);
     try {
-      const response = await registerUser(data);
+      const response = await registerUserAPI(data);
       localStorage.setItem(
         "professionalData",
         JSON.stringify(response.professional)
@@ -36,7 +40,7 @@ export function useRegister() {
     }
   };
 
-  return { register, isPending };
+  return { registerUser, isPending };
 }
 
 export function useUpdateBusinessName() {
@@ -46,7 +50,6 @@ export function useUpdateBusinessName() {
     mutationFn: (data: { businessName: string; id: string }) =>
       UpdateBusinessName(data),
     onSuccess: (updatedProfessional) => {
-
       const storedData = localStorage.getItem("professionalData");
       if (storedData) {
         const parsedData = JSON.parse(storedData);
@@ -63,6 +66,25 @@ export function useUpdateBusinessName() {
     onError: (error: any) => {
       toast.error(
         error?.response?.data?.message || "Failed to update Business Name"
+      );
+    },
+  });
+}
+
+// Craete Prof Account Business Info - Step 04
+
+export function useBusinessInfo() {
+  const router = useRouter();
+
+  return useMutation({
+    mutationKey: ["BusinessInfo"],
+    mutationFn: (data: BusinessInfoPayload) => saveBusinessInfoAPI(data),
+    onSuccess: () => {
+      router.push("/home-services/dashboard/services/step-5");
+    },
+    onError: (error: any) => {
+      toast.error(
+        error?.response?.data?.message || "Failed to save Business Info"
       );
     },
   });
