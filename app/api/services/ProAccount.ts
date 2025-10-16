@@ -38,10 +38,13 @@ export interface BusinessInfoPayload {
   founded?: string | number | null;
   about?: string | null;
   profile?: File | null;
-  id: string | null
+  id: string | null;
 }
 
-export const saveBusinessInfoAPI = async (data: BusinessInfoPayload) => {
+export const saveBusinessInfoAPI = async (
+  data: BusinessInfoPayload,
+  token: string
+) => {
   try {
     const formData = new FormData();
     formData.append("businessType", data.businessType);
@@ -50,8 +53,11 @@ export const saveBusinessInfoAPI = async (data: BusinessInfoPayload) => {
     if (data.about) formData.append("about", data.about);
     if (data.profile) formData.append("profile", data.profile);
     if (data.id) formData.append("id", data.id);
-    const response = await api.post("/professionals/businessInfo", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
+    const response = await api.put(`/professionals/businessInfo/${data.id}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${token}`,
+      },
     });
 
     return response.data;

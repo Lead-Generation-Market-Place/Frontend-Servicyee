@@ -116,7 +116,6 @@ export const useUpdateProfessionalbyUserId = (
       return { previousProfessional };
     },
     onSuccess: () => {
-      // ✅ Invalidate and refetch
       queryClient.invalidateQueries({ 
         queryKey: ["professional", "current", token] 
       });
