@@ -2,7 +2,7 @@ import { RegisterFormData, RegisterResponse } from "@/types/auth/register";
 import { api } from "../axios";
 import { handleApiError } from "@/lib/errorHandler";
 
-export const registerUser = async (
+export const registerUserAPI = async (
   data: RegisterFormData
 ): Promise<RegisterResponse> => {
   try {

@@ -49,7 +49,7 @@ export default function Register() {
     }>({});
     const [hasSubmitted, setHasSubmitted] = useState(false);
 
-    const { register: registerUser, isPending } = useRegister();
+    const {  registerUser, isPending } = useRegister();
 
     const {
         register,
