@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { ProgressBar } from "@/components/home-services/onboarding/ProgressBar";
+import { useBusinesAvailability } from '@/hooks/RegisterPro/useRegister';
+import { getAccessToken } from '@/app/api/axios';
 
 const ONBOARDING_STEPS = [
   { id: 1, name: 'Profile' },
@@ -25,7 +27,7 @@ const defaultSchedule = [
 ];
 
 const generateTimeOptions = () => {
-  const times = [];
+  const times: string[] = [];
   for (let h = 0; h < 24; h++) {
     for (let m = 0; m < 60; m += 30) {
       times.push(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`);
@@ -42,18 +44,44 @@ export interface SaveAvailabilityResult {
   details?: string | null;
 }
 
+// Define the payload type
+export interface BusinessAvailabilityPayload {
+  id: string; // professional ID
+  schedule: string; // JSON string
+  [key: string]: any;
+}
+
 export default function AvailabilityForm() {
-  const businessName = "Servicyee"
-  const [selectedOption, setSelectedOption] = useState<'business' | 'string'>('business');
+  const token = getAccessToken() || "";
+  const [businessName, setBusinessName] = useState<string>("");
+  const [professionalId, setProfessionalId] = useState<string>("");
+  const { mutate, isPending, isError, error } = useBusinesAvailability(token);
+  const [selectedOption, setSelectedOption] = useState<'business' | 'anytime'>('business');
   const [currentStep] = useState(3);
   const [schedule, setSchedule] = useState(defaultSchedule);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
 
   // Get ServiceId
-  const params = useSearchParams()
-  const serviceId = params.get('id')
+  const params = useSearchParams();
+  const serviceId = params.get('id');
+
+  // Get Business Name and professional ID from Local Storage
+  useEffect(() => {
+    const localData = localStorage.getItem("professionalData");
+    if (localData) {
+      try {
+        const parseData = JSON.parse(localData);
+        if (parseData.professional) {
+          setBusinessName(parseData.professional.business_name || "");
+          setProfessionalId(parseData.professional._id || "");
+        }
+      } catch (error) {
+        console.error('Error parsing professional data from localStorage:', error);
+      }
+    }
+  }, []);
 
   const handleTimeChange = (
     dayIndex: number,
@@ -61,8 +89,8 @@ export default function AvailabilityForm() {
     type: 'openTime' | 'closeTime',
     value: string
   ) => {
-    setSchedule((prev) => {
-      const newSchedule = prev.map((day, i) => {
+    setSchedule(prev =>
+      prev.map((day, i) => {
         if (i !== dayIndex) return day;
         return {
           ...day,
@@ -75,14 +103,13 @@ export default function AvailabilityForm() {
             };
           }),
         };
-      });
-      return newSchedule;
-    });
+      })
+    );
   };
 
   const handleAvailabilityToggle = (dayIndex: number, shiftIndex: number) => {
-    setSchedule((prev) => {
-      const newSchedule = prev.map((day, i) => {
+    setSchedule(prev =>
+      prev.map((day, i) => {
         if (i !== dayIndex) return day;
         const newDay = { ...day };
         newDay.shifts = day.shifts.map((shift, j) => {
@@ -96,37 +123,52 @@ export default function AvailabilityForm() {
           };
         });
         return newDay;
-      });
-      return newSchedule;
-    });
+      })
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsLoading(true);
-    const formData = new FormData();
+    setIsSubmitting(true);
 
-    let finalSchedule = schedule;
-    if (selectedOption === 'string') {
-      finalSchedule = defaultSchedule.map((day) => ({
-        ...day,
-        shifts: [{ openTime: '00:00', closeTime: '23:59', isClosed: false }],
-      }));
+    try {
+      let finalSchedule = schedule;
+      if (selectedOption === 'anytime') {
+        finalSchedule = defaultSchedule.map((day) => ({
+          ...day,
+          shifts: [{ openTime: '00:00', closeTime: '23:59', isClosed: false }],
+        }));
+      }
+
+      // Build the payload
+      const payload: BusinessAvailabilityPayload = {
+        id: professionalId,
+        schedule: JSON.stringify(finalSchedule),
+      };
+
+      // Convert payload to FormData
+      const formData = new FormData();
+      Object.entries(payload).forEach(([key, value]) => {
+        formData.append(key, value as string | Blob);
+      });
+
+      mutate(payload);
+
+      // Navigate back if serviceId exists
+      if (serviceId) {
+        router.back();
+      }
+
+    } finally {
+      setIsSubmitting(false);
     }
-    if (serviceId) {
-      router.back()
-    }
-    router.push('/home-services/dashboard/services/step-8');
-    formData.set('schedule', JSON.stringify(finalSchedule));
-    setIsLoading(false);
   };
-
   const handleBack = () => {
     router.back();
   };
-
+  const isLoading = isPending || isSubmitting;
   return (
-    <div className="">
+    <div>
       {!serviceId && (
         <ProgressBar
           currentStep={currentStep}
@@ -135,22 +177,28 @@ export default function AvailabilityForm() {
           className="mb-8"
         />
       )}
-      <div className="flex justify-center text-[13px]  dark:bg-gray-900">
-        <div className="w-full max-w-4xl dark:border-gray-700  overflow-hidden">
-          <form ref={formRef} onSubmit={handleSubmit} className=" sm:p-6 md:p-10  dark:bg-gray-900">
+      <div className="flex justify-center text-[13px] dark:bg-gray-900">
+        <div className="w-full max-w-4xl dark:border-gray-700 overflow-hidden">
+          <form ref={formRef} onSubmit={handleSubmit} className="sm:p-6 md:p-10 dark:bg-gray-900">
             <h2 className="text-2xl font-bold text-[#023E8A] dark:text-white mb-3">
-              Set your availability for <span className="italic">{businessName || 'your business'}</span>
+              Set your availability for <span className="italic">{businessName}</span>
             </h2>
             <p className="text-gray-600 dark:text-gray-300 text-[13px] mb-5">
               Customers will only request jobs during the times you set.
             </p>
 
+            {isError && (
+              <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                {error?.message || 'Failed to save availability. Please try again.'}
+              </div>
+            )}
+
             <div className="space-y-4">
               {/* Business Hours Option */}
               <div
-                className={`border rounded-[4px] cursor-pointer p-4 ${selectedOption === 'business'
-                  ? 'border-[#0077B6]'
-                  : 'border-gray-300 dark:border-gray-700'
+                className={`border rounded-[4px] cursor-pointer p-4 transition-colors ${selectedOption === 'business'
+                  ? 'border-[#0077B6] bg-blue-50 dark:bg-blue-900/20'
+                  : 'border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600'
                   }`}
                 onClick={() => setSelectedOption('business')}
               >
@@ -178,9 +226,9 @@ export default function AvailabilityForm() {
                           <input
                             id={`closed-${day.dayOfWeek}`}
                             type="checkbox"
-                            checked={day.shifts[0].isClosed === true}
+                            checked={day.shifts[0].isClosed}
                             onChange={() => handleAvailabilityToggle(dayIndex, 0)}
-                            className="mr-2"
+                            className="mr-2 accent-[#0077B6]"
                           />
                           Closed
                         </label>
@@ -194,26 +242,22 @@ export default function AvailabilityForm() {
                             <select
                               value={day.shifts[0].openTime}
                               onChange={(e) => handleTimeChange(dayIndex, 0, 'openTime', e.target.value)}
-                              className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded px-2 py-1"
+                              className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded px-2 py-1 focus:border-[#0077B6] focus:ring-1 focus:ring-[#0077B6] transition-colors"
+                              disabled={isLoading}
                             >
                               {timeOptions.map((time) => (
-                                <option key={time} value={time}>
-                                  {time}
-                                </option>
+                                <option key={time} value={time}>{time}</option>
                               ))}
                             </select>
-
                             <span className="mx-1 text-gray-500 dark:text-gray-400">to</span>
-
                             <select
                               value={day.shifts[0].closeTime}
                               onChange={(e) => handleTimeChange(dayIndex, 0, 'closeTime', e.target.value)}
-                              className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded px-2 py-1"
+                              className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded px-2 py-1 focus:border-[#0077B6] focus:ring-1 focus:ring-[#0077B6] transition-colors"
+                              disabled={isLoading}
                             >
                               {timeOptions.map((time) => (
-                                <option key={time} value={time}>
-                                  {time}
-                                </option>
+                                <option key={time} value={time}>{time}</option>
                               ))}
                             </select>
                           </div>
@@ -226,23 +270,22 @@ export default function AvailabilityForm() {
 
               {/* Available Any Time Option */}
               <div
-                className={`border rounded-[4px] cursor-pointer p-4 ${selectedOption === 'string'
-                  ? 'border-[#0077B6]'
-                  : 'border-gray-300 dark:border-gray-700'
+                className={`border rounded-[4px] cursor-pointer p-4 transition-colors ${selectedOption === 'anytime'
+                  ? 'border-[#0077B6] bg-blue-50 dark:bg-blue-900/20'
+                  : 'border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600'
                   }`}
-                onClick={() => setSelectedOption('string')}
+                onClick={() => !isLoading && setSelectedOption('anytime')}
               >
                 <div className="flex items-center space-x-2">
                   <input
                     type="radio"
-                    checked={selectedOption === 'string'}
+                    checked={selectedOption === 'anytime'}
                     readOnly
                     className="accent-[#0077B6]"
                   />
                   <span className="font-medium text-gray-900 dark:text-gray-100">Available Any Time</span>
                 </div>
-
-                {selectedOption === 'string' && (
+                {selectedOption === 'anytime' && (
                   <p className="mt-4 text-green-600 dark:text-green-400">
                     You will be available 24 hours, every day.
                   </p>
@@ -254,11 +297,12 @@ export default function AvailabilityForm() {
       </div>
 
       {/* Navigation Buttons */}
-      <div className="fixed bottom-6 right-6 flex gap-4 text-[13px] ">
+      <div className="fixed bottom-6 right-6 flex gap-4 text-[13px]">
         <button
           onClick={handleBack}
           type="button"
-          className="bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-white mt-6 w-full text-[13px] py-2 px-5 rounded-[4px] "
+          disabled={isLoading}
+          className="bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-white mt-6 w-full text-[13px] py-2 px-5 rounded-[4px] disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
         >
           Back
         </button>
@@ -266,14 +310,14 @@ export default function AvailabilityForm() {
           type="button"
           disabled={isLoading}
           onClick={() => formRef.current?.requestSubmit()}
-          className={`
-              mt-6 w-full text-white text-[13px] py-2 px-6 rounded-[4px]
-              transition duration-300 flex items-center justify-center gap-2
-              ${isLoading ? 'bg-[#0077B6]/70 cursor-not-allowed' : 'bg-[#0077B6] hover:bg-[#005f8e]'}
-            `}
+          className={`mt-6 w-full text-white text-[13px] py-2 px-6 rounded-[4px] transition duration-300 flex items-center justify-center gap-2
+            ${isLoading
+              ? 'bg-[#0077B6]/70 cursor-not-allowed'
+              : 'bg-[#0077B6] hover:bg-[#005f8e]'
+            }`}
         >
           {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-          <span>Next</span>
+          <span>{isLoading ? 'Saving...' : 'Next'}</span>
         </button>
       </div>
     </div>
