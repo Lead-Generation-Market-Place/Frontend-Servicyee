@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { RegisterFormData } from "@/types/auth/register";
 import {
+  BusinesAvailabilityAPI,
+  BusinessAvailabilityPayload,
   BusinessInfoPayload,
   registerUserAPI,
   saveBusinessInfoAPI,
@@ -94,13 +96,40 @@ export function useBusinessInfo(token: string) {
           founded: variables.founded,
           about: variables.about,
           profileUrl:
-            responseData?.profileUrl || parsed.professional?.profileUrl || null, 
+            responseData?.profileUrl || parsed.professional?.profileUrl || null,
         };
 
         localStorage.setItem("professionalData", JSON.stringify(parsed));
       }
 
       router.push("/home-services/dashboard/services/step-5");
+    },
+    onError: (error: any) => {
+      toast.error(
+        error?.response?.data?.message || "Failed to save Business Info"
+      );
+    },
+  });
+}
+
+// Create Pro Account Business Availibilty Step 07
+export function useBusinesAvailability(token: string) {
+  const router = useRouter();
+  return useMutation({
+    mutationKey: ["BusinesAvailability"],
+    mutationFn: (data: BusinessAvailabilityPayload) =>
+      BusinesAvailabilityAPI(data, token),
+    onSuccess: (responseData, variables) => {
+      const localData = localStorage.getItem("professionalData");
+      if (localData) {
+        const parsed = JSON.parse(localData);
+        parsed.professional = {
+          ...parsed.professional,
+          availability: variables.schedule || [],
+        };
+        localStorage.setItem("professionalData", JSON.stringify(parsed));
+      }
+      router.push("/home-services/dashboard/services/step-8");
     },
     onError: (error: any) => {
       toast.error(

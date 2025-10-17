@@ -53,13 +53,45 @@ export const saveBusinessInfoAPI = async (
     if (data.about) formData.append("about", data.about);
     if (data.profile) formData.append("profile", data.profile);
     if (data.id) formData.append("id", data.id);
-    const response = await api.put(`/professionals/businessInfo/${data.id}`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await api.put(
+      `/professionals/businessInfo/${data.id}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+// End of API for Creating Account - Professional Business Info - Step 04
+
+// APU for Creating Professional Account Step 07
+export interface BusinessAvailabilityPayload {
+  id: string;
+  schedule: string;
+}
+
+export const BusinesAvailabilityAPI = async (
+  data: BusinessAvailabilityPayload,
+  token: string
+) => {
+  try {
+    const response = await api.put(
+      `/professionals/availability/${data.id}`,
+      data,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response.data;
   } catch (error) {
     throw handleApiError(error);
