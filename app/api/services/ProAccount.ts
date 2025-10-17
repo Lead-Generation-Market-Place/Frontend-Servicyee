@@ -71,10 +71,26 @@ export const saveBusinessInfoAPI = async (
 };
 // End of API for Creating Account - Professional Business Info - Step 04
 
-// APU for Creating Professional Account Step 07
+
+
+
+// API for Creating Professional Account Step 07
+export interface Shift {
+  openTime: string;
+  closeTime: string;
+  isClosed: boolean;
+}
+
+export interface ScheduleDay {
+  dayOfWeek: number;
+  day: string;
+  shifts: Shift[];
+}
+
 export interface BusinessAvailabilityPayload {
   id: string;
-  schedule: string;
+  schedule: ScheduleDay[]; // send as array, NOT string
+  timezone: string;
 }
 
 export const BusinesAvailabilityAPI = async (
@@ -87,7 +103,7 @@ export const BusinesAvailabilityAPI = async (
       data,
       {
         headers: {
-          "Content-Type": "multipart/form-data",
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       }
