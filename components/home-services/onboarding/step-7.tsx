@@ -6,6 +6,8 @@ import { Loader2 } from 'lucide-react';
 import { ProgressBar } from "@/components/home-services/onboarding/ProgressBar";
 import { useBusinesAvailability } from '@/hooks/RegisterPro/useRegister';
 import { getAccessToken } from '@/app/api/axios';
+import { BusinessAvailabilityPayload } from '@/app/api/services/ProAccount';
+
 
 const ONBOARDING_STEPS = [
   { id: 1, name: 'Profile' },
@@ -42,13 +44,6 @@ export interface SaveAvailabilityResult {
   status: 'success' | 'error';
   message: string;
   details?: string | null;
-}
-
-// Define the payload type
-export interface BusinessAvailabilityPayload {
-  id: string; // professional ID
-  schedule: string; // JSON string
-  [key: string]: any;
 }
 
 export default function AvailabilityForm() {
@@ -126,13 +121,14 @@ export default function AvailabilityForm() {
       })
     );
   };
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
       let finalSchedule = schedule;
+
+      // If "anytime" is selected, set full-day shifts
       if (selectedOption === 'anytime') {
         finalSchedule = defaultSchedule.map((day) => ({
           ...day,
@@ -140,29 +136,26 @@ export default function AvailabilityForm() {
         }));
       }
 
-      // Build the payload
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      // Build payload as an array (NOT string)
       const payload: BusinessAvailabilityPayload = {
         id: professionalId,
-        schedule: JSON.stringify(finalSchedule),
+        schedule: finalSchedule,
+        timezone
       };
 
-      // Convert payload to FormData
-      const formData = new FormData();
-      Object.entries(payload).forEach(([key, value]) => {
-        formData.append(key, value as string | Blob);
-      });
-
+      // Call mutation
       mutate(payload);
 
       // Navigate back if serviceId exists
       if (serviceId) {
         router.back();
       }
-
     } finally {
       setIsSubmitting(false);
     }
   };
+
   const handleBack = () => {
     router.back();
   };
