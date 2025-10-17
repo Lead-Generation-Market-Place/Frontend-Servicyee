@@ -33,7 +33,7 @@ export const UpdateBusinessName = async (data: {
 
 // API for Creating Account - Professional Business Info - Step 04
 export interface BusinessInfoPayload {
-  businessType: "company" | "handyman" | "Sub-Contractor";
+  businessType: "company" | "individual" | "sub-contractor";
   employees?: string | number | null;
   founded?: string | number | null;
   about?: string | null;
