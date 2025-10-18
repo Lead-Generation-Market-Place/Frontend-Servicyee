@@ -20,7 +20,6 @@ type ServiceTypeProps = {
 const SubCategoryServices = ({ service }: ServiceTypeProps) => {
   const { id, title, text, season, imageUrl } = service;
   const API_BASE_URL = getStaticURL();
-  console.log("testing service image: ", `/${API_BASE_URL}/${imageUrl}`);
 
   return (
     <div className="">
@@ -32,6 +31,7 @@ const SubCategoryServices = ({ service }: ServiceTypeProps) => {
               src={`${API_BASE_URL}/${imageUrl}`}
               alt={title}
               fill
+              sizes="(max-width: 768px) 280px, 280px"
               className="object-cover transition-transform duration-500 group-hover:scale-110"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/10 to-transparent" />

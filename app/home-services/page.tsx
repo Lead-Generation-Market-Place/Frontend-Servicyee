@@ -102,13 +102,13 @@ const CategoryServices = dynamic(
   }
 );
 
-const AllCategories = dynamic(
-  () => import("@/components/home-services/homepage/AllCategories"),
-  {
-    loading: () => <CategorySkeleton />,
-    ssr: false,
-  }
-);
+// const AllCategories = dynamic(
+//   () => import("@/components/home-services/homepage/AllCategories"),
+//   {
+//     loading: () => <CategorySkeleton />,
+//     ssr: false,
+//   }
+// );
 
 const HomeServicesPage = () => {
   const { isAuthenticated, user, getAccessToken } = useAuth();
@@ -203,7 +203,7 @@ const HomeServicesPage = () => {
         <CategoryServices subcategoryService={subcategoryServices} />
       )}
 
-      <AllCategories />
+      {/* <AllCategories /> */}
       <PopularLocation />
       <PopularSearch />
     </div>

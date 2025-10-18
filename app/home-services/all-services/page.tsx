@@ -1,11 +1,12 @@
 "use client";
-import { getAllServices } from "@/app/api/homepage/popularService";
+
 // import Breadcrumbs from "@/components/home-services/homepage/Breadcrumbs";
 import ServiceList from "@/components/home-services/homepage/ServiceList";
-import { ServiceType } from "@/types/service/services";
-import { useEffect, useState } from "react";
+
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
+import { useAllServices } from "@/hooks/useHomeServices";
+import ApiErrorMessage from "@/components/common/ApiErrorMessage";
 
 // Skeleton component for loading state
 const CategorySkeleton = () => (
@@ -39,25 +40,18 @@ const CategorySkeleton = () => (
 );
 
 export default function AllServicesPage() {
-  const [allServices, setAllServices] = useState<ServiceType[]>([]);
-  const [loading, setLoading] = useState(true);
+  const {
+    data: allServices,
+    isLoading: allServicesLoading,
+    error: allServicesError,
+    refetch: refetchAllServices,
+  } = useAllServices();
 
-  const fetchAllServices = async () => {
-    try {
-      setLoading(true);
-      const response = await getAllServices();
-      setAllServices(response.data);
-    } catch (error) {
-      console.log("Error fetching services: ", error);
-      setAllServices([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchAllServices();
-  }, []);
+  const updatedAllServices = allServices?.data || [];
+  if (allServicesError)
+    return (
+      <ApiErrorMessage error={allServicesError} onRetry={refetchAllServices} />
+    );
 
   return (
     <>
@@ -156,10 +150,10 @@ export default function AllServicesPage() {
         /> */}
 
           {/* Show skeleton while loading, ServiceList when data is ready */}
-          {loading ? (
+          {allServicesLoading ? (
             <CategorySkeleton />
           ) : (
-            <ServiceList allServices={allServices} />
+            <ServiceList allServices={updatedAllServices} />
           )}
         </div>
       </div>
