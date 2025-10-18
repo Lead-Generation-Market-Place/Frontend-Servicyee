@@ -8,7 +8,6 @@ import { useBusinesAvailability } from '@/hooks/RegisterPro/useRegister';
 import { getAccessToken } from '@/app/api/axios';
 import { BusinessAvailabilityPayload } from '@/app/api/services/ProAccount';
 
-
 const ONBOARDING_STEPS = [
   { id: 1, name: 'Profile' },
   { id: 2, name: 'Reviews' },
@@ -19,13 +18,13 @@ const ONBOARDING_STEPS = [
 ];
 
 const defaultSchedule = [
-  { dayOfWeek: 0, day: 'Sunday', shifts: [{ openTime: '00:00', closeTime: '00:00', isClosed: true }] },
+  { dayOfWeek: 0, day: 'Sunday', shifts: [{ openTime: '09:00', closeTime: '17:00', isClosed: true }] },
   { dayOfWeek: 1, day: 'Monday', shifts: [{ openTime: '09:00', closeTime: '17:00', isClosed: false }] },
   { dayOfWeek: 2, day: 'Tuesday', shifts: [{ openTime: '09:00', closeTime: '17:00', isClosed: false }] },
   { dayOfWeek: 3, day: 'Wednesday', shifts: [{ openTime: '09:00', closeTime: '17:00', isClosed: false }] },
   { dayOfWeek: 4, day: 'Thursday', shifts: [{ openTime: '09:00', closeTime: '17:00', isClosed: false }] },
   { dayOfWeek: 5, day: 'Friday', shifts: [{ openTime: '09:00', closeTime: '17:00', isClosed: false }] },
-  { dayOfWeek: 6, day: 'Saturday', shifts: [{ openTime: '00:00', closeTime: '00:00', isClosed: true }] },
+  { dayOfWeek: 6, day: 'Saturday', shifts: [{ openTime: '09:00', closeTime: '17:00', isClosed: true }] },
 ];
 
 const generateTimeOptions = () => {
@@ -62,7 +61,7 @@ export default function AvailabilityForm() {
   const params = useSearchParams();
   const serviceId = params.get('id');
 
-  // Get Business Name and professional ID from Local Storage
+  // 🟢 Load Data from LocalStorage (Business Info + Saved Availability)
   useEffect(() => {
     const localData = localStorage.getItem("professionalData");
     if (localData) {
@@ -71,9 +70,30 @@ export default function AvailabilityForm() {
         if (parseData.professional) {
           setBusinessName(parseData.professional.business_name || "");
           setProfessionalId(parseData.professional._id || "");
+
+          // 🟢 Prefill schedule if availability exists
+          const savedAvailability = parseData.professional.availability;
+
+          if (Array.isArray(savedAvailability) && savedAvailability.length > 0) {
+            setSchedule(savedAvailability);
+
+            // Detect if availability is "anytime"
+            const isAnytime = savedAvailability.every(
+              (day: any) =>
+                day.shifts.length === 1 &&
+                day.shifts[0].openTime === "00:00" &&
+                day.shifts[0].closeTime === "23:59" &&
+                !day.shifts[0].isClosed
+            );
+
+            setSelectedOption(isAnytime ? "anytime" : "business");
+          } else {
+            setSchedule(defaultSchedule);
+          }
         }
       } catch (error) {
-        console.error('Error parsing professional data from localStorage:', error);
+        console.error("Error parsing professional data from localStorage:", error);
+        setSchedule(defaultSchedule);
       }
     }
   }, []);
@@ -121,6 +141,7 @@ export default function AvailabilityForm() {
       })
     );
   };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -137,14 +158,15 @@ export default function AvailabilityForm() {
       }
 
       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      // Build payload as an array (NOT string)
+
+      // Build payload
       const payload: BusinessAvailabilityPayload = {
         id: professionalId,
         schedule: finalSchedule,
         timezone
       };
 
-      // Call mutation
+      // Call mutation (will also save to localStorage on success)
       mutate(payload);
 
       // Navigate back if serviceId exists
@@ -159,7 +181,9 @@ export default function AvailabilityForm() {
   const handleBack = () => {
     router.back();
   };
+
   const isLoading = isPending || isSubmitting;
+
   return (
     <div>
       {!serviceId && (
