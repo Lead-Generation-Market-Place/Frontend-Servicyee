@@ -2,12 +2,14 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { RegisterFormData } from "@/types/auth/register";
 import {
+  AnswerPayload,
   BusinesAvailabilityAPI,
   BusinessAvailabilityPayload,
   BusinessInfoPayload,
   getProServicesQuestionsAPI,
   registerUserAPI,
   saveBusinessInfoAPI,
+  submitServiceAnswersAPI,
   UpdateBusinessName,
 } from "@/app/api/services/ProAccount";
 import toast from "react-hot-toast";
@@ -149,3 +151,18 @@ export function useProServicesQuestions(token: string) {
     staleTime: 1000 * 60 * 5, 
   });
 }
+
+// Create Professional Account 08 
+export const useSubmitServiceAnswers = (token: string) => {
+  return useMutation({
+    mutationKey: ["submitServiceAnswers"],
+    mutationFn: (data: AnswerPayload[]) => submitServiceAnswersAPI(data, token),
+    onSuccess: () => {
+    },
+    onError: (error: any) => {
+      toast.error(
+        error?.response?.data?.message || "Failed to save Business Info"
+      );
+    },
+  });
+};
