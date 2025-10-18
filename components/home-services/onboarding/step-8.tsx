@@ -6,7 +6,10 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { ProgressBar } from "@/components/home-services/onboarding/ProgressBar";
 import { getAccessToken } from "@/app/api/axios";
-import { useProServicesQuestions } from "@/hooks/RegisterPro/useRegister";
+import { 
+  useProServicesQuestions, 
+  useSubmitServiceAnswers 
+} from "@/hooks/RegisterPro/useRegister";
 
 // --- Steps (consistent with onboarding process)
 const ONBOARDING_STEPS = [
@@ -30,18 +33,20 @@ export interface ServiceQuestion {
   active: boolean;
 }
 
-async function submitAnswers(data: { question_id: string; answer: string | string[] }[]) {
-  console.log("Answers submitted:", data);
-  return { success: true };
+// Define the AnswerPayload type based on your API requirements
+interface AnswerPayload {
+  question_id: string;
+  answer: string | string[];
 }
 
 export default function MultiChoiceServiceForm() {
   const token = getAccessToken() || "";
   const router = useRouter();
-  const { data, isLoading, isPending, error } = useProServicesQuestions(token);
-  console.log("Fetched data:", data);
+  const { data, isLoading, isPending: questionsLoading, error } = useProServicesQuestions(token);
+  const { mutate: submitAnswers, isPending: isSubmitting } = useSubmitServiceAnswers(token);
 
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const currentStep = 3;
 
   const groupedData = React.useMemo(() => {
@@ -80,32 +85,61 @@ export default function MultiChoiceServiceForm() {
 
   const handleAnswerChange = useCallback((id: string, value: string | string[]) => {
     setAnswers((prev) => ({ ...prev, [id]: value }));
-  }, []);
-
-  const handleNext = useCallback(async () => {
-    try {
-      const payload = Object.entries(answers).map(([question_id, answer]) => ({
-        question_id,
-        answer,
-      }));
-
-      const result = await submitAnswers(payload);
-      if (!result.success) {
-        toast.error("Failed to submit answers");
-        return;
-      }
-
-      router.prefetch("/home-services/dashboard/services/step-9");
-      router.push("/home-services/dashboard/services/step-9");
-    } catch (err) {
-      toast.error(`An error occurred: ${(err as Error).message}`);
+    // Clear validation error when user starts typing
+    if (validationErrors[id]) {
+      setValidationErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[id];
+        return newErrors;
+      });
     }
-  }, [answers, router]);
+  }, [validationErrors]);
+
+  const validateAnswers = useCallback((): boolean => {
+    const errors: Record<string, string> = {};
+    
+    for (const service of groupedData) {
+      for (const q of service.questions) {
+        if (q.required && (!answers[q._id] || 
+            (Array.isArray(answers[q._id]) && answers[q._id].length === 0) ||
+            answers[q._id] === "")) {
+          errors[q._id] = "This field is required";
+        }
+      }
+    }
+    
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  }, [answers, groupedData]);
+
+  const handleNext = useCallback(() => {
+    if (!validateAnswers()) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    const payload: AnswerPayload[] = Object.entries(answers).map(([question_id, answer]) => ({
+      question_id,
+      answer,
+    }));
+
+    submitAnswers(payload, {
+      onSuccess: () => {
+        toast.success("Answers submitted successfully!");
+        router.prefetch("/home-services/dashboard/services/step-9");
+        router.push("/home-services/dashboard/services/step-9");
+      },
+      onError: (error: any) => {
+        toast.error(error?.response?.data?.message || "Failed to submit answers");
+      },
+    });
+  }, [answers, validateAnswers, submitAnswers, router]);
 
   // --- Field Renderer
   const renderField = useCallback(
     (q: ServiceQuestion) => {
       const value = answers[q._id] ?? "";
+      const error = validationErrors[q._id];
 
       switch (q.form_type) {
         case "checkbox":
@@ -127,6 +161,7 @@ export default function MultiChoiceServiceForm() {
                   <span className="ml-2 text-sm text-gray-700">{opt}</span>
                 </label>
               ))}
+              {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
             </div>
           );
 
@@ -145,61 +180,74 @@ export default function MultiChoiceServiceForm() {
                   <span className="ml-2 text-sm text-gray-700">{opt}</span>
                 </label>
               ))}
+              {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
             </div>
           );
 
         case "select":
           return (
-            <select
-              value={value as string}
-              onChange={(e) => handleAnswerChange(q._id, e.target.value)}
-              className="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-[#0077B6] focus:border-[#0077B6]"
-            >
-              {q.options.map((opt, i) => (
-                <option key={`${q._id}-opt-${i}`} value={opt}>
-                  {opt}
-                </option>
-              ))}
-            </select>
+            <div>
+              <select
+                value={value as string}
+                onChange={(e) => handleAnswerChange(q._id, e.target.value)}
+                className="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-[#0077B6] focus:border-[#0077B6]"
+              >
+                {q.options.map((opt, i) => (
+                  <option key={`${q._id}-opt-${i}`} value={opt}>
+                    {opt}
+                  </option>
+                ))}
+              </select>
+              {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+            </div>
           );
 
         case "number":
           return (
-            <input
-              type="number"
-              value={value as string}
-              onChange={(e) => handleAnswerChange(q._id, e.target.value)}
-              className="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-[#0077B6]"
-            />
+            <div>
+              <input
+                type="number"
+                value={value as string}
+                onChange={(e) => handleAnswerChange(q._id, e.target.value)}
+                className="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-[#0077B6]"
+              />
+              {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+            </div>
           );
 
         case "date":
           return (
-            <input
-              type="date"
-              value={value as string}
-              onChange={(e) => handleAnswerChange(q._id, e.target.value)}
-              className="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-[#0077B6]"
-            />
+            <div>
+              <input
+                type="date"
+                value={value as string}
+                onChange={(e) => handleAnswerChange(q._id, e.target.value)}
+                className="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-[#0077B6]"
+              />
+              {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+            </div>
           );
 
         default:
           return (
-            <input
-              type="text"
-              value={value as string}
-              onChange={(e) => handleAnswerChange(q._id, e.target.value)}
-              placeholder="Enter your answer"
-              className="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-[#0077B6]"
-            />
+            <div>
+              <input
+                type="text"
+                value={value as string}
+                onChange={(e) => handleAnswerChange(q._id, e.target.value)}
+                placeholder="Enter your answer"
+                className="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-[#0077B6]"
+              />
+              {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+            </div>
           );
       }
     },
-    [answers, handleAnswerChange]
+    [answers, validationErrors, handleAnswerChange]
   );
 
   // --- Loading & Error states
-  if (isLoading || isPending) {
+  if (isLoading || questionsLoading) {
     return (
       <div className="flex justify-center items-center h-[80vh]">
         <Loader2 className="h-6 w-6 animate-spin text-[#0077B6]" />
@@ -253,14 +301,14 @@ export default function MultiChoiceServiceForm() {
 
           <button
             type="button"
-            disabled={isPending}
+            disabled={isSubmitting}
             onClick={handleNext}
             className={`text-white py-2 px-6 rounded-[4px] transition duration-300 flex items-center justify-center gap-2 ${
-              isPending ? "bg-[#0077B6]/70 cursor-not-allowed" : "bg-[#0077B6] hover:bg-[#005f8e]"
+              isSubmitting ? "bg-[#0077B6]/70 cursor-not-allowed" : "bg-[#0077B6] hover:bg-[#005f8e]"
             }`}
           >
-            {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-            <span>Next</span>
+            {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
+            <span>{isSubmitting ? "Submitting..." : "Next"}</span>
           </button>
         </div>
       </div>

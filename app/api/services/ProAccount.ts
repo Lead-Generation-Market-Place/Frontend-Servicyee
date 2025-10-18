@@ -130,3 +130,25 @@ export const getProServicesQuestionsAPI = async (token: string) => {
     throw handleApiError(error);
   }
 };
+  // End of Get Professional Account Step 08
+
+
+  // Professional Account Registeration Step 08
+export interface AnswerPayload {
+  question_id: string;
+  answer: string | string[];
+}
+export const submitServiceAnswersAPI = async (data: AnswerPayload[], token: string) => {
+  try {
+    const response = await api.put('/services-answers',data,   {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
