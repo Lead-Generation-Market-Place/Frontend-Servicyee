@@ -16,14 +16,20 @@ export const registerUserAPI = async (
   }
 };
 
-export const UpdateBusinessName = async (data: {
-  businessName: string;
-  id: string;
-}) => {
+export const UpdateBusinessName = async (
+  data: { businessName: string; id: string },
+  token: string
+) => {
   try {
     const response = await api.put(
       `/professionals/update-business-name/${data.id}`,
-      { business_name: data.businessName }
+      { business_name: data.businessName },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
     );
     return response.data;
   } catch (error) {
@@ -70,9 +76,6 @@ export const saveBusinessInfoAPI = async (
   }
 };
 // End of API for Creating Account - Professional Business Info - Step 04
-
-
-
 
 // API for Creating Professional Account Step 07
 export interface Shift {

@@ -48,12 +48,12 @@ export function useRegister() {
 }
 
 // Create Professional Account - Step 03
-export function useUpdateBusinessName() {
+export function useUpdateBusinessName(token: string) {
   const router = useRouter();
   return useMutation({
     mutationKey: ["UpdateBusinessName"],
     mutationFn: (data: { businessName: string; id: string }) =>
-      UpdateBusinessName(data),
+      UpdateBusinessName(data,token),
     onSuccess: (updatedProfessional) => {
       const storedData = localStorage.getItem("professionalData");
       if (storedData) {
