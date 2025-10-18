@@ -5,7 +5,11 @@ import ProfessionalFilters from "@/components/home-services/homepage/professiona
 import SubCategoryServices from "@/components/home-services/sub-categories/SubCategegoryServices";
 import AllCategories from "@/components/home-services/homepage/AllCategories";
 import { getSubcategoryStaticURL } from "@/app/api/axios";
-import { useSubcategoryServicesBySlug } from "@/hooks/useHomeServices";
+import {
+  useSubcategoryServices,
+  useSubcategoryServicesBySlug,
+  useUserLocationStorage,
+} from "@/hooks/useHomeServices";
 
 interface ServiceType {
   _id: string;
@@ -43,6 +47,13 @@ export default function SubCategoryServicesPage({
     error,
     isFetching,
   } = useSubcategoryServicesBySlug(slug);
+  // use React query to get the all subcategories and service count:
+  const { data: subcategoriesData } = useSubcategoryServices();
+
+  const { data: userLocationData } = useUserLocationStorage();
+
+  const allSubcategoryServices = subcategoriesData?.data || [];
+  const userLocationDetails = userLocationData;
 
   const subcategoryData: SubcategoryDataType | null = response?.success
     ? response.data
@@ -58,7 +69,6 @@ export default function SubCategoryServicesPage({
       setSlug(currentSlug);
       setDecodedSlug(decodeURIComponent(currentSlug));
     };
-
     extractSlug();
   }, [params]);
 
@@ -185,8 +195,9 @@ export default function SubCategoryServicesPage({
           <div className="px-4 sm:px-6 lg:px-8 py-5">
             <div className="">
               <div className="space-y-2 mb-4 md:mb-6">
-                <h1 className="text-xl md:text-2xl font-bold capitalize">
-                  {subcategoryData.name} Services Near You
+                <h1 className="text-xl md:text-2xl font-bold capitalize text-gray-900 dark:text-gray-100">
+                  {subcategoryData.name} Services Near{" "}
+                  {userLocationDetails?.city}, {userLocationDetails?.state}
                 </h1>
                 <p className="py-2 text-sm md:text-base text-gray-700 dark:text-gray-300">
                   Need repair or technical support? Whether it&apos;s a quick
@@ -258,7 +269,7 @@ export default function SubCategoryServicesPage({
               </div>
 
               <div className="mt-8 md:mt-12">
-                <AllCategories />
+                <AllCategories allSubcategory={allSubcategoryServices} />
               </div>
             </div>
           </div>

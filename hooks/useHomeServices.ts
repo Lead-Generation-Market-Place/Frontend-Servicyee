@@ -1,11 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createUserLocationById,
+  getAllServices,
   getFeaturedServices,
   getPopularServices,
   getSubcategoriesServices,
   getSubcategoryServicesBySlug,
   getUserLocation,
+  loadUserLocation,
 } from "@/app/api/homepage/popularService";
 
 
@@ -31,6 +33,14 @@ export const useFeaturedServices = () => {
         queryFn: getFeaturedServices,
         staleTime: 5*60*1000,
     });
+}
+
+export const useAllServices = () => {
+  return useQuery ({
+    queryKey: ['allServices'],
+    queryFn: getAllServices,
+    staleTime: 5*60*1000,
+  });
 }
 
 // export const useSubcategories = () => {
@@ -84,5 +94,16 @@ export const useCreateUserLocation = () => {
       // Invalidate and refetch user location after successful creation
       queryClient.invalidateQueries({ queryKey: ['userLocation'] });
     },
+  });
+};
+
+
+export const useUserLocationStorage = () => {
+  return useQuery({
+    queryKey: ["userLocationData"],
+    queryFn: async () => loadUserLocation(),
+    // 👇 force query to run each mount (ignore cached data)
+    refetchOnMount: true,
+    staleTime: 0,
   });
 };

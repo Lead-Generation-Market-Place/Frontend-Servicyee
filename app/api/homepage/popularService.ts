@@ -77,3 +77,33 @@ export const getUserLocation = async (userId: string, token: string) => {
   });
   return response.data;
 };
+
+
+// ======================================================
+//       Handling user location in localStorage
+//=======================================================
+
+export const loadUserLocation = async (): Promise<LocationData> => {
+
+  const storedUserLocationRaw = localStorage.getItem("user_location");
+
+  if (storedUserLocationRaw) {
+    const userLocation = JSON.parse(storedUserLocationRaw);
+    return userLocation;
+  }
+  const storedDefaultLocationRaw = localStorage.getItem("defaultLocation");
+  const defaultLocation = storedDefaultLocationRaw
+    ? JSON.parse(storedDefaultLocationRaw)
+    : {
+        city: "New York",
+        state: "NY",
+        country: "USA",
+        zipcode: "10001",
+        coordinates: { lat: 40.7128, lng: -74.0060 },
+        type: "default",
+      };
+
+  localStorage.setItem("user_location", JSON.stringify(defaultLocation));
+
+  return defaultLocation;
+};

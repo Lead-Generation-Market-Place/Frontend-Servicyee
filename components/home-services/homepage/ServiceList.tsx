@@ -3,6 +3,7 @@ import { motion, Variants } from "framer-motion";
 import { useState } from "react";
 import { ServiceCard } from "./ServiceCard";
 import { ServiceType } from "@/types/service/services";
+import { useUserLocationStorage } from "@/hooks/useHomeServices";
 
 interface allServicesProps {
   allServices: ServiceType[];
@@ -10,6 +11,8 @@ interface allServicesProps {
 
 const ServiceList = ({ allServices }: allServicesProps) => {
   const [locationFilter, setLocationFilter] = useState<string>("all");
+
+  const { data: userLocationData } = useUserLocationStorage();
 
   // Animation variants
   const containerVariants: Variants = {
@@ -48,7 +51,10 @@ const ServiceList = ({ allServices }: allServicesProps) => {
           >
             <div>
               <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
-                Available Services
+                Available Services at{" "}
+                <u className="text-sky-600 dark:text-sky-500">
+                  {userLocationData?.city}, {userLocationData?.state}
+                </u>
               </h2>
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 {allServices.length} services available
