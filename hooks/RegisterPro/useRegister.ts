@@ -5,12 +5,13 @@ import {
   BusinesAvailabilityAPI,
   BusinessAvailabilityPayload,
   BusinessInfoPayload,
+  getProServicesQuestionsAPI,
   registerUserAPI,
   saveBusinessInfoAPI,
   UpdateBusinessName,
 } from "@/app/api/services/ProAccount";
 import toast from "react-hot-toast";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/components/providers/context/auth-context";
 import {} from "@/components/home-services/onboarding/step-4";
 // Create Account For Professional
@@ -139,3 +140,12 @@ export function useBusinesAvailability(token: string) {
   });
 }
 
+// Get Professional Services Question - Step 08
+export function useProServicesQuestions(token: string) {
+  return useQuery({
+    queryKey: ['getProServicesQuestions', token],
+    queryFn: () => getProServicesQuestionsAPI(token),
+    enabled: !!token, 
+    staleTime: 1000 * 60 * 5, 
+  });
+}

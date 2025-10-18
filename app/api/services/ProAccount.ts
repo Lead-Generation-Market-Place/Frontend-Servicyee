@@ -116,3 +116,17 @@ export const BusinesAvailabilityAPI = async (
     throw handleApiError(error);
   }
 };
+
+// Get Professional Services Question  Step 08
+export const getProServicesQuestionsAPI = async (token: string) => {
+  try {
+    const response = await api.get("/questions", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
