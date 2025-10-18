@@ -6,6 +6,10 @@ import { SquareMousePointer } from "lucide-react";
 import NoMatchDialog from "@/components/home-services/homepage/titleComponents/NoMatchDialog";
 import LocationDialog from "@/components/home-services/homepage/titleComponents/LocationDialog";
 import SearchBar from "@/components/home-services/homepage/titleComponents//SearchBar";
+import {
+  getLocationFromCoords,
+  getLocationFromZip,
+} from "@/lib/locationService";
 
 // Function to calculate similarity between two strings
 const calculateSimilarity = (a: string, b: string): number => {
@@ -204,10 +208,25 @@ const titleVariants: Variants = {
     },
   },
 };
+interface TitlePageProps {
+  location?: {
+    country?: string;
+    state?: string;
+    city?: string;
+    postcode?: string;
+  };
+}
 
-const TitlePage = () => {
+const TitlePage = ({ location }: TitlePageProps) => {
   const router = useRouter();
   const [userLocation, setUserLocation] = useState<string | null>(null);
+  /* eslint-disable no-unused-vars */
+  const [locationData, setLocationData] = useState<{
+    city?: string;
+    state?: string;
+    postcode?: string;
+  }>({});
+  /* eslint-enable no-unused-vars */
   const [zipCode, setZipCode] = useState("");
   const [serviceQuery, setServiceQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -228,12 +247,50 @@ const TitlePage = () => {
   useEffect(() => {
     setIsMounted(true);
 
+    // Priority: 1. Props location, 2. Local storage, 3. Default
+    if (location?.city && location?.state) {
+      // Use location from props
+      setLocationData({
+        city: location.city,
+        state: location.state,
+        postcode: location.postcode,
+      });
+      setUserLocation(`${location.city}, ${location.state}`);
+      if (location.postcode) {
+        setZipCode(location.postcode);
+      }
+    } else {
+      // Fallback to localStorage
+      const storedLocation = localStorage.getItem("user_location");
+      if (storedLocation) {
+        const { city, state, postcode } = JSON.parse(storedLocation);
+        setLocationData({ city, state, postcode });
+        setUserLocation(`${city}, ${state}`);
+        setZipCode(postcode || "");
+      }
+    }
+
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 500);
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [location]); // Add location to dependencies
+
+  const updateLocation = (newLocation: {
+    city: string;
+    state: string;
+    postcode?: string;
+  }) => {
+    setLocationData(newLocation);
+    setUserLocation(`${newLocation.city}, ${newLocation.state}`);
+    if (newLocation.postcode) {
+      setZipCode(newLocation.postcode);
+    }
+
+    // Also update localStorage for persistence
+    localStorage.setItem("user_location", JSON.stringify(newLocation));
+  };
 
   const handleSearch = (selectedService?: string) => {
     setIsLoading(true);
@@ -324,16 +381,63 @@ const TitlePage = () => {
     setError("");
   };
 
-  const setCurrentLocation = () => {
+  const setCurrentLocation = async () => {
     setIsLoading(true);
     setError("");
 
-    setTimeout(() => {
-      setUserLocation("Los Angeles, CA");
-      setZipCode("90001");
+    if (!navigator.geolocation) {
+      setError("Geolocation not supported");
       setIsLoading(false);
-      setIsLocationDialogOpen(false);
-    }, 800);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+          const locationData = await getLocationFromCoords(latitude, longitude);
+
+          const newLocation = {
+            city: locationData.city,
+            state: locationData.state,
+            postcode: locationData.postcode,
+          };
+
+          updateLocation(newLocation);
+          setIsLocationDialogOpen(false);
+        } catch {
+          setError("Unable to fetch location details");
+        } finally {
+          setIsLoading(false);
+        }
+      },
+      () => {
+        setError("Location access denied");
+        setIsLoading(false);
+      }
+    );
+  };
+
+  const handleZipCodeLookup = async (zip: string) => {
+    if (!zip || zip.length < 4) return;
+
+    setIsLoading(true);
+    setError("");
+
+    try {
+      const locationData = await getLocationFromZip(zip);
+      const newLocation = {
+        city: locationData.city,
+        state: locationData.state,
+        postcode: zip,
+      };
+
+      updateLocation(newLocation);
+    } catch {
+      setError("Invalid ZIP code or no location found");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleServiceSuggestion = (service: string) => {
@@ -341,8 +445,27 @@ const TitlePage = () => {
     setShowNoMatchDialog(false);
     handleSearch(service);
   };
+  //default location fallback
+  const defaultLocation = {
+    city: "New York",
+    state: "NY",
+    zipcode: "10001",
+  };
+  // store it in local storage for access (avoid overwriting if already set)
+  if (!localStorage.getItem("defaultLocation")) {
+    localStorage.setItem("defaultLocation", JSON.stringify(defaultLocation));
+  }
+  // get default location from localStorage
+  // const storedDefaultLocationRaw = localStorage.getItem("defaultLocation");
+  // const storedLocation = storedDefaultLocationRaw
+  //   ? JSON.parse(storedDefaultLocationRaw)
+  //   : null;
 
-  const userDefaultLocation = "Los Angeles, CA";
+  // Use prop location as fallback for default display
+  const userDefaultLocation =
+    location?.city && location?.state
+      ? `${location.city}, ${location.state}`
+      : `${defaultLocation.city}, ${defaultLocation.state}`;
 
   // Prevent hydration mismatch by not rendering until mounted
   if (!isMounted) {
@@ -371,7 +494,10 @@ const TitlePage = () => {
         open={isLocationDialogOpen}
         onOpenChange={setIsLocationDialogOpen}
         zipCode={zipCode}
-        onZipCodeChange={handleZipCodeChange}
+        onZipCodeChange={(zip) => {
+          handleZipCodeChange(zip);
+          handleZipCodeLookup(zip);
+        }}
         onSetCurrentLocation={setCurrentLocation}
         isLoading={isLoading}
         error={error}
