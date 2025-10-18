@@ -3,22 +3,23 @@ import { motion } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
 import Breadcrumbs from "@/components/home-services/homepage/Breadcrumbs";
 import { ServiceCard } from "@/components/home-services/homepage/ServiceCard";
-import { getSubcategoriesServices } from "@/app/api/homepage/popularService";
 import { SubcategoryWithServicesType } from "@/types/service/services";
+import { useSubcategoryServices } from "@/hooks/useHomeServices";
+import { CategoriesSkeleton } from "@/components/ui/skeletonLoader";
 
 export default function ExploreCategoriesPage() {
   const [activeCategory, setActiveCategory] = useState<string>("");
-  const [subcategoriesServices, setSubcategoriesServices] = useState<
-    SubcategoryWithServicesType[]
-  >([]);
-  const [loading, setLoading] = useState(true);
-  const servicesRef = useRef<HTMLDivElement>(null);
   const categoryRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
-  // Fetch data on component mount
-  useEffect(() => {
-    fetchSubcategoriesServices();
-  }, []);
+  // Use React Query for data fetching
+  const {
+    data: subcategoriesData,
+    isLoading,
+    error,
+  } = useSubcategoryServices();
+
+  const subcategoriesServices: SubcategoryWithServicesType[] =
+    subcategoriesData?.data || subcategoriesData || [];
 
   // Set category refs after data is loaded and DOM is rendered
   useEffect(() => {
@@ -38,31 +39,14 @@ export default function ExploreCategoriesPage() {
     }
   }, [subcategoriesServices]);
 
-  // API call for data
-  const fetchSubcategoriesServices = async () => {
-    try {
-      setLoading(true);
-      const response = await getSubcategoriesServices();
-      // Assuming your API returns the data directly or as response.data
-      // Adjust based on your actual API response structure
-      setSubcategoriesServices(response?.data || response || []);
-    } catch (error) {
-      console.log("error: ", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const scrollToCategory = (categoryId: string) => {
     setActiveCategory(categoryId);
     const element = categoryRefs.current[categoryId];
-    if (element && servicesRef.current) {
-      const containerTop =
-        servicesRef.current.getBoundingClientRect().top + window.scrollY;
+    if (element) {
       const elementTop = element.getBoundingClientRect().top + window.scrollY;
 
       window.scrollTo({
-        top: elementTop - containerTop + servicesRef.current.scrollTop - 20,
+        top: elementTop - 100, // Offset for sticky header
         behavior: "smooth",
       });
     }
@@ -97,12 +81,37 @@ export default function ExploreCategoriesPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [subcategoriesServices]);
 
-  if (loading) {
+  // Loading state
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-lg">Loading categories...</div>
       </div>
     );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-lg text-red-500">
+          Error loading categories. Please try again.
+        </div>
+      </div>
+    );
+  }
+
+  // Empty state
+  if (subcategoriesServices.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-lg">No categories available.</div>
+      </div>
+    );
+  }
+  // skeleton loader
+  if (isLoading) {
+    return <CategoriesSkeleton />;
   }
 
   return (
@@ -154,7 +163,6 @@ export default function ExploreCategoriesPage() {
 
             {/* Services Display - Right Side */}
             <motion.div
-              ref={servicesRef}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 0.1 }}
@@ -164,7 +172,7 @@ export default function ExploreCategoriesPage() {
                 {subcategoriesServices.map((category) => (
                   <div
                     key={category._id}
-                    id={`category-${category._id}`} // Use unique ID with prefix
+                    id={`category-${category._id}`}
                     className="scroll-mt-20"
                     ref={(el: HTMLDivElement | null) => {
                       if (el) {
@@ -195,7 +203,7 @@ export default function ExploreCategoriesPage() {
                               slug={service.slug}
                               title={service.name}
                               text={service.description}
-                              season={"all"} // You might want to get this from your service data
+                              season={"all"}
                               imageUrl={service.image_url}
                             />
                           </motion.div>

@@ -1,3 +1,4 @@
+import { LocationData } from "@/types/location";
 import { api } from "../axios";
 export const getPopularServices = async () => {
     try {
@@ -50,3 +51,29 @@ export const getSubcategoryServicesBySlug = async (slug: string) => {
     throw error; // Re-throw to handle in calling function
   }
 }
+
+export const createUserLocationById = async (
+  userLocationData: LocationData, 
+  userId: string, 
+  token: string
+) => {
+  const response = await api.post(`/location/user/${userId}/create`, {
+    ...userLocationData,
+    timestamp: new Date().toISOString(),
+  }, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  });
+  return response.data;
+};
+
+export const getUserLocation = async (userId: string, token: string) => {
+  const response = await api.get(`/location/user/${userId}`, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+  return response.data;
+};

@@ -5,17 +5,16 @@ import dynamic from "next/dynamic";
 import { Skeleton } from "@/components/ui/skeleton";
 import PopularLocation from "@/components/home-services/homepage/PopularLocation";
 import { useEffect, useState } from "react";
+import { useAuth } from "@/components/providers/context/auth-context";
 import {
-  getFeaturedServices,
-  getPopularServices,
-  getSubcategoriesServices,
-} from "../api/homepage/popularService";
-import {
-  ServiceType,
-  SubcategoryWithServicesType,
-} from "@/types/service/services";
+  usePopularServices,
+  useSubcategoryServices,
+  useFeaturedServices,
+} from "@/hooks/useHomeServices";
+import LocationPermissionModal from "@/components/home-services/LocationPermissionModal";
+import { getLocationInfo } from "@/lib/getLocationInfo";
 
-// Skeleton components
+// Skeletons (same as before)
 const TitlePageSkeleton = () => (
   <div className="w-full h-60 md:h-72 lg:h-80 xl:h-96 bg-gray-200 dark:bg-gray-800 animate-pulse" />
 );
@@ -41,13 +40,10 @@ const CategorySkeleton = () => (
 const FeaturedServicesSkeleton = () => (
   <div className="mt-10 px-4">
     <div className="max-w-6xl mx-auto">
-      {/* Header skeleton */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-6 w-32 mt-2 sm:mt-0" />
       </div>
-
-      {/* Carousel skeleton */}
       <div className="relative">
         <div className="flex overflow-x-auto gap-6 pb-4 -mx-4 px-4">
           {[...Array(4)].map((_, i) => (
@@ -67,8 +63,6 @@ const FeaturedServicesSkeleton = () => (
           ))}
         </div>
       </div>
-
-      {/* View all button skeleton */}
       <div className="flex justify-center items-center mt-5">
         <Skeleton className="w-56 h-10 rounded-full" />
       </div>
@@ -76,6 +70,7 @@ const FeaturedServicesSkeleton = () => (
   </div>
 );
 
+// Dynamic imports
 const TitlePage = dynamic(
   () => import("@/components/home-services/homepage/TitlePage"),
   {
@@ -116,118 +111,98 @@ const AllCategories = dynamic(
 );
 
 const HomeServicesPage = () => {
-  const [popularServices, setPopularServices] = useState<ServiceType[]>([]);
-  const [subcategoryServices, setSubcategoryServices] = useState<
-    SubcategoryWithServicesType[]
-  >([]);
-  const [featuredServices, setFeaturedServices] = useState<ServiceType[]>([]);
-  const [loading, setLoading] = useState({
-    popular: true,
-    subcategories: true,
-    featured: true,
-    all: true,
-  });
+  const { isAuthenticated, user, getAccessToken } = useAuth();
+  const token = getAccessToken();
 
-  const fetchPopularServices = async () => {
-    try {
-      setLoading((prev) => ({ ...prev, popular: true }));
-      const services = await getPopularServices();
-      setPopularServices(services?.data || []);
-    } catch (error) {
-      console.log("Error fetching popular services: ", error);
-      setPopularServices([]);
-    } finally {
-      setLoading((prev) => ({ ...prev, popular: false }));
-    }
-  };
+  // LOCATION STATE
+  const [locationModalOpen, setLocationModalOpen] = useState(false);
+  const [userLocation, setUserLocation] = useState<any>(null);
 
-  const fetchSubcategoryService = async () => {
-    try {
-      setLoading((prev) => ({ ...prev, subcategories: true }));
-      const response = await getSubcategoriesServices();
-      setSubcategoryServices(response || []);
-    } catch (error) {
-      console.log("Error getting Services: ", error);
-      setSubcategoryServices([]);
-    } finally {
-      setLoading((prev) => ({ ...prev, subcategories: false }));
-    }
-  };
-
-  const fetchFeaturedServices = async () => {
-    try {
-      setLoading((prev) => ({ ...prev, featured: true }));
-      const response = await getFeaturedServices();
-      setFeaturedServices(response?.data || []);
-    } catch (error) {
-      console.log("Error fetching featured services: ", error);
-      setFeaturedServices([]);
-    } finally {
-      setLoading((prev) => ({ ...prev, featured: false }));
-    }
-  };
-
+  // --- Ask for location on mount if not stored
   useEffect(() => {
-    const fetchAllData = async () => {
-      setLoading({
-        popular: true,
-        subcategories: true,
-        featured: true,
-        all: true,
-      });
-
-      try {
-        await Promise.all([
-          fetchPopularServices(),
-          fetchSubcategoryService(),
-          fetchFeaturedServices(),
-        ]);
-      } catch (error) {
-        console.log("Error fetching all data: ", error);
-      } finally {
-        setLoading((prev) => ({ ...prev, all: false }));
-      }
-    };
-
-    fetchAllData();
+    const stored = localStorage.getItem("user_location");
+    if (!stored) {
+      setLocationModalOpen(true);
+    } else {
+      setUserLocation(JSON.parse(stored));
+    }
   }, []);
 
-  // Check if any data is still loading
-  /* eslint-disable no-unused-vars */
-  const isLoading =
-    loading.popular || loading.subcategories || loading.featured;
-  /* eslint-enable no-unused-vars */
+  const handleAcceptLocation = async () => {
+    try {
+      const loc = await getLocationInfo();
+      console.log("user location: ", loc);
+      setUserLocation(loc);
+      setLocationModalOpen(false);
+
+      if (isAuthenticated && user) {
+        // Send to backend (example)
+        await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/users/${user.id}/location`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(loc),
+          }
+        );
+      } else {
+        localStorage.setItem("user_location", JSON.stringify(loc));
+      }
+    } catch (err) {
+      console.error("Failed to get location:", err);
+      setLocationModalOpen(false);
+    }
+  };
+
+  const handleDeclineLocation = () => {
+    setLocationModalOpen(false);
+  };
+
+  // Service hooks
+  const { data: popularServicesData, isLoading: popularLoading } =
+    usePopularServices();
+  const { data: subcategoryServicesData, isLoading: subcategoriesLoading } =
+    useSubcategoryServices();
+  const { data: featuredServicesData, isLoading: featuredLoading } =
+    useFeaturedServices();
+
+  const popularServices = popularServicesData?.data || [];
+  const subcategoryServices = subcategoryServicesData || [];
+  const featuredServices = featuredServicesData?.data || [];
 
   return (
     <div className="relative bg-white dark:bg-gray-900 border border-white dark:border-gray-900">
+      <LocationPermissionModal
+        open={locationModalOpen}
+        onAccept={handleAcceptLocation}
+        onDecline={handleDeclineLocation}
+      />
+
       <Breadcrumbs
         paths={[{ name: "Home", href: "/" }, { name: "Home Services" }]}
       />
 
-      <TitlePage />
+      <TitlePage location={userLocation} />
 
-      {/* Show skeleton while loading or component when data is ready */}
-      {loading.popular ? (
+      {popularLoading ? (
         <CategorySkeleton />
       ) : (
         <PopularServices popularServices={popularServices} />
       )}
-
-      {/* Show skeleton while loading or component when data is ready */}
-      {loading.featured ? (
+      {featuredLoading ? (
         <FeaturedServicesSkeleton />
       ) : (
         <FeaturedServices featuredServices={featuredServices} />
       )}
-
-      {/* Show skeleton while loading or component when data is ready */}
-      {loading.subcategories ? (
+      {subcategoriesLoading ? (
         <CategorySkeleton />
       ) : (
         <CategoryServices subcategoryService={subcategoryServices} />
       )}
 
-      {/* AllCategories and other components that don't depend on API data */}
       <AllCategories />
       <PopularLocation />
       <PopularSearch />

@@ -1,13 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
 import Image from "next/image";
-// import Breadcrumbs from "@/components/home-services/homepage/Breadcrumbs";
 import ProfessionalFilters from "@/components/home-services/homepage/professional/ProfessionalFilters";
 import SubCategoryServices from "@/components/home-services/sub-categories/SubCategegoryServices";
 import AllCategories from "@/components/home-services/homepage/AllCategories";
-import { getSubcategoryServicesBySlug } from "@/app/api/homepage/popularService";
-
 import { getSubcategoryStaticURL } from "@/app/api/axios";
+import { useSubcategoryServicesBySlug } from "@/hooks/useHomeServices";
 
 interface ServiceType {
   _id: string;
@@ -27,63 +25,45 @@ interface SubcategoryDataType {
   services: ServiceType[];
 }
 
-interface ApiResponse {
-  success: boolean;
-  message: string;
-  data: SubcategoryDataType;
-}
-
 export default function SubCategoryServicesPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  /* eslint-disable no-unused-vars */
   const [slug, setSlug] = useState<string>("");
+  /* eslint-disable no-unused-vars */
   const [decodedSlug, setDecodedSlug] = useState<string>("");
   /* eslint-enable no-unused-vars */
   const [showFilters, setShowFilters] = useState(false);
-  const [subcategoryData, setSubcategoryData] =
-    useState<SubcategoryDataType | null>(null);
-  const [loading, setLoading] = useState(true);
+
+  // Use React Query for data fetching
+  const {
+    data: response,
+    isLoading,
+    error,
+    isFetching,
+  } = useSubcategoryServicesBySlug(slug);
+
+  const subcategoryData: SubcategoryDataType | null = response?.success
+    ? response.data
+    : null;
 
   const API_BASE_URL = getSubcategoryStaticURL();
 
+  // Extract slug from params
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const resolvedParams = await params;
-        const currentSlug = resolvedParams.slug;
-
-        console.log("Fetching data for slug:", currentSlug);
-
-        // Update state
-        setSlug(currentSlug);
-        setDecodedSlug(decodeURIComponent(currentSlug));
-
-        // Fetch API data
-        const response: ApiResponse = await getSubcategoryServicesBySlug(
-          currentSlug
-        );
-
-        if (response.success && response.data) {
-          setSubcategoryData(response.data);
-        } else {
-          console.log("No data found for this subcategory");
-        }
-      } catch (error) {
-        console.log("Error in fetchData:", error);
-      } finally {
-        setLoading(false);
-      }
+    const extractSlug = async () => {
+      const resolvedParams = await params;
+      const currentSlug = resolvedParams.slug;
+      setSlug(currentSlug);
+      setDecodedSlug(decodeURIComponent(currentSlug));
     };
 
-    fetchData();
+    extractSlug();
   }, [params]);
 
-  // Show loading state while data is being fetched
-  if (loading) {
+  // Loading state
+  if (isLoading || isFetching) {
     return (
       <div className="min-h-screen transition-colors duration-300 dark:bg-gray-900 bg-white text-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
@@ -107,6 +87,31 @@ export default function SubCategoryServicesPage({
     );
   }
 
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen transition-colors duration-300 dark:bg-gray-900 bg-white text-gray-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+          <div className="text-center py-12">
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">
+              Error Loading Subcategory
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400">
+              There was an error loading the subcategory. Please try again.
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // No data state
   if (!subcategoryData) {
     return (
       <div className="min-h-screen transition-colors duration-300 dark:bg-gray-900 bg-white text-gray-900">
@@ -127,8 +132,6 @@ export default function SubCategoryServicesPage({
   const heroImageUrl = subcategoryData.subcategory_image_url
     ? `${API_BASE_URL}/${subcategoryData.subcategory_image_url}`
     : "https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib=rb-4.0.3&auto=format&fit=crop&w=2074&q=80";
-
-  console.log("Hero image URL:", heroImageUrl);
 
   return (
     <>
@@ -176,17 +179,10 @@ export default function SubCategoryServicesPage({
           </div>
         </div>
       </section>
+
       <div className="min-h-screen transition-colors duration-300 dark:bg-gray-900 bg-white text-gray-900">
         <div className="max-w-7xl mx-auto">
           <div className="px-4 sm:px-6 lg:px-8 py-5">
-            {/* <Breadcrumbs
-            paths={[
-              { name: "Home", href: "/" },
-              { name: "Home Services", href: "/home-services" },
-              { name: subcategoryData.name },
-            ]}
-          /> */}
-
             <div className="">
               <div className="space-y-2 mb-4 md:mb-6">
                 <h1 className="text-xl md:text-2xl font-bold capitalize">

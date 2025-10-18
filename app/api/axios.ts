@@ -4,7 +4,7 @@ import axios from 'axios';
 // Create axios instance with secure defaults
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000/api/v1',
-  timeout: 30000,
+  timeout: 100000,
   headers: {
     'Content-Type': 'application/json',
   },
