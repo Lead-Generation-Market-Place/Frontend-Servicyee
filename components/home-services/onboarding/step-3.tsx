@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { ProgressBar } from "@/components/home-services/onboarding/ProgressBar";
 import { useUpdateBusinessName } from '@/hooks/RegisterPro/useRegister';
 import z from 'zod'
+import { getAccessToken } from '@/app/api/axios';
 const ONBOARDING_STEPS = [
     { id: 1, name: 'Profile' },
     { id: 2, name: 'Reviews' },
@@ -22,10 +23,9 @@ const BusinessName = () => {
     const professionalData = JSON.parse(localStorage.getItem("professionalData") || "{}");
     const [businessName, setBusinessName] = useState(professionalData.professional.business_name || '');
     const [currentStep] = useState(1);
-    const [error, setError] = useState(""); 
-
-    const { mutate, isPending } = useUpdateBusinessName();
-
+    const [error, setError] = useState("");
+    const token = getAccessToken() || ""
+    const { mutate, isPending } = useUpdateBusinessName(token);
     const HandleBusiness = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const result = businessNameSchema.safeParse({ businessName });

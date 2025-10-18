@@ -16,14 +16,20 @@ export const registerUserAPI = async (
   }
 };
 
-export const UpdateBusinessName = async (data: {
-  businessName: string;
-  id: string;
-}) => {
+export const UpdateBusinessName = async (
+  data: { businessName: string; id: string },
+  token: string
+) => {
   try {
     const response = await api.put(
       `/professionals/update-business-name/${data.id}`,
-      { business_name: data.businessName }
+      { business_name: data.businessName },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
     );
     return response.data;
   } catch (error) {
@@ -71,9 +77,6 @@ export const saveBusinessInfoAPI = async (
 };
 // End of API for Creating Account - Professional Business Info - Step 04
 
-
-
-
 // API for Creating Professional Account Step 07
 export interface Shift {
   openTime: string;
@@ -108,6 +111,20 @@ export const BusinesAvailabilityAPI = async (
         },
       }
     );
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+// Get Professional Services Question  Step 08
+export const getProServicesQuestionsAPI = async (token: string) => {
+  try {
+    const response = await api.get("/questions", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   } catch (error) {
     throw handleApiError(error);

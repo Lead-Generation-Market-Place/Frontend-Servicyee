@@ -1,209 +1,205 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
-import {  useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { ProgressBar } from "@/components/home-services/onboarding/ProgressBar";
-import allServiceQuestions from "@/data/serivces.json";
+import { getAccessToken } from "@/app/api/axios";
+import { useProServicesQuestions } from "@/hooks/RegisterPro/useRegister";
 
+// --- Steps (consistent with onboarding process)
 const ONBOARDING_STEPS = [
-  { id: 1, name: 'Profile' },
-  { id: 2, name: 'Reviews' },
-  { id: 3, name: 'Preferences' },
-  { id: 4, name: 'Location' },
-  { id: 5, name: 'Payment' },
-  { id: 6, name: 'Background' },
+  { id: 1, name: "Profile" },
+  { id: 2, name: "Reviews" },
+  { id: 3, name: "Preferences" },
+  { id: 4, name: "Location" },
+  { id: 5, name: "Payment" },
+  { id: 6, name: "Background" },
 ];
 
-
+// --- Types matching Mongoose model
 export interface ServiceQuestion {
-  form_id: number;
-  service_id: number;
-  step: number;
-  form_type: string;
-  question: string;
+  _id: string;
+  service_id: string;
+  question_name: string;
+  form_type: "checkbox" | "radio" | "text" | "select" | "number" | "date";
   options: string[];
-  form_group: string;
+  required: boolean;
+  order: number;
+  active: boolean;
 }
 
-async function SubmitAnswers(data: any[]) {
+async function submitAnswers(data: { question_id: string; answer: string | string[] }[]) {
   console.log("Answers submitted:", data);
   return { success: true };
 }
 
 export default function MultiChoiceServiceForm() {
-  const [questions, setQuestions] = useState<ServiceQuestion[]>([]);
-  const [answers, setAnswers] = useState<Record<number, string | string[]>>({});
-  const [isPending, setIsPending] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [currentStep] = useState(3);
+  const token = getAccessToken() || "";
   const router = useRouter();
+  const { data, isLoading, isPending, error } = useProServicesQuestions(token);
+  console.log("Fetched data:", data);
 
+  const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
+  const currentStep = 3;
+
+  const groupedData = React.useMemo(() => {
+    if (!data?.data?.length) return [];
+    const grouped: Record<string, ServiceQuestion[]> = {};
+
+    for (const q of data.data) {
+      if (!grouped[q.service_id]) grouped[q.service_id] = [];
+      grouped[q.service_id].push(q);
+    }
+
+    return Object.entries(grouped).map(([service_id, questions]) => ({
+      _id: service_id,
+      questions,
+    }));
+  }, [data]);
 
   useEffect(() => {
-  }, [router]);
+    if (!groupedData.length) return;
 
-  useEffect(() => {
-    let isMounted = true;
-
-    async function fetchQuestions() {
-      try {
-        const allQuestions = allServiceQuestions
-          .sort((a, b) => a.step - b.step);
-
-        if (isMounted) {
-          setQuestions(allQuestions);
-
-          setAnswers((prevAnswers) => {
-            if (Object.keys(prevAnswers).length === 0) {
-              const initialAnswers: Record<number, string | string[]> = {};
-              allQuestions.forEach((question) => {
-                initialAnswers[question.form_id] =
-                  question.form_type === "checkbox" ? [] :
-                    question.options.length > 0 ? question.options[0] : "";
-              });
-              return initialAnswers;
-            }
-            return prevAnswers;
-          });
-
-          setIsLoading(false);
-        }
-      } catch (err) {
-        if (isMounted) {
-          toast.error(`Failed to load questions: ${err}`);
-          setIsLoading(false);
+    const initial: Record<string, string | string[]> = {};
+    for (const service of groupedData) {
+      for (const q of service.questions) {
+        if (!q._id) continue;
+        if (q.form_type === "checkbox") {
+          initial[q._id] = [];
+        } else if (q.options?.length) {
+          initial[q._id] = q.options[0];
+        } else {
+          initial[q._id] = "";
         }
       }
     }
+    setAnswers(initial);
+  }, [groupedData]);
 
-    fetchQuestions();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  const handleAnswerChange = useCallback((questionId: number, value: string | string[]) => {
-    setAnswers((prev) => ({
-      ...prev,
-      [questionId]: value,
-    }));
+  const handleAnswerChange = useCallback((id: string, value: string | string[]) => {
+    setAnswers((prev) => ({ ...prev, [id]: value }));
   }, []);
 
   const handleNext = useCallback(async () => {
-    setIsPending(true);
     try {
-      const payload = questions.map((q) => ({
-        form_id: q.form_id,
-        service_id: q.service_id,
-        answer: answers[q.form_id],
+      const payload = Object.entries(answers).map(([question_id, answer]) => ({
+        question_id,
+        answer,
       }));
 
-      const [submitResult] = await Promise.all([
-        SubmitAnswers(payload),
-        router.prefetch("/home-services/dashboard/services/step-9"),
-      ]);
-
-      if (!submitResult.success) {
-        toast.error(`Failed to submit answers:`);
+      const result = await submitAnswers(payload);
+      if (!result.success) {
+        toast.error("Failed to submit answers");
         return;
       }
 
-      router.push(`/home-services/dashboard/services/step-9`);
-    } catch (error) {
-      toast.error(`An error occurred while proceeding: ${error}`);
-    } finally {
-      setIsPending(false);
+      router.prefetch("/home-services/dashboard/services/step-9");
+      router.push("/home-services/dashboard/services/step-9");
+    } catch (err) {
+      toast.error(`An error occurred: ${(err as Error).message}`);
     }
-  }, [answers, questions, router]);
+  }, [answers, router]);
 
-  const renderField = useCallback((question: ServiceQuestion) => {
-    const name = `question-${question.form_id}`;
-    const currentAnswer = answers[question.form_id] || "";
+  // --- Field Renderer
+  const renderField = useCallback(
+    (q: ServiceQuestion) => {
+      const value = answers[q._id] ?? "";
 
-    switch (question.form_type) {
-      case "checkbox":
-        return (
-          <div className="space-y-2">
-            {question.options.map((option, idx) => (
-              <div key={`${question.form_id}-cb-${idx}`} className="flex items-center">
-                <input
-                  type="checkbox"
-                  id={`${name}-${idx}`}
-                  name={name}
-                  checked={Array.isArray(currentAnswer) && currentAnswer.includes(option)}
-                  onChange={(e) => {
-                    const newValue = e.target.checked
-                      ? [...(currentAnswer as string[]), option]
-                      : (currentAnswer as string[]).filter((v) => v !== option);
-                    handleAnswerChange(question.form_id, newValue);
-                  }}
-                  className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-[#0077B6] "
-                />
-                <label htmlFor={`${name}-${idx}`} className="ml-2 text-sm text-gray-700 cursor-pointer">
-                  {option}
+      switch (q.form_type) {
+        case "checkbox":
+          return (
+            <div className="space-y-2">
+              {q.options.map((opt, i) => (
+                <label key={`${q._id}-cb-${i}`} className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={Array.isArray(value) && value.includes(opt)}
+                    onChange={(e) => {
+                      const newValue = e.target.checked
+                        ? [...(value as string[]), opt]
+                        : (value as string[]).filter((v) => v !== opt);
+                      handleAnswerChange(q._id, newValue);
+                    }}
+                    className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-[#0077B6]"
+                  />
+                  <span className="ml-2 text-sm text-gray-700">{opt}</span>
                 </label>
-              </div>
-            ))}
-          </div>
-        );
+              ))}
+            </div>
+          );
 
-      case "radio":
-        return (
-          <div className="space-y-2">
-            {question.options.map((option, idx) => (
-              <div key={`${question.form_id}-rd-${idx}`} className="flex items-center">
-                <input
-                  type="radio"
-                  id={`${name}-${idx}`}
-                  name={name}
-                  value={option}
-                  checked={currentAnswer === option}
-                  onChange={() => handleAnswerChange(question.form_id, option)}
-                  className="h-4 w-4 text-[#0077B6]] border-gray-300 focus:ring-[#0077B6]"
-                />
-                <label htmlFor={`${name}-${idx}`} className="ml-2 text-sm text-gray-700 cursor-pointer">
-                  {option}
+        case "radio":
+          return (
+            <div className="space-y-2">
+              {q.options.map((opt, i) => (
+                <label key={`${q._id}-rd-${i}`} className="flex items-center">
+                  <input
+                    type="radio"
+                    name={q._id}
+                    checked={value === opt}
+                    onChange={() => handleAnswerChange(q._id, opt)}
+                    className="h-4 w-4 text-[#0077B6] border-gray-300 focus:ring-[#0077B6]"
+                  />
+                  <span className="ml-2 text-sm text-gray-700">{opt}</span>
                 </label>
-              </div>
-            ))}
-          </div>
-        );
+              ))}
+            </div>
+          );
 
-      case "select":
-        return (
-          <select
-            id={name}
-            name={name}
-            value={currentAnswer as string}
-            onChange={(e) => handleAnswerChange(question.form_id, e.target.value)}
-            className="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-[#0077B6] focus:border-[#0077B6] "
-          >
-            {question.options.map((option, idx) => (
-              <option key={`${question.form_id}-opt-${idx}`} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-        );
+        case "select":
+          return (
+            <select
+              value={value as string}
+              onChange={(e) => handleAnswerChange(q._id, e.target.value)}
+              className="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-[#0077B6] focus:border-[#0077B6]"
+            >
+              {q.options.map((opt, i) => (
+                <option key={`${q._id}-opt-${i}`} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </select>
+          );
 
-      default:
-        return (
-          <input
-            type="text"
-            id={name}
-            name={name}
-            value={currentAnswer as string}
-            onChange={(e) => handleAnswerChange(question.form_id, e.target.value)}
-            className="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-[#0077B6] focus:border-[#0077B6] "
-            placeholder="Enter your answer"
-          />
-        );
-    }
-  }, [answers, handleAnswerChange]);
+        case "number":
+          return (
+            <input
+              type="number"
+              value={value as string}
+              onChange={(e) => handleAnswerChange(q._id, e.target.value)}
+              className="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-[#0077B6]"
+            />
+          );
 
-  if (isLoading) {
+        case "date":
+          return (
+            <input
+              type="date"
+              value={value as string}
+              onChange={(e) => handleAnswerChange(q._id, e.target.value)}
+              className="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-[#0077B6]"
+            />
+          );
+
+        default:
+          return (
+            <input
+              type="text"
+              value={value as string}
+              onChange={(e) => handleAnswerChange(q._id, e.target.value)}
+              placeholder="Enter your answer"
+              className="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-[#0077B6]"
+            />
+          );
+      }
+    },
+    [answers, handleAnswerChange]
+  );
+
+  // --- Loading & Error states
+  if (isLoading || isPending) {
     return (
       <div className="flex justify-center items-center h-[80vh]">
         <Loader2 className="h-6 w-6 animate-spin text-[#0077B6]" />
@@ -211,6 +207,11 @@ export default function MultiChoiceServiceForm() {
     );
   }
 
+  if (error) {
+    return <p className="text-red-500 text-center mt-8">Failed to load questions.</p>;
+  }
+
+  // --- Render UI
   return (
     <div>
       <ProgressBar
@@ -219,23 +220,24 @@ export default function MultiChoiceServiceForm() {
         steps={ONBOARDING_STEPS}
         className="mb-8"
       />
-      <div className="max-w-4xl mx-auto p-4 pb-20">
-        <div className="mb-4">
-          <p className="text-sm text-gray-600 mt-1">Please review and confirm your selections</p>
-        </div>
 
-        <div className="space-y-4">
-          {questions.map((question) => (
-            <div key={question.form_id} className="p-4">
-              <div className="flex items-start">
-                <div className="flex-shrink-0 mr-3 flex items-center justify-center w-6 h-6 rounded-full bg-[#0077B6] text-[#0077B6] text-xs font-medium">
-                  {question.step}
+      <div className="max-w-4xl mx-auto p-4 pb-20">
+        <p className="text-sm text-gray-600 mb-6">
+          Please answer the following service questions carefully.
+        </p>
+
+        <div className="space-y-6">
+          {groupedData.map((service) => (
+            <div key={service._id} className="space-y-5">
+              {service.questions.map((q) => (
+                <div key={q._id} className="pb-3 border-b border-gray-100 last:border-none">
+                  <h3 className="text-sm font-medium text-gray-800 mb-2">
+                    {q.question_name}{" "}
+                    {q.required && <span className="text-red-500">*</span>}
+                  </h3>
+                  {renderField(q)}
                 </div>
-                <div className="flex-1">
-                  <h3 className="text-sm font-medium text-gray-800 mb-3">{question.question}</h3>
-                  {renderField(question)}
-                </div>
-              </div>
+              ))}
             </div>
           ))}
         </div>
@@ -244,15 +246,18 @@ export default function MultiChoiceServiceForm() {
           <button
             type="button"
             onClick={() => router.back()}
-            className="bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-white text-[13px] py-2 px-5 rounded-[4px] font-medium hover:bg-gray-400 dark:hover:bg-gray-600 transition"
+            className="bg-gray-300 text-gray-800 py-2 px-5 rounded-[4px] font-medium hover:bg-gray-400 transition"
           >
             Back
           </button>
+
           <button
             type="button"
             disabled={isPending}
             onClick={handleNext}
-            className={`text-white text-[13px] py-2 px-6 rounded-[4px] transition duration-300 flex items-center justify-center gap-2 ${isPending ? "bg-[#0077B6]/70 cursor-not-allowed" : "bg-[#0077B6] hover:bg-[#005f8e]"}`}
+            className={`text-white py-2 px-6 rounded-[4px] transition duration-300 flex items-center justify-center gap-2 ${
+              isPending ? "bg-[#0077B6]/70 cursor-not-allowed" : "bg-[#0077B6] hover:bg-[#005f8e]"
+            }`}
           >
             {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
             <span>Next</span>
