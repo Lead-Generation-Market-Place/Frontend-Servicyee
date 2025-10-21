@@ -6,9 +6,9 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { ProgressBar } from "@/components/home-services/onboarding/ProgressBar";
 import { getAccessToken } from "@/app/api/axios";
-import { 
-  useProServicesQuestions, 
-  useSubmitServiceAnswers 
+import {
+  useProServicesQuestions,
+  useSubmitServiceAnswers
 } from "@/hooks/RegisterPro/useRegister";
 
 // --- Steps (consistent with onboarding process)
@@ -33,8 +33,10 @@ export interface ServiceQuestion {
   active: boolean;
 }
 
-// Define the AnswerPayload type based on your API requirements
+// --- Updated AnswerPayload type
 interface AnswerPayload {
+  professional_id: string;
+  service_id: string;
   question_id: string;
   answer: string | string[];
 }
@@ -42,31 +44,30 @@ interface AnswerPayload {
 export default function MultiChoiceServiceForm() {
   const token = getAccessToken() || "";
   const router = useRouter();
+  const [professionalId, setProfessionalId] = useState<string>("");
   const { data, isLoading, isPending: questionsLoading, error } = useProServicesQuestions(token);
   const { mutate: submitAnswers, isPending: isSubmitting } = useSubmitServiceAnswers(token);
-
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const currentStep = 3;
 
+  // --- Group questions by service_id
   const groupedData = React.useMemo(() => {
     if (!data?.data?.length) return [];
     const grouped: Record<string, ServiceQuestion[]> = {};
-
     for (const q of data.data) {
       if (!grouped[q.service_id]) grouped[q.service_id] = [];
       grouped[q.service_id].push(q);
     }
-
     return Object.entries(grouped).map(([service_id, questions]) => ({
       _id: service_id,
       questions,
     }));
   }, [data]);
 
+  // --- Initialize answers state
   useEffect(() => {
     if (!groupedData.length) return;
-
     const initial: Record<string, string | string[]> = {};
     for (const service of groupedData) {
       for (const q of service.questions) {
@@ -81,11 +82,20 @@ export default function MultiChoiceServiceForm() {
       }
     }
     setAnswers(initial);
+
+    // --- Load professionalId from localStorage
+    const localData = localStorage.getItem("professionalData");
+    if (localData) {
+      const parseData = JSON.parse(localData);
+      if (parseData.professional) {
+        setProfessionalId(parseData.professional._id || "");
+      }
+    }
   }, [groupedData]);
 
+  // --- Handle answer changes
   const handleAnswerChange = useCallback((id: string, value: string | string[]) => {
     setAnswers((prev) => ({ ...prev, [id]: value }));
-    // Clear validation error when user starts typing
     if (validationErrors[id]) {
       setValidationErrors((prev) => {
         const newErrors = { ...prev };
@@ -95,47 +105,43 @@ export default function MultiChoiceServiceForm() {
     }
   }, [validationErrors]);
 
+  // --- Validate answers
   const validateAnswers = useCallback((): boolean => {
     const errors: Record<string, string> = {};
-    
     for (const service of groupedData) {
       for (const q of service.questions) {
-        if (q.required && (!answers[q._id] || 
-            (Array.isArray(answers[q._id]) && answers[q._id].length === 0) ||
-            answers[q._id] === "")) {
+        if (q.required && (!answers[q._id] || (Array.isArray(answers[q._id]) && answers[q._id].length === 0) || answers[q._id] === "")) {
           errors[q._id] = "This field is required";
         }
       }
     }
-    
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
   }, [answers, groupedData]);
 
+  // --- Submit answers with service_id included
   const handleNext = useCallback(() => {
     if (!validateAnswers()) {
       toast.error("Please fill in all required fields");
       return;
     }
 
-    const payload: AnswerPayload[] = Object.entries(answers).map(([question_id, answer]) => ({
-      question_id,
-      answer,
-    }));
-
-    submitAnswers(payload, {
-      onSuccess: () => {
-        toast.success("Answers submitted successfully!");
-        router.prefetch("/home-services/dashboard/services/step-9");
-        router.push("/home-services/dashboard/services/step-9");
-      },
-      onError: (error: any) => {
-        toast.error(error?.response?.data?.message || "Failed to submit answers");
-      },
+    const payload: AnswerPayload[] = [];
+    groupedData.forEach((service) => {
+      service.questions.forEach((q) => {
+        payload.push({
+          professional_id: professionalId,
+          service_id: service._id,
+          question_id: q._id,
+          answer: answers[q._id],
+        });
+      });
     });
-  }, [answers, validateAnswers, submitAnswers, router]);
 
-  // --- Field Renderer
+    submitAnswers(payload);
+  }, [answers, validateAnswers, submitAnswers, professionalId, groupedData]);
+
+  // --- Field renderer
   const renderField = useCallback(
     (q: ServiceQuestion) => {
       const value = answers[q._id] ?? "";
@@ -151,9 +157,7 @@ export default function MultiChoiceServiceForm() {
                     type="checkbox"
                     checked={Array.isArray(value) && value.includes(opt)}
                     onChange={(e) => {
-                      const newValue = e.target.checked
-                        ? [...(value as string[]), opt]
-                        : (value as string[]).filter((v) => v !== opt);
+                      const newValue = e.target.checked ? [...(value as string[]), opt] : (value as string[]).filter((v) => v !== opt);
                       handleAnswerChange(q._id, newValue);
                     }}
                     className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-[#0077B6]"
@@ -246,7 +250,7 @@ export default function MultiChoiceServiceForm() {
     [answers, validationErrors, handleAnswerChange]
   );
 
-  // --- Loading & Error states
+  // --- Loading & error states
   if (isLoading || questionsLoading) {
     return (
       <div className="flex justify-center items-center h-[80vh]">
@@ -303,9 +307,8 @@ export default function MultiChoiceServiceForm() {
             type="button"
             disabled={isSubmitting}
             onClick={handleNext}
-            className={`text-white py-2 px-6 rounded-[4px] transition duration-300 flex items-center justify-center gap-2 ${
-              isSubmitting ? "bg-[#0077B6]/70 cursor-not-allowed" : "bg-[#0077B6] hover:bg-[#005f8e]"
-            }`}
+            className={`text-white py-2 px-6 rounded-[4px] transition duration-300 flex items-center justify-center gap-2 ${isSubmitting ? "bg-[#0077B6]/70 cursor-not-allowed" : "bg-[#0077B6] hover:bg-[#005f8e]"
+              }`}
           >
             {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
             <span>{isSubmitting ? "Submitting..." : "Next"}</span>
