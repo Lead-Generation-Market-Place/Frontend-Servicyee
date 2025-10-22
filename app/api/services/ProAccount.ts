@@ -140,7 +140,7 @@ export interface AnswerPayload {
 }
 export const submitServiceAnswersAPI = async (data: AnswerPayload[], token: string) => {
   try {
-    const response = await api.put('/services-answers',data,   {
+    const response = await api.post('/professionals/services-answers',data,   {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
