@@ -51,11 +51,17 @@ export default function MultiChoiceServiceForm() {
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const currentStep = 3;
 
+  // --- Extract questions from the nested data structure
+  const questions = React.useMemo(() => {
+    if (!data?.services?.services?.[0]?.questions) return [];
+    return data.services.services[0].questions as ServiceQuestion[];
+  }, [data]);
+
   // --- Group questions by service_id
   const groupedData = React.useMemo(() => {
-    if (!data?.data?.length) return [];
+    if (!questions.length) return [];
     const grouped: Record<string, ServiceQuestion[]> = {};
-    for (const q of data.data) {
+    for (const q of questions) {
       if (!grouped[q.service_id]) grouped[q.service_id] = [];
       grouped[q.service_id].push(q);
     }
@@ -63,7 +69,7 @@ export default function MultiChoiceServiceForm() {
       _id: service_id,
       questions,
     }));
-  }, [data]);
+  }, [questions]);
 
   // --- Initialize answers state
   useEffect(() => {
@@ -279,19 +285,23 @@ export default function MultiChoiceServiceForm() {
         </p>
 
         <div className="space-y-6">
-          {groupedData.map((service) => (
-            <div key={service._id} className="space-y-5">
-              {service.questions.map((q) => (
-                <div key={q._id} className="pb-3 border-b border-gray-100 last:border-none">
-                  <h3 className="text-sm font-medium text-gray-800 mb-2">
-                    {q.question_name}{" "}
-                    {q.required && <span className="text-red-500">*</span>}
-                  </h3>
-                  {renderField(q)}
-                </div>
-              ))}
-            </div>
-          ))}
+          {groupedData.length > 0 ? (
+            groupedData.map((service) => (
+              <div key={service._id} className="space-y-5">
+                {service.questions.map((q) => (
+                  <div key={q._id} className="pb-3 border-b border-gray-100 last:border-none">
+                    <h3 className="text-sm font-medium text-gray-800 mb-2">
+                      {q.question_name}{" "}
+                      {q.required && <span className="text-red-500">*</span>}
+                    </h3>
+                    {renderField(q)}
+                  </div>
+                ))}
+              </div>
+            ))
+          ) : (
+            <p className="text-center text-gray-500 py-8">No service questions found.</p>
+          )}
         </div>
 
         <div className="fixed bottom-6 right-6 flex gap-4 text-[13px]">
@@ -305,9 +315,11 @@ export default function MultiChoiceServiceForm() {
 
           <button
             type="button"
-            disabled={isSubmitting}
+            disabled={isSubmitting || groupedData.length === 0}
             onClick={handleNext}
-            className={`text-white py-2 px-6 rounded-[4px] transition duration-300 flex items-center justify-center gap-2 ${isSubmitting ? "bg-[#0077B6]/70 cursor-not-allowed" : "bg-[#0077B6] hover:bg-[#005f8e]"
+            className={`text-white py-2 px-6 rounded-[4px] transition duration-300 flex items-center justify-center gap-2 ${isSubmitting || groupedData.length === 0
+                ? "bg-[#0077B6]/70 cursor-not-allowed"
+                : "bg-[#0077B6] hover:bg-[#005f8e]"
               }`}
           >
             {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}

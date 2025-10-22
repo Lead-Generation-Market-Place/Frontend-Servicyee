@@ -154,10 +154,13 @@ export function useProServicesQuestions(token: string) {
 
 // Create Professional Account 08 
 export const useSubmitServiceAnswers = (token: string) => {
+  const router = useRouter();
   return useMutation({
     mutationKey: ["submitServiceAnswers"],
     mutationFn: (data: AnswerPayload[]) => submitServiceAnswersAPI(data, token),
     onSuccess: () => {
+      router.push("/home-services/dashboard/services/step-9");
+
     },
     onError: (error: any) => {
       toast.error(

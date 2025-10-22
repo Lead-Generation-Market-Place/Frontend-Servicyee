@@ -120,7 +120,7 @@ export const BusinesAvailabilityAPI = async (
 // Get Professional Services Question  Step 08
 export const getProServicesQuestionsAPI = async (token: string) => {
   try {
-    const response = await api.get("/questions", {
+    const response = await api.get("/professionals/questionsAnswers", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -130,23 +130,24 @@ export const getProServicesQuestionsAPI = async (token: string) => {
     throw handleApiError(error);
   }
 };
-  // End of Get Professional Account Step 08
+// End of Get Professional Account Step 08
 
-
-  // Professional Account Registeration Step 08
+// Professional Account Registeration Step 08
 export interface AnswerPayload {
   question_id: string;
   answer: string | string[];
 }
-export const submitServiceAnswersAPI = async (data: AnswerPayload[], token: string) => {
+export const submitServiceAnswersAPI = async (
+  data: AnswerPayload[],
+  token: string
+) => {
   try {
-    const response = await api.post('/professionals/services-answers',data,   {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+    const response = await api.post("/professionals/services-answers", data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
     return response.data;
   } catch (error) {
     throw handleApiError(error);
