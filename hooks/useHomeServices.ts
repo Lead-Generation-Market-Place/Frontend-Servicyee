@@ -6,6 +6,7 @@ import {
   getPopularServices,
   getSubcategoriesServices,
   getSubcategoryServicesBySlug,
+  getTopProfessionals,
   getUserLocation,
   loadUserLocation,
 } from "@/app/api/homepage/popularService";
@@ -59,45 +60,8 @@ export const useSubcategoryServicesBySlug = (slug: string) => {
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };
+
 // user locaiton
-
-// export const useUserLocation = (id:string) => {
-//     return useQuery({
-//         queryKey: ["userLocation", id],
-//         queryFn: getUserLocatioin,
-//         staleTime: 5*60*1000,
-//     });
-// }
-
-export const useUserLocation = (userId: string | undefined, token: string | undefined) => {
-  return useQuery({
-    queryKey: ['userLocation', userId],
-    queryFn: () => {
-      if (!userId || !token) throw new Error('User not authenticated');
-      return getUserLocation(userId, token);
-    },
-    enabled: !!userId && !!token, // Only run if user is authenticated
-    retry: false,
-  });
-};
-
-export const useCreateUserLocation = () => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: ({ userLocationData, userId, token }: { 
-      userLocationData: any; 
-      userId: string; 
-      token: string; 
-    }) => createUserLocationById(userLocationData, userId, token),
-    onSuccess: () => {
-      // Invalidate and refetch user location after successful creation
-      queryClient.invalidateQueries({ queryKey: ['userLocation'] });
-    },
-  });
-};
-
-
 export const useUserLocationStorage = () => {
   return useQuery({
     queryKey: ["userLocationData"],
@@ -107,3 +71,19 @@ export const useUserLocationStorage = () => {
     staleTime: 0,
   });
 };
+
+// ==================================
+//     get top 5 professionals
+//===================================
+
+export const useTopProfessionals = (service:string, zipcode:string) => {
+
+
+  console.log("Check Request", service, zipcode);
+  return useQuery({
+    queryKey: ['topProfessionals', service, zipcode],
+    queryFn:() => getTopProfessionals(service, zipcode),
+    enabled: !!service && !!zipcode,
+    staleTime: 5*60*1000,
+  });
+}

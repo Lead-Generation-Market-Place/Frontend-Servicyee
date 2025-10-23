@@ -30,6 +30,24 @@ export function ServiceCard({
   href = `/home-services/professional-service/${slug}`,
 }: ServiceCardProps) {
   const API_BASE_URL = getStaticURL();
+
+  // Handle location safely
+  let userZipcode = "10003";
+  if (typeof window !== "undefined") {
+    const userLocation = localStorage.getItem("user_location");
+    if (userLocation) {
+      try {
+        const userData = JSON.parse(userLocation);
+        userZipcode = userData?.postcode || userZipcode;
+      } catch {
+        console.warn("Invalid user_location JSON");
+      }
+    }
+  }
+
+  // ✅ Build the full href with query params
+  const linkHref = `${href}?id=${id}&zipcode=${userZipcode}`;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -38,9 +56,9 @@ export function ServiceCard({
       className={`flex-shrink-0 ${className}`}
       key={id}
     >
-      <Link href={href}>
+      <Link href={linkHref}>
         <div className="group relative rounded overflow-hidden shadow hover:shadow-lg transition-shadow duration-300 bg-white dark:bg-gray-800 h-full">
-          {/* Image with gradient overlay */}
+          {/* Image */}
           <div className="relative h-40 overflow-hidden">
             <Image
               src={`${API_BASE_URL}/${imageUrl}`}
@@ -52,9 +70,7 @@ export function ServiceCard({
             <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/10 to-transparent" />
           </div>
 
-          {/* Content */}
           <div className="p-4">
-            {/* Season badge */}
             {showSeason && (
               <motion.div
                 whileHover={{ scale: 1.05 }}
@@ -71,21 +87,16 @@ export function ServiceCard({
               </motion.div>
             )}
 
-            {/* Favorite button */}
             {showFavorite && (
               <motion.button
                 whileTap={{ scale: 1.3 }}
                 className="absolute top-3 right-3 z-10 p-2 rounded-full bg-white/90 dark:bg-gray-700/90 backdrop-blur-sm shadow-sm hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors"
-                onClick={(e) => {
-                  e.preventDefault();
-                  // Handle favorite logic here
-                }}
+                onClick={(e) => e.preventDefault()}
               >
                 <Heart className="w-4 h-4 text-gray-600 dark:text-gray-300 group-hover:text-red-500 transition-colors" />
               </motion.button>
             )}
 
-            {/* Text content */}
             <h3 className="text-md font-bold text-gray-800 dark:text-white mt-2 mb-1 line-clamp-1">
               {title}
             </h3>
@@ -93,7 +104,6 @@ export function ServiceCard({
               {text}
             </p>
 
-            {/* Animated underline */}
             <motion.div
               initial={{ width: 0 }}
               whileHover={{ width: "100%" }}
