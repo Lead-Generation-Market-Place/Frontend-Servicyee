@@ -43,17 +43,15 @@ interface Professional {
 interface ProfessionalListProps {
   professionals: Professional[];
   selectedType?: string;
+  serviceId: string;
 }
 
 export default function ProfessionalList({
   professionals,
   selectedType,
+  serviceId,
 }: ProfessionalListProps) {
-  console.log("Selected type:", selectedType);
-  console.log("Professionals data:", professionals);
-
-  const selectedServiceId = 1;
-
+  console.log(selectedType);
   // Format price range display
   const formatPriceRange = (min: number, max: number, pricingType: string) => {
     if (pricingType === "fixed") {
@@ -228,7 +226,7 @@ export default function ProfessionalList({
             <div className="flex justify-end gap-2 items-center">
               <Questioner
                 className="bg-sky-600 dark:bg-sky-500 dark:hover:bg-sky-600 hover:bg-sky-500 px-4 py-2 rounded-xs text-white font-semibold text-sm"
-                serviceId={selectedServiceId}
+                serviceId={serviceId || "68e7ce11b0735d6e372e4380"}
                 triggerText="Request Quotation"
               />
               <Button

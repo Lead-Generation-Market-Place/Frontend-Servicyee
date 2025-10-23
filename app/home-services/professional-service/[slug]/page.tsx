@@ -143,8 +143,6 @@ export default function ProfessionalPage({
     isError,
   } = useTopProfessionals(service, zip);
 
-  console.log("INCOMING DATA FROM HOOK: ", topProfessionals);
-
   // Transform API data for the ProfessionalList component
   const professionalData = topProfessionals?.data
     ? transformProfessionalData(topProfessionals.data)
@@ -237,6 +235,7 @@ export default function ProfessionalPage({
             <ProfessionalList
               professionals={filteredProfessionals}
               selectedType={selectedType}
+              serviceId={service}
             />
 
             {filteredProfessionals.length === 0 && (
