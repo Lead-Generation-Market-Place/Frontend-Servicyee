@@ -154,7 +154,6 @@ export const submitServiceAnswersAPI = async (
   }
 };
 
-
 // Create Professional Step 09
 export interface LocationData {
   lat: number;
@@ -163,7 +162,9 @@ export interface LocationData {
   state?: string;
   zip?: string;
   radiusMiles: number;
-  isLoading:boolean,
+  isLoading: boolean;
+  professional_id: string;
+  service_id: string;
 }
 export const saveLocationAPI = async (data: LocationData, token: string) => {
   try {

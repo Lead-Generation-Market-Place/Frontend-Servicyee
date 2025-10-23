@@ -43,7 +43,8 @@ const Map = () => {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
   const circleRef = useRef<google.maps.Circle | null>(null); // <-- Added for circle management
-
+  const [professionalId, setProfessionalId] = useState<string | null>(null);
+  const [serviceId, setServiceId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("distance");
   const [radiusMiles, setRadiusMiles] = useState(10);
   const [currentStep] = useState(4);
@@ -71,6 +72,32 @@ const Map = () => {
 
   const onMapLoad = useCallback((map: google.maps.Map) => {
     mapRef.current = map;
+  }, []);
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const professionalData = localStorage.getItem("professionalData");
+
+      if (professionalData) {
+        try {
+          const parsedData = JSON.parse(professionalData);
+          const proId = parsedData.professional?._id;
+          const servId = parsedData.professional?.serviceAnswers?.[0]?.service_id;
+          if (proId) {
+            setProfessionalId(proId);
+          }
+          if (servId) {
+            setServiceId(servId);
+          }
+          else {
+            toast.error("Professional ID not found in profile data.");
+          }
+        } catch {
+          toast.error("Error parsing professional data.");
+        }
+      } else {
+        toast.error("Professional data not found. Please complete previous steps.");
+      }
+    }
   }, []);
 
   // Auto zoom and pan based on radius and selected location
@@ -195,6 +222,8 @@ const Map = () => {
 
     try {
       saveLocationMutation.mutate({
+        professional_id: professionalId as string,
+        service_id: serviceId as string,
         lat: selectedLocation.lat,
         lng: selectedLocation.lng,
         city: selectedLocation.city,
