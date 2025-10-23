@@ -56,7 +56,7 @@ export function useUpdateBusinessName(token: string) {
   return useMutation({
     mutationKey: ["UpdateBusinessName"],
     mutationFn: (data: { businessName: string; id: string }) =>
-      UpdateBusinessName(data,token),
+      UpdateBusinessName(data, token),
     onSuccess: (updatedProfessional) => {
       const storedData = localStorage.getItem("professionalData");
       if (storedData) {
@@ -145,22 +145,44 @@ export function useBusinesAvailability(token: string) {
 // Get Professional Services Question - Step 08
 export function useProServicesQuestions(token: string) {
   return useQuery({
-    queryKey: ['getProServicesQuestions', token],
+    queryKey: ["getProServicesQuestions", token],
     queryFn: () => getProServicesQuestionsAPI(token),
-    enabled: !!token, 
-    staleTime: 1000 * 60 * 5, 
+    enabled: !!token,
+    staleTime: 1000 * 60 * 5,
   });
 }
 
-// Create Professional Account 08 
+// Create Professional Account 08
 export const useSubmitServiceAnswers = (token: string) => {
   const router = useRouter();
   return useMutation({
     mutationKey: ["submitServiceAnswers"],
     mutationFn: (data: AnswerPayload[]) => submitServiceAnswersAPI(data, token),
-    onSuccess: () => {
+    onSuccess: (responseData, variables) => {
+      const localData = localStorage.getItem("professionalData");
+      if (localData) {
+        try {
+          const parsed = JSON.parse(localData);
+          parsed.professional = {
+            ...parsed.professional,
+            serviceAnswers: variables || [],
+          };
+          localStorage.setItem("professionalData", JSON.stringify(parsed));
+        } catch (error) {
+          console.error(
+            "Failed to save service answers to localStorage:",
+            error
+          );
+        }
+      } else {
+        const newData = {
+          professional: {
+            serviceAnswers: variables || [],
+          },
+        };
+        localStorage.setItem("professionalData", JSON.stringify(newData));
+      }
       router.push("/home-services/dashboard/services/step-9");
-
     },
     onError: (error: any) => {
       toast.error(
