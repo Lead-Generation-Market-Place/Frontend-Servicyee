@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import Questioner from "../../question/Questioner";
 
 interface Professional {
-  id: number;
+  id: string;
   company: string;
   type: string;
   service: string;
@@ -31,6 +31,13 @@ interface Professional {
   status: string;
   description: string;
   imageUrl: string;
+  apiData?: {
+    maximum_price: number;
+    minimum_price: number;
+    pricing_type: string;
+    completed_tasks: number;
+    professional_id: string;
+  };
 }
 
 interface ProfessionalListProps {
@@ -42,8 +49,25 @@ export default function ProfessionalList({
   professionals,
   selectedType,
 }: ProfessionalListProps) {
-  console.log(selectedType);
+  console.log("Selected type:", selectedType);
+  console.log("Professionals data:", professionals);
+
   const selectedServiceId = 1;
+
+  // Format price range display
+  const formatPriceRange = (min: number, max: number, pricingType: string) => {
+    if (pricingType === "fixed") {
+      return `$${min}`;
+    }
+    return `$${min} - $${max}`;
+  };
+
+  // Calculate years in business (simplified)
+  const calculateYearsInBusiness = (founded: number) => {
+    const currentYear = new Date().getFullYear();
+    return currentYear - founded;
+  };
+
   return (
     <div className="grid gap-4 bg-white dark:bg-gray-900">
       {professionals.map((professional) => (
@@ -65,9 +89,14 @@ export default function ProfessionalList({
                   alt={professional.company}
                   className="object-cover rounded"
                   sizes="(max-width: 640px) 100vw, 96px"
+                  onError={(e) => {
+                    // Fallback if image fails to load
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = "none";
+                  }}
                 />
               ) : (
-                <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500 text-sm">
+                <div className="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400 text-sm rounded">
                   No Image
                 </div>
               )}
@@ -77,7 +106,7 @@ export default function ProfessionalList({
             <div className="flex-1 flex flex-col justify-between min-w-0">
               <div className="flex justify-between items-start gap-2">
                 <div className="min-w-0">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 mb-1">
                     <span className="text-xs font-medium px-2 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full">
                       {professional.type}
                     </span>
@@ -85,21 +114,45 @@ export default function ProfessionalList({
                       {professional.company}
                     </h2>
                   </div>
-                  <div className="flex items-center mt-1">
+
+                  {/* Rating */}
+                  <div className="flex items-center mb-2">
                     {[...Array(5)].map((_, i) => (
                       <Star
                         key={i}
                         className={`w-3 h-3 ${
                           i < Math.floor(professional.rating)
                             ? "fill-yellow-400 text-yellow-400"
-                            : "text-gray-500"
+                            : "text-gray-300 dark:text-gray-600"
                         }`}
                       />
                     ))}
-                    <span className="ml-1 text-xs text-gray-500">
-                      {professional.rating}
+                    <span className="ml-1 text-xs text-gray-500 dark:text-gray-400">
+                      {professional.rating > 0
+                        ? professional.rating
+                        : "No ratings"}
+                    </span>
+                    <span className="mx-2 text-gray-300 dark:text-gray-600">
+                      •
+                    </span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                      {professional.total_hires} hires
                     </span>
                   </div>
+
+                  {/* Price Range */}
+                  {professional.apiData && (
+                    <div className="flex items-center text-sm font-medium text-green-600 dark:text-green-400">
+                      {formatPriceRange(
+                        professional.apiData.minimum_price,
+                        professional.apiData.maximum_price,
+                        professional.apiData.pricing_type
+                      )}
+                      <span className="ml-1 text-xs text-gray-500 dark:text-gray-400 capitalize">
+                        ({professional.apiData.pricing_type.replace("_", " ")})
+                      </span>
+                    </div>
+                  )}
                 </div>
                 <span
                   className={`px-2 py-0.5 text-xs rounded-full flex-shrink-0 ${
@@ -125,19 +178,22 @@ export default function ProfessionalList({
                 <div className="flex items-center truncate">
                   <IdCardLanyard className="w-3 h-3 mr-1 flex-shrink-0" />
                   <span className="truncate">
-                    {professional.employee_count} Employees
+                    {professional.employee_count}{" "}
+                    {professional.employee_count === 1
+                      ? "Employee"
+                      : "Employees"}
                   </span>
                 </div>
                 <div className="flex items-center truncate">
                   <PackageOpen className="w-3 h-3 mr-1 flex-shrink-0" />
                   <span className="truncate">
-                    Founded {professional.founded}
+                    {calculateYearsInBusiness(professional.founded)} years
                   </span>
                 </div>
                 <div className="flex items-center truncate">
                   <MousePointerClick className="w-3 h-3 mr-1 flex-shrink-0" />
                   <span className="truncate">
-                    {professional.total_hires} Hires
+                    {professional.apiData?.completed_tasks || 0} tasks
                   </span>
                 </div>
               </div>
@@ -171,13 +227,13 @@ export default function ProfessionalList({
             {/* Button */}
             <div className="flex justify-end gap-2 items-center">
               <Questioner
-                className="bg-sky-600 dark:bg-sky-500 dark:hover:bg-sky-600 hover:bg-sky-500 px-4 rounded-xs text-white font-semibold sticky"
+                className="bg-sky-600 dark:bg-sky-500 dark:hover:bg-sky-600 hover:bg-sky-500 px-4 py-2 rounded-xs text-white font-semibold text-sm"
                 serviceId={selectedServiceId}
                 triggerText="Request Quotation"
               />
               <Button
                 type="button"
-                className="bg-sky-600 dark:bg-sky-500 dark:hover:bg-sky-600 hover:bg-sky-500 rounded-xs text-white font-semibold "
+                className="bg-sky-600 dark:bg-sky-500 dark:hover:bg-sky-600 hover:bg-sky-500 rounded-xs text-white font-semibold text-sm px-4 py-2"
               >
                 <Link
                   href={`/home-services/professional-profile/${professional.id}`}
@@ -189,6 +245,14 @@ export default function ProfessionalList({
           </div>
         </motion.div>
       ))}
+
+      {professionals.length === 0 && (
+        <div className="text-center py-8">
+          <p className="text-gray-500 dark:text-gray-400">
+            No professionals found matching your criteria.
+          </p>
+        </div>
+      )}
     </div>
   );
 }

@@ -77,6 +77,14 @@ export const getUserLocation = async (userId: string, token: string) => {
   });
   return response.data;
 };
+// fetch professionals
+export const getTopProfessionals = async (service_id: string, zipcode: string) => {
+  console.log("Requesting data from API based On: ", service_id, zipcode);
+  const response = await api.get(`/providers?service=${service_id}&zipcode=${zipcode}`);
+
+  console.log("API Response:", response);
+  return response; // ✅ Only return useful data to React Query
+};
 
 
 // ======================================================

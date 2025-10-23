@@ -2,27 +2,28 @@
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Dialog } from "@headlessui/react";
-import ProfessionalList from "@/components/home-services/homepage/professional/ProfessionalList";
+// import ProfessionalList from "@/components/home-services/homepage/professional/ProfessionalList";
 import SearchLoading from "@/components/home-services/homepage/elements/SearchLoader";
 import ServiceQuestion from "@/components/home-services/question/ServiceQuestion";
 
 interface Professional {
-  id: number;
-  company: string;
-  type: string;
-  service: string;
-  rating: number;
-  services: string[];
-  zipCodes: string[];
-  distance?: number;
-  guarantee: boolean;
-  employee_count: number;
-  total_hires: number;
-  founded: number;
-  background_check: boolean;
-  status: string;
+  _id: string;
+  service_name: string;
+  maximum_price: number;
+  minimum_price: number;
   description: string;
-  imageUrl: string;
+  pricing_type: string;
+  completed_tasks: number;
+  professional: {
+    _id: string;
+    business_name: string;
+    introduction: string;
+    business_type: string;
+    total_hire: number;
+    total_review: number;
+    rating_avg: number;
+    profile_image: string;
+  };
 }
 
 function SearchResultsContent() {
@@ -84,7 +85,11 @@ function SearchResultsContent() {
                 </p>
               </div>
             ) : (
-              <ProfessionalList professionals={professionals} />
+              // <ProfessionalList professionals={professionals} />
+              <div className="p-10">
+                <h1 className="text-4xl">Under Development...</h1>
+                <p>This component is under development...</p>
+              </div>
             )}
           </div>
 

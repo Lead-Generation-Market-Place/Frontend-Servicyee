@@ -1,23 +1,43 @@
 "use client";
-// import { MapPin } from "lucide-react";
 import { use, useState } from "react";
 import { motion } from "framer-motion";
 import { Dialog } from "@headlessui/react";
 import ProfessionalList from "@/components/home-services/homepage/professional/ProfessionalList";
-// import QuotationForm from "@/components/home-services/homepage/professional/QuotationForm";
 import Breadcrumbs from "@/components/home-services/homepage/Breadcrumbs";
 import ServiceQuestion from "@/components/home-services/question/ServiceQuestion";
+import { useSearchParams } from "next/navigation";
+import { useTopProfessionals } from "@/hooks/useHomeServices";
+import ErrorDisplay from "@/components/ui/ErrorDisplay";
 
-//
+// Interface matching your API response structure
+interface Professional {
+  _id: string;
+  service_name: string;
+  maximum_price: number;
+  minimum_price: number;
+  description: string;
+  pricing_type: string;
+  completed_tasks: number;
+  professional: {
+    _id: string;
+    business_name: string;
+    introduction: string;
+    business_type: string;
+    total_hire: number;
+    total_review: number;
+    rating_avg: number;
+    profile_image: string;
+  };
+}
 
 function ProfessionalTypeFilter({
   selectedType,
   onTypeChange,
 }: {
   selectedType: string;
-  /*eslint-disable no-unused-vars */
+  /* eslint-disable no-unused-vars */
   onTypeChange: (type: string) => void;
-  /*eslint-enable no-unused-vars */
+  /* eslint-enable no-unused-vars */
 }) {
   return (
     <div className="flex flex-wrap gap-2 mb-4">
@@ -33,27 +53,60 @@ function ProfessionalTypeFilter({
       </button>
       <button
         className={`px-4 py-1 rounded-full text-sm font-medium transition-colors ${
-          selectedType === "Company"
+          selectedType === "company"
             ? "bg-sky-600 text-white"
             : "bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200"
         }`}
-        onClick={() => onTypeChange("Company")}
+        onClick={() => onTypeChange("company")}
       >
         Companies
       </button>
       <button
         className={`px-4 py-1 rounded-full text-sm font-medium transition-colors ${
-          selectedType === "Handyman"
+          selectedType === "individual"
             ? "bg-sky-600 text-white"
             : "bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200"
         }`}
-        onClick={() => onTypeChange("Handyman")}
+        onClick={() => onTypeChange("individual")}
       >
-        Handymen
+        Individuals
       </button>
     </div>
   );
 }
+
+// Transform API data to match your ProfessionalList component expected format
+const transformProfessionalData = (apiData: Professional[]) => {
+  return apiData.map((item, index) => ({
+    id: item._id || `professional-${index}`,
+    company: item.professional.business_name,
+    type:
+      item.professional.business_type === "company" ? "Company" : "Handyman",
+    service: item.service_name,
+    rating: item.professional.rating_avg || 0,
+    services: [item.service_name], // You might want to expand this based on your actual data
+    zipCodes: [], // This would need to come from your API
+    distance: 0, // This would need to come from your API
+    guarantee: true, // Default value
+    employee_count: item.professional.business_type === "company" ? 10 : 1, // Default values
+    total_hires: item.professional.total_hire,
+    founded: 2020, // Default value
+    background_check: true, // Default value
+    status: "Available",
+    description: item.description || item.professional.introduction,
+    imageUrl:
+      item.professional.profile_image ||
+      "/assets/home-service/default-service.jpg",
+    // Additional fields from API
+    apiData: {
+      maximum_price: item.maximum_price,
+      minimum_price: item.minimum_price,
+      pricing_type: item.pricing_type,
+      completed_tasks: item.completed_tasks,
+      professional_id: item.professional._id,
+    },
+  }));
+};
 
 export default function ProfessionalPage({
   params,
@@ -61,128 +114,76 @@ export default function ProfessionalPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = use(params);
+  const searchParams = useSearchParams();
+  const service_id = searchParams.get("id");
+  const zipcode = searchParams.get("zipcode");
+
   const [selectedType, setSelectedType] = useState<string>("All");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  // const selectedServiceId = 2;
-  const MOCK_PROFESSIONALS = [
-    {
-      id: 1,
-      company: "John's Plumbing",
-      type: "Company",
-      service: "Plumbing",
-      rating: 4.8,
-      services: ["Pipe Repair", "Leak Fixing", "Faucet Installation"],
-      zipCodes: ["90001", "90002", "90003"],
-      distance: 1.2,
-      guarantee: true,
-      employee_count: 24,
-      total_hires: 15,
-      founded: 2012,
-      background_check: true,
-      status: "Available",
-      description: "Licensed plumbing services with 10 years of experience.",
-      imageUrl: "/assets/home-service/service (1).jpg",
-    },
-    {
-      id: 2,
-      company: "Electric Solutions",
-      type: "Company",
-      service: "Electrical",
-      rating: 4.5,
-      services: ["Wiring", "Outlet Installation", "Circuit Breaker"],
-      zipCodes: ["90001", "90005"],
-      distance: 0.8,
-      guarantee: true,
-      employee_count: 18,
-      total_hires: 22,
-      founded: 2015,
-      background_check: true,
-      status: "Available",
-      description: "Certified electricians providing safe solutions.",
-      imageUrl: "/assets/home-service/service (2).jpg",
-    },
-    {
-      id: 3,
-      company: "Clean Home Services",
-      type: "Company",
-      service: "Cleaning",
-      rating: 4.9,
-      services: ["Deep Cleaning", "Carpet Cleaning", "Window Washing"],
-      zipCodes: ["90002", "90004"],
-      distance: 2.5,
-      guarantee: true,
-      employee_count: 42,
-      total_hires: 35,
-      founded: 2016,
-      background_check: true,
-      status: "Available",
-      description: "Premium cleaning services with eco-friendly products.",
-      imageUrl: "/assets/home-service/service (3).jpg",
-    },
-    {
-      id: 4,
-      company: "Mike's Handyman Services",
-      type: "Handyman",
-      service: "Handyman",
-      rating: 4.3,
-      services: ["Furniture Assembly", "Shelving", "Minor Repairs"],
-      zipCodes: ["90001", "90003", "90005"],
-      distance: 1.7,
-      guarantee: false,
-      employee_count: 1,
-      total_hires: 12,
-      founded: 2019,
-      background_check: true,
-      status: "Available",
-      description: "Reliable handyman for home maintenance needs.",
-      imageUrl: "/assets/home-service/service (4).jpg",
-    },
-    {
-      id: 5,
-      company: "Green Thumb Landscaping",
-      type: "Company",
-      service: "Landscaping",
-      rating: 4.7,
-      services: ["Lawn Care", "Tree Trimming", "Garden Design"],
-      zipCodes: ["90002", "90004", "90006"],
-      distance: 3.1,
-      guarantee: true,
-      employee_count: 15,
-      total_hires: 28,
-      founded: 2014,
-      background_check: true,
-      status: "Available",
-      description: "Professional landscaping services.",
-      imageUrl: "/assets/home-service/service (5).jpg",
-    },
-    {
-      id: 6,
-      company: "Tom's Handyman Solutions",
-      type: "Handyman",
-      service: "Handyman",
-      rating: 4.6,
-      services: ["Drywall Repair", "Painting", "Fixture Installation"],
-      zipCodes: ["90002", "90004", "90006"],
-      distance: 2.3,
-      guarantee: true,
-      employee_count: 1,
-      total_hires: 8,
-      founded: 2020,
-      background_check: true,
-      status: "Available",
-      description: "Skilled handyman for various home repairs.",
-      imageUrl: "/assets/home-service/service (3).jpg",
-    },
-  ];
 
-  const filteredProfessionals = MOCK_PROFESSIONALS.filter((professional) => {
+  // Format the slug for display
+  const formatted = slug
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+
+  // Use the service_id from URL params or fallback to slug
+  console.log(
+    `if this service ${service_id} not found it will fallback to default`
+  );
+  console.log(
+    `Due to limit professional service data if the professional not found it will fallback to ${zipcode} zipcode`
+  );
+  const service = service_id || "68e7ce11b0735d6e372e4380";
+  const zip = zipcode || "95814";
+
+  const {
+    data: topProfessionals,
+    isLoading,
+    isError,
+  } = useTopProfessionals(service, zip);
+
+  console.log("INCOMING DATA FROM HOOK: ", topProfessionals);
+
+  // Transform API data for the ProfessionalList component
+  const professionalData = topProfessionals?.data
+    ? transformProfessionalData(topProfessionals.data)
+    : [];
+
+  // Filter professionals based on selected type
+  const filteredProfessionals = professionalData.filter((professional) => {
     if (selectedType === "All") return true;
-    return professional.type === selectedType;
+    if (selectedType === "company") return professional.type === "Company";
+    if (selectedType === "individual") return professional.type === "Handyman";
+    return true;
   });
 
   const displayService = slug
     .replace(/_/g, " ")
     .replace(/\b\w/g, (char) => char.toUpperCase());
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">
+            Loading professionals...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <ErrorDisplay
+        errorType="loading"
+        fullScreen={true}
+        onRetry={() => window.location.reload()}
+      />
+    );
+  }
 
   return (
     <div className="relative bg-white dark:bg-gray-900 min-h-screen transition-colors duration-300 dark:text-gray-100 text-gray-900">
@@ -202,7 +203,7 @@ export default function ProfessionalPage({
           className="py-4"
         ></motion.div>
 
-        {/* Mobile Filter Button - Only shows on small screens */}
+        {/* Mobile Filter Button */}
         <div className="lg:hidden mb-4">
           <button
             onClick={() => setIsFilterOpen(true)}
@@ -213,7 +214,7 @@ export default function ProfessionalPage({
         </div>
 
         <div className="flex flex-col lg:flex-row gap-6 order-3">
-          {/* Sidebar Filter - Hidden on mobile, shown on lg+ */}
+          {/* Sidebar Filter - Hidden on mobile */}
           <div className="hidden lg:block lg:w-1/4">
             <ServiceQuestion serviceId={slug} />
           </div>
@@ -222,7 +223,8 @@ export default function ProfessionalPage({
             <div className="flex flex-row flex-wrap justify-between items-center my-2">
               <div className="space-y-2">
                 <h1 className="text-md md:text-md font-bold">
-                  Top 5 {displayService} Professionals in Your Area
+                  Top {professionalData.length} {formatted} Professionals in
+                  Your Area
                 </h1>
 
                 <ProfessionalTypeFilter
@@ -230,22 +232,20 @@ export default function ProfessionalPage({
                   onTypeChange={setSelectedType}
                 />
               </div>
-              {/* <Button
-                type="button"
-                className="bg-sky-600 dark:bg-sky-500 dark:hover:bg-sky-600 hover:bg-sky-500 px-4 rounded-xs text-white font-semibold sticky"
-              >
-                Request Qoutation
-              </Button> */}
-              {/* <Questioner
-                className="bg-sky-600 dark:bg-sky-500 dark:hover:bg-sky-600 hover:bg-sky-500 px-4 rounded-xs text-white font-semibold sticky"
-                serviceId={selectedServiceId}
-                triggerText="Request Quotation"
-              /> */}
             </div>
+
             <ProfessionalList
               professionals={filteredProfessionals}
               selectedType={selectedType}
             />
+
+            {filteredProfessionals.length === 0 && (
+              <div className="text-center py-12">
+                <p className="text-gray-500 dark:text-gray-400">
+                  No professionals found for the selected filters.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>
