@@ -10,6 +10,7 @@ import {
   getUserLocation,
   loadUserLocation,
 } from "@/app/api/homepage/popularService";
+import { getServiceQuestion } from "@/app/api/homepage/generateLead";
 
 
 export const usePopularServices = () => {
@@ -77,13 +78,23 @@ export const useUserLocationStorage = () => {
 //===================================
 
 export const useTopProfessionals = (service:string, zipcode:string) => {
-
-
-  console.log("Check Request", service, zipcode);
   return useQuery({
     queryKey: ['topProfessionals', service, zipcode],
     queryFn:() => getTopProfessionals(service, zipcode),
     enabled: !!service && !!zipcode,
+    staleTime: 5*60*1000,
+  });
+}
+
+//=================================================
+//         get service questions
+//=================================================
+
+export const useServiceQuestions = (service_id:string) => {
+  return useQuery({
+    queryKey: ['serviceQuestions', service_id],
+    queryFn: () => getServiceQuestion(service_id),
+    enabled: !!service_id,
     staleTime: 5*60*1000,
   });
 }

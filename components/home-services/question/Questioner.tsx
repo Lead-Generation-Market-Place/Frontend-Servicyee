@@ -11,20 +11,26 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-// import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ArrowLeft, ArrowRight, CheckCircle2 } from "lucide-react";
+import { useServiceQuestions } from "@/hooks/useHomeServices";
 
-// Define TypeScript interfaces
+// Define TypeScript interfaces based on API response
 interface Question {
-  id: number;
-  text: string;
-  type: string;
+  _id: string;
+  service_id: string;
+  question_name: string;
+  form_type: string;
   options: string[];
+  required: boolean;
+  order: number;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface Service {
-  id: number;
+  id: string;
   name: string;
   questions: Question[];
 }
@@ -45,129 +51,38 @@ interface Professional {
 }
 
 interface QuestionerProps {
-  serviceId: number;
+  serviceId: string;
   triggerText?: string;
   className?: string;
   trigger?: React.ReactNode;
 }
 
-// Sample data structure for services and questions
-const sampleData = {
-  services: [
-    {
-      id: 1,
-      name: "Web Development",
-      questions: [
-        {
-          id: 1,
-          text: "What type of website do you need?",
-          type: "mcq",
-          options: [
-            "E-commerce",
-            "Blog",
-            "Corporate Website",
-            "Portfolio",
-            "Other",
-          ],
-        },
-        {
-          id: 2,
-          text: "What is your preferred technology stack?",
-          type: "mcq",
-          options: [
-            "React/Next.js",
-            "Vue/Nuxt.js",
-            "Angular",
-            "WordPress",
-            "Custom PHP",
-          ],
-        },
-        {
-          id: 3,
-          text: "What is your estimated timeline for completion?",
-          type: "mcq",
-          options: [
-            "Less than 1 month",
-            "1-3 months",
-            "3-6 months",
-            "More than 6 months",
-          ],
-        },
-      ],
-    },
-    {
-      id: 2,
-      name: "Graphic Design",
-      questions: [
-        {
-          id: 1,
-          text: "What type of design do you need?",
-          type: "mcq",
-          options: [
-            "Logo",
-            "Brochure",
-            "Social Media Graphics",
-            "Packaging",
-            "Other",
-          ],
-        },
-        {
-          id: 2,
-          text: "What is your preferred style?",
-          type: "mcq",
-          options: [
-            "Minimalist",
-            "Vintage",
-            "Modern",
-            "Playful",
-            "Professional",
-          ],
-        },
-      ],
-    },
-  ],
-};
-
-// Sample professionals data
+// Sample professionals data (you can replace this with real data later)
 const professionalsData: Professional[] = [
   {
     id: 1,
     name: "John Smith",
     rating: 4.8,
     completedProjects: 124,
-    specialty: "React/Next.js",
+    specialty: "Furniture Assembly",
   },
   {
     id: 2,
     name: "Sarah Johnson",
     rating: 4.9,
     completedProjects: 98,
-    specialty: "Vue/Nuxt.js",
+    specialty: "Home Services",
   },
   {
     id: 3,
     name: "Michael Brown",
     rating: 4.7,
     completedProjects: 156,
-    specialty: "WordPress",
-  },
-  {
-    id: 4,
-    name: "Emily Davis",
-    rating: 4.6,
-    completedProjects: 87,
-    specialty: "Angular",
-  },
-  {
-    id: 5,
-    name: "David Wilson",
-    rating: 4.5,
-    completedProjects: 112,
-    specialty: "Custom PHP",
+    specialty: "General Handyman",
   },
 ];
 
-// Custom ProgressBar component since the UI library's Progress doesn't support indicatorClassName
+// Custom ProgressBar component
 const CustomProgressBar = ({
   value,
   className = "",
@@ -194,7 +109,7 @@ const Questioner = ({
   trigger,
 }: QuestionerProps) => {
   const [currentStep, setCurrentStep] = useState<number>(0);
-  const [responses, setResponses] = useState<Record<number, string>>({});
+  const [responses, setResponses] = useState<Record<string, string>>({});
   const [service, setService] = useState<Service | null>(null);
   const [userInfo, setUserInfo] = useState<UserInfo>({
     email: "",
@@ -205,16 +120,52 @@ const Questioner = ({
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [uploadedFileNames, setUploadedFileNames] = useState<string[]>([]);
   const [selectedProfessionals, setSelectedProfessionals] = useState<number[]>(
-    professionalsData.map((p) => p.id) // Select all professionals by default
+    professionalsData.map((p) => p.id)
   );
   const [sendOption, setSendOption] = useState<string>("top5");
 
+  const {
+    data: serviceQuestions,
+    isLoading,
+    isError,
+  } = useServiceQuestions(serviceId);
+
+  console.log("Data from the Hook: ", serviceQuestions);
+
   useEffect(() => {
-    // In a real app, you would fetch this from your data.json
-    const selectedService = sampleData.services.find((s) => s.id === serviceId);
-    if (selectedService) {
-      setService(selectedService);
+    if (serviceQuestions?.data && serviceQuestions.data.length > 0) {
+      // Transform API data to Service format
+      const transformedService: Service = {
+        id: serviceId,
+        name: "Service", // You might want to get the actual service name from another API
+        questions: serviceQuestions.data
+          .filter((q: Question) => q.active) // Only use active questions
+          .sort((a: Question, b: Question) => a.order - b.order), // Sort by order
+      };
+      setService(transformedService);
+    } else {
+      // Fallback if no questions found
+      setService({
+        id: serviceId,
+        name: "Service",
+        questions: [
+          {
+            _id: "fallback",
+            service_id: serviceId,
+            question_name: "Tell us about your project",
+            form_type: "radio",
+            options: ["Small project", "Medium project", "Large project"],
+            required: true,
+            order: 1,
+            active: true,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+        ],
+      });
     }
+
+    // Reset states when dialog opens/closes or serviceId changes
     setCurrentStep(0);
     setResponses({});
     setUserInfo({
@@ -226,9 +177,9 @@ const Questioner = ({
     setUploadedFileNames([]);
     setSelectedProfessionals(professionalsData.map((p) => p.id));
     setSendOption("top5");
-  }, [serviceId, isOpen]);
+  }, [serviceId, isOpen, serviceQuestions]);
 
-  const handleResponse = (questionId: number, answer: string) => {
+  const handleResponse = (questionId: string, answer: string) => {
     setResponses((prev) => ({
       ...prev,
       [questionId]: answer,
@@ -281,22 +232,6 @@ const Questioner = ({
     }
   };
 
-  // const handleProfessionalToggle = (professionalId: number) => {
-  //   setSelectedProfessionals((prev) =>
-  //     prev.includes(professionalId)
-  //       ? prev.filter((id) => id !== professionalId)
-  //       : [...prev, professionalId]
-  //   );
-  // };
-
-  // const handleSelectAll = () => {
-  //   setSelectedProfessionals(professionalsData.map((p) => p.id));
-  // };
-
-  // const handleDeselectAll = () => {
-  //   setSelectedProfessionals([]);
-  // };
-
   const handleSendOptionChange = (value: string) => {
     setSendOption(value);
     if (value === "top5") {
@@ -307,9 +242,9 @@ const Questioner = ({
   const handleSubmit = () => {
     // Here you would typically send the data to your backend
     console.log("Submitting:", {
+      serviceId,
       responses,
       userInfo,
-      serviceId,
       sendOption,
       selectedProfessionals,
     });
@@ -321,7 +256,83 @@ const Questioner = ({
     ? (currentStep / (service.questions.length + 3)) * 100
     : 0;
 
-  if (!service) return null;
+  // Show loading state
+  if (isLoading) {
+    return (
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogTrigger asChild>
+          {trigger || (
+            <Button
+              variant="default"
+              className={`bg-sky-600 hover:bg-sky-700 dark:bg-sky-500 dark:hover:bg-sky-600 text-white font-semibold py-2 px-4 rounded-md transition-colors duration-200 ${className}`}
+            >
+              {triggerText}
+            </Button>
+          )}
+        </DialogTrigger>
+        <DialogContent>
+          <div className="flex justify-center items-center p-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sky-600"></div>
+            <span className="ml-3">Loading questions...</span>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  // Show error state but still show the trigger button
+  if (isError) {
+    return (
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogTrigger asChild>
+          {trigger || (
+            <Button
+              variant="default"
+              className={`bg-sky-600 hover:bg-sky-700 dark:bg-sky-500 dark:hover:bg-sky-600 text-white font-semibold py-2 px-4 rounded-md transition-colors duration-200 ${className}`}
+            >
+              {triggerText}
+            </Button>
+          )}
+        </DialogTrigger>
+        <DialogContent>
+          <div className="text-center p-8">
+            <div className="text-red-500 text-lg mb-4">⚠️</div>
+            <h3 className="text-lg font-semibold mb-2">
+              Unable to Load Questions
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
+              There was an error loading the service questions. Please try
+              again.
+            </p>
+            <Button onClick={() => window.location.reload()}>Try Again</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  // If no service data is available, still show the trigger button
+  if (!service) {
+    return (
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogTrigger asChild>
+          {trigger || (
+            <Button
+              variant="default"
+              className={`bg-sky-600 hover:bg-sky-700 dark:bg-sky-500 dark:hover:bg-sky-600 text-white font-semibold py-2 px-4 rounded-md transition-colors duration-200 ${className}`}
+            >
+              {triggerText}
+            </Button>
+          )}
+        </DialogTrigger>
+        <DialogContent>
+          <div className="text-center p-8">
+            <p>No questions available for this service.</p>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -351,20 +362,21 @@ const Questioner = ({
               // Question steps
               <div className="space-y-6">
                 <h3 className="text-md font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2">
-                  {service.questions[currentStep].text}
+                  {service.questions[currentStep].question_name}
                 </h3>
 
                 <RadioGroup
-                  value={responses[service.questions[currentStep].id] || ""}
+                  value={responses[service.questions[currentStep]._id] || ""}
                   onValueChange={(value) =>
-                    handleResponse(service.questions[currentStep].id, value)
+                    handleResponse(service.questions[currentStep]._id, value)
                   }
                   className=""
                 >
                   {service.questions[currentStep].options.map(
                     (option, index) => {
                       const isSelected =
-                        responses[service.questions[currentStep].id] === option;
+                        responses[service.questions[currentStep]._id] ===
+                        option;
                       const optionId = `option-${currentStep}-${index}`;
 
                       return (
@@ -403,7 +415,7 @@ const Questioner = ({
                   </Button>
                   <Button
                     onClick={handleNext}
-                    disabled={!responses[service.questions[currentStep].id]}
+                    disabled={!responses[service.questions[currentStep]._id]}
                     className="bg-sky-600 hover:bg-sky-700 flex items-center gap-2"
                   >
                     {currentStep === service.questions.length - 1
@@ -536,12 +548,12 @@ const Questioner = ({
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {service.questions.map((question) => (
-                      <div key={question.id} className="space-y-1">
+                      <div key={question._id} className="space-y-1">
                         <p className="font-medium text-gray-900 dark:text-white">
-                          {question.text}
+                          {question.question_name}
                         </p>
                         <p className="text-sky-600 dark:text-sky-400">
-                          {responses[question.id] || "No answer provided"}
+                          {responses[question._id] || "No answer provided"}
                         </p>
                       </div>
                     ))}
@@ -617,7 +629,7 @@ const Questioner = ({
                   Send Quotation Request
                 </h3>
 
-                <p className="text-red-600 dark:textt-sky-400 text-sm">
+                <p className="text-sky-600 dark:text-sky-400 text-sm">
                   For faster responses and more accurate pricing, we recommend
                   sending your quotation request to the top 5 recommended
                   professionals, including your selected professional.
@@ -663,77 +675,6 @@ const Questioner = ({
                     );
                   })}
                 </RadioGroup>
-                {/* {sendOption === "select" && (
-                    <div className="space-y-4">
-                      <div className="flex justify-between items-center">
-                        <h4 className="font-medium text-gray-900 dark:text-white">
-                          Select Professionals
-                        </h4>
-                        <div className="space-x-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handleSelectAll}
-                          >
-                            Select All
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handleDeselectAll}
-                          >
-                            Deselect All
-                          </Button>
-                        </div>
-                      </div>
-
-                      <div className="space-y-3 max-h-60 overflow-y-auto">
-                        {professionalsData.map((professional) => (
-                          <div
-                            key={professional.id}
-                            className={`flex items-start space-x-3 border p-3 rounded-md transition-colors duration-200 ${
-                              selectedProfessionals.includes(professional.id)
-                                ? "border-sky-500 bg-sky-50 dark:border-sky-400 dark:bg-sky-900/20"
-                                : "border-gray-200 dark:border-gray-700"
-                            }`}
-                          >
-                            <Checkbox
-                              id={`pro-${professional.id}`}
-                              checked={selectedProfessionals.includes(
-                                professional.id
-                              )}
-                              onCheckedChange={() =>
-                                handleProfessionalToggle(professional.id)
-                              }
-                            />
-                            <Label
-                              htmlFor={`pro-${professional.id}`}
-                              className="flex-1 cursor-pointer"
-                            >
-                              <div className="flex flex-col justify-between items-start">
-                                <div>
-                                  <p className="font-semibold text-gray-900 pb-2 dark:text-white">
-                                    {professional.name}
-                                  </p>
-                                  <small className="text-xs text-gray-500">
-                                    ⭐ {professional.rating}
-                                  </small>
-                                  <p className="text-xs text-gray-600 dark:text-gray-400">
-                                    <b>Specialty:</b> {professional.specialty}
-                                  </p>
-                                </div>
-                                <div className="">
-                                  <p className="text-xs text-gray-600 dark:text-gray-400">
-                                    {professional.completedProjects} projects
-                                  </p>
-                                </div>
-                              </div>
-                            </Label>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )} */}
 
                 <div className="flex justify-between mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
                   <Button
