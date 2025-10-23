@@ -7,8 +7,10 @@ import {
   BusinessAvailabilityPayload,
   BusinessInfoPayload,
   getProServicesQuestionsAPI,
+  LocationData,
   registerUserAPI,
   saveBusinessInfoAPI,
+  saveLocationAPI,
   submitServiceAnswersAPI,
   UpdateBusinessName,
 } from "@/app/api/services/ProAccount";
@@ -56,7 +58,7 @@ export function useUpdateBusinessName(token: string) {
   return useMutation({
     mutationKey: ["UpdateBusinessName"],
     mutationFn: (data: { businessName: string; id: string }) =>
-      UpdateBusinessName(data,token),
+      UpdateBusinessName(data, token),
     onSuccess: (updatedProfessional) => {
       const storedData = localStorage.getItem("professionalData");
       if (storedData) {
@@ -145,22 +147,44 @@ export function useBusinesAvailability(token: string) {
 // Get Professional Services Question - Step 08
 export function useProServicesQuestions(token: string) {
   return useQuery({
-    queryKey: ['getProServicesQuestions', token],
+    queryKey: ["getProServicesQuestions", token],
     queryFn: () => getProServicesQuestionsAPI(token),
-    enabled: !!token, 
-    staleTime: 1000 * 60 * 5, 
+    enabled: !!token,
+    staleTime: 1000 * 60 * 5,
   });
 }
 
-// Create Professional Account 08 
+// Create Professional Account 08
 export const useSubmitServiceAnswers = (token: string) => {
   const router = useRouter();
   return useMutation({
     mutationKey: ["submitServiceAnswers"],
     mutationFn: (data: AnswerPayload[]) => submitServiceAnswersAPI(data, token),
-    onSuccess: () => {
+    onSuccess: (responseData, variables) => {
+      const localData = localStorage.getItem("professionalData");
+      if (localData) {
+        try {
+          const parsed = JSON.parse(localData);
+          parsed.professional = {
+            ...parsed.professional,
+            serviceAnswers: variables || [],
+          };
+          localStorage.setItem("professionalData", JSON.stringify(parsed));
+        } catch (error) {
+          console.error(
+            "Failed to save service answers to localStorage:",
+            error
+          );
+        }
+      } else {
+        const newData = {
+          professional: {
+            serviceAnswers: variables || [],
+          },
+        };
+        localStorage.setItem("professionalData", JSON.stringify(newData));
+      }
       router.push("/home-services/dashboard/services/step-9");
-
     },
     onError: (error: any) => {
       toast.error(
@@ -169,3 +193,37 @@ export const useSubmitServiceAnswers = (token: string) => {
     },
   });
 };
+
+
+// Create Professional Step 09
+export function useSaveLocation(token: string) {
+  const router = useRouter();
+  return useMutation({
+    mutationKey: ["ProfessionalLocation"],
+    mutationFn: (data: LocationData) => saveLocationAPI(data, token),
+    onSuccess: (responseData, variables) => {
+      const localData = localStorage.getItem("professionalData");
+      if (localData) {
+        const parsed = JSON.parse(localData);
+        parsed.professional = {
+          ...parsed.professional,
+          location: {
+            lat: variables.lat,
+            lng: variables.lng,
+            city: variables.city,
+            state: variables.state,
+            zip: variables.zip,
+            radiusMiles: variables.radiusMiles,
+          },
+        };
+        localStorage.setItem("professionalData", JSON.stringify(parsed));
+      }
+      router.push("/home-services/dashboard/services/step-10");
+    },
+    onError: (error: any) => {
+      toast.error(
+        error?.response?.data?.message || "Failed to save location"
+      );
+    },
+  });
+}

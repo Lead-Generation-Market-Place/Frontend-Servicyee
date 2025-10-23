@@ -153,3 +153,28 @@ export const submitServiceAnswersAPI = async (
     throw handleApiError(error);
   }
 };
+
+
+// Create Professional Step 09
+export interface LocationData {
+  lat: number;
+  lng: number;
+  city?: string;
+  state?: string;
+  zip?: string;
+  radiusMiles: number;
+  isLoading:boolean,
+}
+export const saveLocationAPI = async (data: LocationData, token: string) => {
+  try {
+    const response = await api.post("/professionals/servicesLocation", data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};

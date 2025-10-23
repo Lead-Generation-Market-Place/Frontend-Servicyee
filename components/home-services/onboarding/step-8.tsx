@@ -8,10 +8,10 @@ import { ProgressBar } from "@/components/home-services/onboarding/ProgressBar";
 import { getAccessToken } from "@/app/api/axios";
 import {
   useProServicesQuestions,
-  useSubmitServiceAnswers
+  useSubmitServiceAnswers,
 } from "@/hooks/RegisterPro/useRegister";
 
-// --- Steps (consistent with onboarding process)
+// --- Steps
 const ONBOARDING_STEPS = [
   { id: 1, name: "Profile" },
   { id: 2, name: "Reviews" },
@@ -21,7 +21,7 @@ const ONBOARDING_STEPS = [
   { id: 6, name: "Background" },
 ];
 
-// --- Types matching Mongoose model
+// --- Types
 export interface ServiceQuestion {
   _id: string;
   service_id: string;
@@ -33,7 +33,6 @@ export interface ServiceQuestion {
   active: boolean;
 }
 
-// --- Updated AnswerPayload type
 interface AnswerPayload {
   professional_id: string;
   service_id: string;
@@ -45,19 +44,20 @@ export default function MultiChoiceServiceForm() {
   const token = getAccessToken() || "";
   const router = useRouter();
   const [professionalId, setProfessionalId] = useState<string>("");
-  const { data, isLoading, isPending: questionsLoading, error } = useProServicesQuestions(token);
-  const { mutate: submitAnswers, isPending: isSubmitting } = useSubmitServiceAnswers(token);
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const currentStep = 3;
 
-  // --- Extract questions from the nested data structure
+  // --- Hooks
+  const { data, isLoading, isPending: questionsLoading, error } = useProServicesQuestions(token);
+  const { mutate: submitAnswers, isPending: isSubmitting } = useSubmitServiceAnswers(token);
+
+  // --- Extract questions from API
   const questions = React.useMemo(() => {
-    if (!data?.services?.services?.[0]?.questions) return [];
-    return data.services.services[0].questions as ServiceQuestion[];
+    return data?.services?.services?.[0]?.questions || [];
   }, [data]);
 
-  // --- Group questions by service_id
+  // --- Group by service_id
   const groupedData = React.useMemo(() => {
     if (!questions.length) return [];
     const grouped: Record<string, ServiceQuestion[]> = {};
@@ -70,53 +70,68 @@ export default function MultiChoiceServiceForm() {
       questions,
     }));
   }, [questions]);
-
-  // --- Initialize answers state
   useEffect(() => {
     if (!groupedData.length) return;
+
     const initial: Record<string, string | string[]> = {};
+
+    // Step 1: Default blank answers
     for (const service of groupedData) {
       for (const q of service.questions) {
         if (!q._id) continue;
-        if (q.form_type === "checkbox") {
-          initial[q._id] = [];
-        } else if (q.options?.length) {
-          initial[q._id] = q.options[0];
-        } else {
-          initial[q._id] = "";
-        }
+        if (q.form_type === "checkbox") initial[q._id] = [];
+        else if (q.options?.length) initial[q._id] = q.options[0];
+        else initial[q._id] = "";
       }
     }
-    setAnswers(initial);
-
-    // --- Load professionalId from localStorage
     const localData = localStorage.getItem("professionalData");
     if (localData) {
-      const parseData = JSON.parse(localData);
-      if (parseData.professional) {
-        setProfessionalId(parseData.professional._id || "");
+      try {
+        const parsed = JSON.parse(localData);
+        const prof = parsed.professional || {};
+        setProfessionalId(prof._id || "");
+
+        if (Array.isArray(prof.serviceAnswers)) {
+          for (const ans of prof.serviceAnswers) {
+            if (ans.question_id && Object.prototype.hasOwnProperty.call(initial, ans.question_id)) {
+              initial[ans.question_id] = ans.answer;
+            }
+
+          }
+        }
+      } catch (e) {
+        console.error("Error parsing localStorage data", e);
       }
     }
+
+    setAnswers(initial);
   }, [groupedData]);
+  const handleAnswerChange = useCallback(
+    (id: string, value: string | string[]) => {
+      setAnswers((prev) => ({ ...prev, [id]: value }));
+      if (validationErrors[id]) {
+        setValidationErrors((prev) => {
+          const newErrors = { ...prev };
+          delete newErrors[id];
+          return newErrors;
+        });
+      }
+    },
+    [validationErrors]
+  );
 
-  // --- Handle answer changes
-  const handleAnswerChange = useCallback((id: string, value: string | string[]) => {
-    setAnswers((prev) => ({ ...prev, [id]: value }));
-    if (validationErrors[id]) {
-      setValidationErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors[id];
-        return newErrors;
-      });
-    }
-  }, [validationErrors]);
-
-  // --- Validate answers
+  // --- Validate required fields
   const validateAnswers = useCallback((): boolean => {
     const errors: Record<string, string> = {};
     for (const service of groupedData) {
       for (const q of service.questions) {
-        if (q.required && (!answers[q._id] || (Array.isArray(answers[q._id]) && answers[q._id].length === 0) || answers[q._id] === "")) {
+        const val = answers[q._id];
+        if (
+          q.required &&
+          (!val ||
+            (Array.isArray(val) && val.length === 0) ||
+            (typeof val === "string" && val.trim() === ""))
+        ) {
           errors[q._id] = "This field is required";
         }
       }
@@ -125,7 +140,7 @@ export default function MultiChoiceServiceForm() {
     return Object.keys(errors).length === 0;
   }, [answers, groupedData]);
 
-  // --- Submit answers with service_id included
+  // --- Submit handler
   const handleNext = useCallback(() => {
     if (!validateAnswers()) {
       toast.error("Please fill in all required fields");
@@ -147,7 +162,7 @@ export default function MultiChoiceServiceForm() {
     submitAnswers(payload);
   }, [answers, validateAnswers, submitAnswers, professionalId, groupedData]);
 
-  // --- Field renderer
+  // --- Field Renderer
   const renderField = useCallback(
     (q: ServiceQuestion) => {
       const value = answers[q._id] ?? "";
@@ -163,7 +178,9 @@ export default function MultiChoiceServiceForm() {
                     type="checkbox"
                     checked={Array.isArray(value) && value.includes(opt)}
                     onChange={(e) => {
-                      const newValue = e.target.checked ? [...(value as string[]), opt] : (value as string[]).filter((v) => v !== opt);
+                      const newValue = e.target.checked
+                        ? [...(value as string[]), opt]
+                        : (value as string[]).filter((v) => v !== opt);
                       handleAnswerChange(q._id, newValue);
                     }}
                     className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-[#0077B6]"
@@ -200,7 +217,7 @@ export default function MultiChoiceServiceForm() {
               <select
                 value={value as string}
                 onChange={(e) => handleAnswerChange(q._id, e.target.value)}
-                className="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-[#0077B6] focus:border-[#0077B6]"
+                className="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-[#0077B6] focus:border-[#0077B6]"
               >
                 {q.options.map((opt, i) => (
                   <option key={`${q._id}-opt-${i}`} value={opt}>
@@ -256,7 +273,7 @@ export default function MultiChoiceServiceForm() {
     [answers, validationErrors, handleAnswerChange]
   );
 
-  // --- Loading & error states
+  // --- Loading states
   if (isLoading || questionsLoading) {
     return (
       <div className="flex justify-center items-center h-[80vh]">
@@ -291,8 +308,7 @@ export default function MultiChoiceServiceForm() {
                 {service.questions.map((q) => (
                   <div key={q._id} className="pb-3 border-b border-gray-100 last:border-none">
                     <h3 className="text-sm font-medium text-gray-800 mb-2">
-                      {q.question_name}{" "}
-                      {q.required && <span className="text-red-500">*</span>}
+                      {q.question_name} {q.required && <span className="text-red-500">*</span>}
                     </h3>
                     {renderField(q)}
                   </div>
