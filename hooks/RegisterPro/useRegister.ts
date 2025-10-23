@@ -7,8 +7,10 @@ import {
   BusinessAvailabilityPayload,
   BusinessInfoPayload,
   getProServicesQuestionsAPI,
+  LocationData,
   registerUserAPI,
   saveBusinessInfoAPI,
+  saveLocationAPI,
   submitServiceAnswersAPI,
   UpdateBusinessName,
 } from "@/app/api/services/ProAccount";
@@ -191,3 +193,37 @@ export const useSubmitServiceAnswers = (token: string) => {
     },
   });
 };
+
+
+// Create Professional Step 09
+export function useSaveLocation(token: string) {
+  const router = useRouter();
+  return useMutation({
+    mutationKey: ["ProfessionalLocation"],
+    mutationFn: (data: LocationData) => saveLocationAPI(data, token),
+    onSuccess: (responseData, variables) => {
+      const localData = localStorage.getItem("professionalData");
+      if (localData) {
+        const parsed = JSON.parse(localData);
+        parsed.professional = {
+          ...parsed.professional,
+          location: {
+            lat: variables.lat,
+            lng: variables.lng,
+            city: variables.city,
+            state: variables.state,
+            zip: variables.zip,
+            radiusMiles: variables.radiusMiles,
+          },
+        };
+        localStorage.setItem("professionalData", JSON.stringify(parsed));
+      }
+      router.push("/home-services/dashboard/services/step-10");
+    },
+    onError: (error: any) => {
+      toast.error(
+        error?.response?.data?.message || "Failed to save location"
+      );
+    },
+  });
+}
