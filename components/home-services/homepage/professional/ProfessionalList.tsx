@@ -134,7 +134,7 @@ export default function ProfessionalList({
                       •
                     </span>
                     <span className="text-xs text-gray-500 dark:text-gray-400">
-                      {professional.total_hires} hires
+                      {professional.total_hires} hires {professional.zipCodes}
                     </span>
                   </div>
 
@@ -226,7 +226,8 @@ export default function ProfessionalList({
             <div className="flex justify-end gap-2 items-center">
               <Questioner
                 className="bg-sky-600 dark:bg-sky-500 dark:hover:bg-sky-600 hover:bg-sky-500 px-4 py-2 rounded-xs text-white font-semibold text-sm"
-                serviceId={serviceId || "68e7ce11b0735d6e372e4380"}
+                serviceId={serviceId}
+                professionalId={professional.id}
                 triggerText="Request Quotation"
               />
               <Button

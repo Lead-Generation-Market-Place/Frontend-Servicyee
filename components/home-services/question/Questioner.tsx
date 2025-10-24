@@ -52,6 +52,7 @@ interface Professional {
 
 interface QuestionerProps {
   serviceId: string;
+  professionalId: string;
   triggerText?: string;
   className?: string;
   trigger?: React.ReactNode;
@@ -104,6 +105,7 @@ const CustomProgressBar = ({
 
 const Questioner = ({
   serviceId,
+  professionalId,
   triggerText = "Request Quotation",
   className,
   trigger,
@@ -129,8 +131,6 @@ const Questioner = ({
     isLoading,
     isError,
   } = useServiceQuestions(serviceId);
-
-  console.log("Data from the Hook: ", serviceQuestions);
 
   useEffect(() => {
     if (serviceQuestions?.data && serviceQuestions.data.length > 0) {
@@ -238,13 +238,23 @@ const Questioner = ({
       setSelectedProfessionals(professionalsData.map((p) => p.id));
     }
   };
+  const userLocationRaw = localStorage.getItem("user_location");
+  let userLocation: any = null;
+  try {
+    userLocation = userLocationRaw ? JSON.parse(userLocationRaw) : null;
+  } catch (e) {
+    console.error("Failed to parse user_location from localStorage:", e);
+    userLocation = null;
+  }
 
   const handleSubmit = () => {
     // Here you would typically send the data to your backend
     console.log("Submitting:", {
       serviceId,
       responses,
+      professionalId,
       userInfo,
+      userLocation,
       sendOption,
       selectedProfessionals,
     });
