@@ -182,6 +182,14 @@ export default function ProfessionalPage({
       />
     );
   }
+  const userLocationRaw = localStorage.getItem("user_location");
+  let userLocation: any = null;
+  try {
+    userLocation = userLocationRaw ? JSON.parse(userLocationRaw) : null;
+  } catch (e) {
+    console.error("Failed to parse user_location from localStorage:", e);
+    userLocation = null;
+  }
 
   return (
     <div className="relative bg-white dark:bg-gray-900 min-h-screen transition-colors duration-300 dark:text-gray-100 text-gray-900">
@@ -221,8 +229,11 @@ export default function ProfessionalPage({
             <div className="flex flex-row flex-wrap justify-between items-center my-2">
               <div className="space-y-2">
                 <h1 className="text-md md:text-md font-bold">
-                  Top {professionalData.length} {formatted} Professionals in
-                  Your Area
+                  Top {professionalData.length} {formatted} Professionals
+                  in&nbsp;
+                  <u className="text-sky-600 dark:text-sky-400">
+                    {userLocation?.city}, {userLocation?.state}
+                  </u>
                 </h1>
 
                 <ProfessionalTypeFilter
