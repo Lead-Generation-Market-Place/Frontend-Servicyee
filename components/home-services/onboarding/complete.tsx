@@ -5,6 +5,8 @@ import { Loader2, MapPin, Clock, Star, Users, Calendar, Award, Building } from '
 import { useProfessionalReview } from '@/hooks/RegisterPro/useRegister';
 import { getAccessToken } from '@/app/api/axios';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 
 // Memoized components to prevent unnecessary re-renders
 const ProfileImage = ({ profileImage, name, Backend_URL }: { profileImage: string; name: string; Backend_URL: string }) => (
@@ -68,29 +70,34 @@ const LoadingSpinner = () => (
 );
 
 const ProfessionalProfile = () => {
-  const Backend_URL = `http://localhost:4000`;
+  const router = useRouter();
+  const Backend_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000';
   const token = useMemo(() => getAccessToken() || "", []);
   const { data } = useProfessionalReview(token);
   const [activeTab, setActiveTab] = useState('overview');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleNext = useCallback(() => {
-    setIsLoading(true);
-    // Handle save logic here
-  }, []);
 
-  // Memoize data processing to avoid recalculation on every render
+  const handleNext = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      toast.success('Profile completed successfully!', {
+        duration: 3000,
+        position: 'top-right'
+      });
+        router.push("/home-services/dashboard/main");
+
+    } catch {
+      setIsLoading(false);
+      toast.error('Confirmation failed. Please try again.');
+    }
+  }, [router]);
   const processedData = useMemo(() => {
     if (!data || !data.professional) return null;
-
     const professional = data.professional;
     const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
-    // Separate business address from service locations
     const businessAddress = professional.locations?.find((loc: any) => loc.type === 'professional') || professional.locations?.[0];
     const serviceLocations = professional.locations?.filter((loc: any) => loc !== businessAddress) || [];
-
-    // Format business hours
     const businessHours = professional.professional.business_hours?.map((day: any) => ({
       ...day,
       dayName: daysOfWeek[day.day]
@@ -156,10 +163,10 @@ const ProfessionalProfile = () => {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="flex items-start gap-3 sm:gap-4 w-full sm:w-auto">
                 <div className="relative flex-shrink-0">
-                  <ProfileImage 
-                    profileImage={profileData.profileImage} 
-                    name={profileData.name} 
-                    Backend_URL={Backend_URL} 
+                  <ProfileImage
+                    profileImage={profileData.profileImage}
+                    name={profileData.name}
+                    Backend_URL={Backend_URL}
                   />
                 </div>
 
@@ -245,11 +252,11 @@ const ProfessionalProfile = () => {
       <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-6 sm:py-8">
         {/* Overview Tab */}
         {activeTab === 'overview' && (
-          <OverviewTab 
-            profileData={profileData} 
-            businessAddress={businessAddress} 
-            businessHours={businessHours} 
-            setActiveTab={setActiveTab} 
+          <OverviewTab
+            profileData={profileData}
+            businessAddress={businessAddress}
+            businessHours={businessHours}
+            setActiveTab={setActiveTab}
           />
         )}
 
@@ -260,25 +267,25 @@ const ProfessionalProfile = () => {
 
         {/* Locations Tab */}
         {activeTab === 'locations' && (
-          <LocationsTab 
-            businessAddress={businessAddress} 
-            serviceLocations={serviceLocations} 
+          <LocationsTab
+            businessAddress={businessAddress}
+            serviceLocations={serviceLocations}
           />
         )}
 
         {/* Business Hours Tab */}
         {activeTab === 'hours' && (
-          <BusinessHoursTab 
-            businessHours={businessHours} 
-            timezone={profileData.timezone} 
+          <BusinessHoursTab
+            businessHours={businessHours}
+            timezone={profileData.timezone}
           />
         )}
 
         {/* Reviews Tab */}
         {activeTab === 'reviews' && (
-          <ReviewsTab 
-            rating={profileData.rating} 
-            reviews={profileData.reviews} 
+          <ReviewsTab
+            rating={profileData.rating}
+            reviews={profileData.reviews}
           />
         )}
       </div>
@@ -388,7 +395,7 @@ const BusinessHoursPreview = ({ businessHours, setActiveTab }: any) => (
         <div key={day.day} className="flex justify-between items-center text-sm">
           <span className="text-gray-700 dark:text-gray-300">{day.dayName.slice(0, 3)}</span>
           <span className="text-gray-900 dark:text-white font-medium">
-            {day.status === 'open' 
+            {day.status === 'open'
               ? `${new Date(day.start_time).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })} - ${new Date(day.end_time).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}`
               : 'Closed'
             }
@@ -561,8 +568,8 @@ const BusinessHourCard = ({ day }: any) => {
   return (
     <div
       className={`relative p-3 sm:p-4 rounded-sm border transition-all duration-300 ${isToday
-          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/10'
-          : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
+        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/10'
+        : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
         } ${isOpen ? 'hover:shadow-sm' : 'opacity-80'}`}
     >
       {/* Today Badge */}
@@ -577,8 +584,8 @@ const BusinessHourCard = ({ day }: any) => {
           <div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-sm ${isOpen ? 'bg-[#0077b6]' : 'bg-red-500'
             }`}></div>
           <span className={`font-medium text-sm ${isToday
-              ? 'text-[#0077b6] dark:text-blue-300'
-              : 'text-gray-900 dark:text-white'
+            ? 'text-[#0077b6] dark:text-blue-300'
+            : 'text-gray-900 dark:text-white'
             }`}>
             {day.dayName}
           </span>
@@ -615,8 +622,8 @@ const BusinessHourCard = ({ day }: any) => {
           <div className="flex items-center justify-between text-xs">
             <span className="text-gray-500 dark:text-gray-400">Current status:</span>
             <span className={`font-medium ${isOpen
-                ? 'text-[#0077b6] dark:text-[#0077b6]'
-                : 'text-red-600 dark:text-red-400'
+              ? 'text-[#0077b6] dark:text-[#0077b6]'
+              : 'text-red-600 dark:text-red-400'
               }`}>
               {isOpen ? 'Open • Business as usual' : 'Closed '}
             </span>
