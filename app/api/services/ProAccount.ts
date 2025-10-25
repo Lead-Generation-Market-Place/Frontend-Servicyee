@@ -179,3 +179,18 @@ export const saveLocationAPI = async (data: LocationData, token: string) => {
     throw handleApiError(error);
   }
 };
+
+
+// Get Provessional Account Details -  For Final Reviews!
+export const getProfessionalReviewAPI = async ( token?:string) => {
+  try {
+    const response = await api.get("/professionals/profileReviews", {
+      headers: {
+        Authorization: `Bearer ${token}`, 
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
