@@ -6,6 +6,7 @@ import {
   BusinesAvailabilityAPI,
   BusinessAvailabilityPayload,
   BusinessInfoPayload,
+  getProfessionalReviewAPI,
   getProServicesQuestionsAPI,
   LocationData,
   registerUserAPI,
@@ -225,5 +226,16 @@ export function useSaveLocation(token: string) {
         error?.response?.data?.message || "Failed to save location"
       );
     },
+  });
+}
+
+
+// Create Professional Account - Review Account Profile 
+export function useProfessionalReview( token?: string) {
+  return useQuery({
+    queryKey: ["professionalReview"],
+    queryFn: () => getProfessionalReviewAPI(token),
+    enabled: !!token,
+    staleTime: 1000 * 60 * 5, 
   });
 }

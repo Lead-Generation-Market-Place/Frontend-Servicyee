@@ -40,7 +40,7 @@ export default function PaymentForm() {
       router.back()
     }
     setIspending(true)
-    router.push(`/home-services/dashboard/services/step-11`);
+    router.push(`/home-services/dashboard/services/complete`);
   };
 
   const handleBack = () => {

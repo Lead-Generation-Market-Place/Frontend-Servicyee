@@ -1,213 +1,652 @@
 'use client';
 
-import { useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import { useState, useMemo, useCallback } from 'react';
+import { Loader2, MapPin, Clock, Star, Users, Calendar, Award, Building } from 'lucide-react';
+import { useProfessionalReview } from '@/hooks/RegisterPro/useRegister';
+import { getAccessToken } from '@/app/api/axios';
+import Image from 'next/image';
+
+// Memoized components to prevent unnecessary re-renders
+const ProfileImage = ({ profileImage, name, Backend_URL }: { profileImage: string; name: string; Backend_URL: string }) => (
+  profileImage ? (
+    <Image
+      src={`${Backend_URL}${profileImage}`}
+      alt={name}
+      width={80}
+      height={80}
+      priority
+      className="rounded-sm object-cover border-2 border-white dark:border-gray-800 w-16 h-16 sm:w-20 sm:h-20"
+    />
+  ) : (
+    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-sm bg-gradient-to-br from-[#0077B6] to-[#48CAE4] flex items-center justify-center border-2 border-white dark:border-gray-800">
+      <span className="text-lg font-bold text-white">
+        {name?.slice(0, 2).toUpperCase()}
+      </span>
+    </div>
+  )
+);
+
+const RatingStars = ({ rating }: { rating: number }) => (
+  <div className="flex items-center">
+    {[...Array(5)].map((_, i) => (
+      <Star
+        key={i}
+        className={`w-3 h-3 ${i < Math.floor(rating)
+          ? 'text-yellow-400 fill-current'
+          : 'text-gray-300 dark:text-gray-800'
+          }`}
+      />
+    ))}
+  </div>
+);
+
+const StatCard = ({ stat }: { stat: any }) => (
+  <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-sm p-3">
+    <div className="flex items-center gap-2">
+      <div className={`p-1.5 rounded-sm bg-gray-50 dark:bg-gray-700 ${stat.color}`}>
+        <stat.icon className="w-3 h-3" />
+      </div>
+      <div className="min-w-0">
+        <div className="text-base sm:text-lg font-bold text-gray-900 dark:text-white truncate">
+          {stat.value}
+        </div>
+        <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+          {stat.label}
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const LoadingSpinner = () => (
+  <div className="flex justify-center items-center min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="text-center">
+      <Loader2 className="h-12 w-12 animate-spin text-[#0077B6] mx-auto mb-4" />
+      <span className="text-gray-800 dark:text-gray-300 text-lg">Loading professional profile...</span>
+    </div>
+  </div>
+);
 
 const ProfessionalProfile = () => {
-  const [activeTab, setActiveTab] = useState('Profile');
+  const Backend_URL = `http://localhost:4000`;
+  const token = useMemo(() => getAccessToken() || "", []);
+  const { data } = useProfessionalReview(token);
+  const [activeTab, setActiveTab] = useState('overview');
   const [isLoading, setIsLoading] = useState(false);
 
-  const profileData = {
-    name: "Servicyee",
-    title: "San Francisco, CA",
-    rating: 4.8,
-    reviews: 128,
-    about: "Creative designer with 8+ years of experience crafting beautiful digital experiences. Specializing in user-centered design systems and interactive prototypes.",
-    stats: [
-      { label: "Projects", value: 87 },
-      { label: "Clients", value: 42 },
-      { label: "Experience", value: "8 yrs" }
-    ],
-    services: [
-      { name: "UI/UX Design", description: "Custom interface design for web and mobile" },
-      { name: "Prototyping", description: "Interactive prototypes to test concepts" },
-      { name: "User Research", description: "In-depth user interviews and testing" },
-      { name: "Design System", description: "Comprehensive design systems for teams" },
-      { name: "Brand Identity", description: "Complete brand identity packages" }
-    ],
-    reviewsData: [
-      { author: "Sarah Johnson", rating: 5, comment: "Alex delivered exceptional work on our mobile app redesign. Highly recommended!" },
-      { author: "Michael Tan", rating: 4, comment: "Great attention to detail and very professional." }
-    ]
-  };
-
-  const tabs = ['Profile', 'Reviews', 'Preferences', 'Location', 'Payment', 'Background'];
-
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     setIsLoading(true);
-  };
+    // Handle save logic here
+  }, []);
+
+  // Memoize data processing to avoid recalculation on every render
+  const processedData = useMemo(() => {
+    if (!data || !data.professional) return null;
+
+    const professional = data.professional;
+    const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+    // Separate business address from service locations
+    const businessAddress = professional.locations?.find((loc: any) => loc.type === 'professional') || professional.locations?.[0];
+    const serviceLocations = professional.locations?.filter((loc: any) => loc !== businessAddress) || [];
+
+    // Format business hours
+    const businessHours = professional.professional.business_hours?.map((day: any) => ({
+      ...day,
+      dayName: daysOfWeek[day.day]
+    })) || [];
+
+    const profileData = {
+      name: professional.professional.business_name || "N/A",
+      businessType: professional.professional.business_type || "N/A",
+      foundedYear: professional.professional.founded_year,
+      employees: professional.professional.employees || 0,
+      rating: professional.professional.rating_avg || 0,
+      reviews: professional.professional.total_review || 0,
+      hires: professional.professional.total_hire || 0,
+      about: professional.professional.introduction !== "NA" ? professional.professional.introduction : "No introduction provided.",
+      profileImage: professional.professional.profile_image,
+      timezone: professional.professional.timezone,
+      services: professional.services?.map((service: any) => ({
+        id: service._id,
+        name: service.answered_questions?.[0]?.question_name || "N/A",
+        pricingType: service.pricing_type,
+        questions: service.answered_questions?.filter((q: any) => q.answer) || []
+      })) || []
+    };
+
+    const stats = [
+      { icon: Users, label: "Clients Served", value: profileData.hires, color: "text-[#0077b6]" },
+      { icon: Star, label: "Rating", value: profileData.rating, color: "text-yellow-500" },
+      { icon: Calendar, label: "Years Experience", value: new Date().getFullYear() - (profileData.foundedYear || new Date().getFullYear()), color: "text-[#0077b6]" },
+      { icon: Building, label: "Team Size", value: profileData.employees, color: "text-purple-600" }
+    ];
+
+    const tabs = [
+      { id: 'overview', label: 'Overview', icon: Building },
+      { id: 'services', label: 'Services', icon: Award },
+      { id: 'locations', label: 'Locations', icon: MapPin },
+      { id: 'hours', label: 'Business Hours', icon: Clock },
+      { id: 'reviews', label: 'Reviews', icon: Star }
+    ];
+
+    return {
+      professional,
+      businessAddress,
+      serviceLocations,
+      businessHours,
+      profileData,
+      stats,
+      tabs
+    };
+  }, [data]);
+
+  if (!processedData) {
+    return <LoadingSpinner />;
+  }
+
+  const { businessAddress, serviceLocations, businessHours, profileData, stats, tabs } = processedData;
 
   return (
-    <div className=" dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-      <div className="max-w-6xl mx-auto ">
-        {/* Header */}
-        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
-          <div className="flex items-center gap-4 w-full md:w-auto">
-            <div className="w-20 h-20 rounded-full bg-[#0077B6] flex items-center justify-center">
-              <span className="text-2xl font-bold text-white">AC</span>
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold">{profileData.name}</h1>
-              <p className="text-[#0077B6] dark:text-[#48CAE4]">{profileData.title}</p>
-              <div className="flex items-center mt-1">
-                <svg className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                </svg>
-                <span className="ml-1 text-sm">{profileData.rating} ({profileData.reviews} reviews)</span>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Header Section */}
+      <div className="   dark:border-gray-700">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
+          <div className="py-4 sm:py-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-start gap-3 sm:gap-4 w-full sm:w-auto">
+                <div className="relative flex-shrink-0">
+                  <ProfileImage 
+                    profileImage={profileData.profileImage} 
+                    name={profileData.name} 
+                    Backend_URL={Backend_URL} 
+                  />
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1">
+                    <h1 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white truncate">
+                      {profileData.name}
+                    </h1>
+                    <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs font-medium rounded-full w-fit">
+                      {profileData.businessType}
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col xs:flex-row xs:items-center gap-1 xs:gap-3 text-gray-800 dark:text-gray-300 mb-2">
+                    <div className="flex items-center gap-1 text-xs">
+                      <MapPin className="w-3 h-3 flex-shrink-0" />
+                      <span className="truncate">{businessAddress?.city || 'N/A'}, {businessAddress?.state || 'N/A'}</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-xs">
+                      <Building className="w-3 h-3 flex-shrink-0" />
+                      <span>Est. {profileData.foundedYear}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col xs:flex-row xs:items-center gap-2 xs:gap-4">
+                    <div className="flex items-center gap-1">
+                      <RatingStars rating={profileData.rating} />
+                      <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                        {profileData.rating} ({profileData.reviews} reviews)
+                      </span>
+                    </div>
+
+                    <div className="hidden xs:block h-3 w-px bg-gray-300 dark:bg-gray-600"></div>
+
+                    <div className="text-xs text-gray-800 dark:text-gray-400">
+                      {profileData.services.length} services available
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 w-full sm:w-auto justify-end sm:justify-normal">
+                <button className="px-3 sm:px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-sm font-medium transition-all duration-200 text-sm w-full sm:w-auto text-center">
+                  Share Profile
+                </button>
               </div>
             </div>
           </div>
-          <div className="flex space-x-3">
-            <button className="px-4 py-1.5 border border-[#0077B6] text-[#0077B6] dark:text-[#48CAE4] hover:bg-[#0077B6] hover:text-white dark:hover:bg-[#0077B6]/20 rounded-[4px] font-normal transition duration-300">
-              Share
-            </button>
-          </div>
-        </header>
 
-        {/* Navigation Tabs */}
-        <nav className="border-b border-gray-300 dark:border-gray-700 mb-6 overflow-x-auto">
-          <div className="flex space-x-8 min-w-full text-sm px-1 sm:px-0">
+          {/* Stats Grid */}
+          <div className="pb-4 sm:pb-6">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+              {stats.map((stat, index) => (
+                <StatCard key={index} stat={stat} />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Navigation Tabs */}
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex space-x-4 sm:space-x-8 px-3 sm:px-4 lg:px-6 overflow-x-auto scrollbar-hide">
             {tabs.map((tab) => (
               <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`pb-3 text-sm font-medium whitespace-nowrap ${
-                  activeTab === tab
-                    ? 'text-[#0077B6] dark:text-[#48CAE4] border-b-2 border-[#0077B6] dark:border-[#48CAE4]'
-                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-                }`}
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 py-3 border-b-2 transition-all duration-200 whitespace-nowrap text-xs font-medium flex-shrink-0 ${activeTab === tab.id
+                  ? 'border-[#0077B6] text-[#0077B6] dark:text-[#48CAE4] dark:border-[#48CAE4]'
+                  : 'border-transparent text-gray-900 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-300'
+                  }`}
               >
-                {tab}
+                <tab.icon className="w-4 h-4" />
+                <span>{tab.label}</span>
               </button>
             ))}
           </div>
-        </nav>
-
-        {/* Card Container */}
-        <div className=" dark:border-gray-700 rounded-[7px]  overflow-hidden">
-          {/* Profile Tab */}
-          {activeTab === 'Profile' && (
-            <div className="p-6 sm:p-8 md:p-10">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-10">
-                {/* Left Content */}
-                <div className="md:col-span-2">
-                  <h2 className="text-xl font-bold mb-4">About</h2>
-                  <p className="text-gray-600 dark:text-gray-300 mb-6">{profileData.about}</p>
-
-                  <h2 className="text-xl font-bold mb-4">Services</h2>
-                  <div className="space-y-4">
-                    {profileData.services.map((service, index) => (
-                      <div
-                        key={index}
-                        className="p-4 border border-gray-200 dark:border-gray-700 rounded-[4px] hover:bg-gray-50 dark:hover:bg-gray-800 transition duration-200"
-                      >
-                        <h3 className="font-medium text-sm">{service.name}</h3>
-                        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">{service.description}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Sidebar */}
-                <div className="space-y-6">
-                  <div className="bg-gray-50 dark:bg-gray-800 rounded-[4px] p-4 border border-gray-200 dark:border-gray-700">
-                    <h3 className="font-medium mb-3">Stats</h3>
-                    <div className="space-y-4">
-                      {profileData.stats.map((stat, index) => (
-                        <div key={index} className="flex justify-between items-center text-sm">
-                          <span className="text-gray-500 dark:text-gray-400">{stat.label}</span>
-                          <span className="font-medium">{stat.value}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="bg-gray-50 dark:bg-gray-800 rounded-[4px] p-4 border border-gray-200 dark:border-gray-700">
-                    <h3 className="font-medium mb-3">Location</h3>
-                    <p className="text-gray-600 dark:text-gray-300 mb-2 text-sm">{profileData.title}</p>
-                    <div className="h-40 bg-gray-200 dark:bg-gray-700 rounded-[4px] flex items-center justify-center">
-                      <span className="text-gray-500 dark:text-gray-400 text-sm">Map Preview</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Reviews Tab */}
-          {activeTab === 'Reviews' && (
-            <div className="p-6 sm:p-8 md:p-10">
-              <h2 className="text-xl font-bold mb-6">Customer Reviews</h2>
-              <div className="space-y-6">
-                {profileData.reviewsData.map((review, index) => (
-                  <div
-                    key={index}
-                    className="border-b border-gray-200 dark:border-gray-700 pb-6 last:border-0"
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-medium text-sm">{review.author}</h3>
-                      <div className="flex items-center">
-                        {[...Array(5)].map((_, i) => (
-                          <svg
-                            key={i}
-                            className={`w-4 h-4 ${
-                              i < review.rating
-                                ? 'text-yellow-400'
-                                : 'text-gray-300 dark:text-gray-600'
-                            }`}
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                          </svg>
-                        ))}
-                      </div>
-                    </div>
-                    <p className="text-gray-600 dark:text-gray-300 text-sm">{review.comment}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Placeholder Tabs */}
-          {activeTab !== 'Profile' && activeTab !== 'Reviews' && (
-            <div className="p-8 sm:p-10 flex flex-col items-center justify-center text-center py-12">
-              <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4 border border-gray-200 dark:border-gray-700">
-                <svg
-                  className="w-8 h-8 text-[#0077B6] dark:text-[#48CAE4]"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-medium mb-2">{activeTab} Section</h3>
-              <p className="text-gray-500 dark:text-gray-400 text-sm max-w-md">
-                This section would contain detailed {activeTab.toLowerCase()} information and settings.
-              </p>
-            </div>
-          )}
         </div>
+      </div>
 
-        {/* Save Button */}
-        <div className="mt-8 flex justify-end">
-          <button
-            type="button"
-            disabled={isLoading}
-            onClick={handleNext}
-            className={`text-white text-sm py-2 px-6 rounded-[4px] transition duration-300 flex items-center justify-center gap-2 ${
-              isLoading ? 'bg-[#0077B6]/70 cursor-not-allowed' : 'bg-[#0077B6] hover:bg-[#005f8e]'
-            }`}
-          >
-            {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-            <span>Save Changes</span>
-          </button>
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-6 sm:py-8">
+        {/* Overview Tab */}
+        {activeTab === 'overview' && (
+          <OverviewTab 
+            profileData={profileData} 
+            businessAddress={businessAddress} 
+            businessHours={businessHours} 
+            setActiveTab={setActiveTab} 
+          />
+        )}
+
+        {/* Services Tab */}
+        {activeTab === 'services' && (
+          <ServicesTab services={profileData.services} />
+        )}
+
+        {/* Locations Tab */}
+        {activeTab === 'locations' && (
+          <LocationsTab 
+            businessAddress={businessAddress} 
+            serviceLocations={serviceLocations} 
+          />
+        )}
+
+        {/* Business Hours Tab */}
+        {activeTab === 'hours' && (
+          <BusinessHoursTab 
+            businessHours={businessHours} 
+            timezone={profileData.timezone} 
+          />
+        )}
+
+        {/* Reviews Tab */}
+        {activeTab === 'reviews' && (
+          <ReviewsTab 
+            rating={profileData.rating} 
+            reviews={profileData.reviews} 
+          />
+        )}
+      </div>
+
+      {/* Save Button */}
+      <div className="dark:bg-gray-900  dark:border-gray-700">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
+          <div className="flex justify-end">
+            <button
+              type="button"
+              disabled={isLoading}
+              onClick={handleNext}
+              className={`px-6 sm:px-8 py-2 rounded-sm transition-all duration-200 flex items-center gap-2 w-full sm:w-auto justify-center ${isLoading
+                ? 'bg-[#0077B6]/70 cursor-not-allowed text-white'
+                : 'bg-[#0077B6] hover:bg-[#005f8e] text-white'
+                }`}
+            >
+              {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+              <span>Confirm</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
   );
 };
+
+// Tab Components for better code organization
+const OverviewTab = ({ profileData, businessAddress, businessHours, setActiveTab }: any) => (
+  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+    {/* Left Column */}
+    <div className="lg:col-span-2 space-y-6 sm:space-y-8">
+      {/* About Section */}
+      <div className="bg-white dark:bg-gray-800 rounded-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+        <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">Business Introduction</h2>
+        <p className="text-gray-900 dark:text-gray-300 leading-relaxed text-justify text-sm sm:text-[13px]">
+          {profileData.about}
+        </p>
+      </div>
+
+      {/* Services Preview */}
+      <div className="bg-white dark:bg-gray-800 rounded-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Services</h2>
+          <button
+            onClick={() => setActiveTab('services')}
+            className="text-[#0077B6] dark:text-[#48CAE4] hover:text-[#005f8e] dark:hover:text-[#0096C7] font-medium text-sm"
+          >
+            View All
+          </button>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+          {profileData.services.slice(0, 4).map((service: any) => (
+            <ServicePreviewCard key={service.id} service={service} />
+          ))}
+        </div>
+      </div>
+    </div>
+
+    {/* Right Column */}
+    <div className="space-y-4 sm:space-y-6">
+      <BusinessAddressCard businessAddress={businessAddress} />
+      <BusinessHoursPreview businessHours={businessHours} setActiveTab={setActiveTab} />
+    </div>
+  </div>
+);
+
+const ServicePreviewCard = ({ service }: any) => (
+  <div className="border border-gray-200 dark:border-gray-600 rounded-sm p-3 sm:p-4 hover:border-[#0077B6] dark:hover:border-[#48CAE4] transition-all duration-200 group">
+    <div className="flex items-start justify-between mb-2">
+      <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-[#0077B6] dark:group-hover:text-[#48CAE4] text-sm truncate max-w-[70%]">
+        {service.name}
+      </h3>
+      <span className="px-2 py-1 bg-blue-50 dark:bg-blue-900/20 text-[#0077b6] dark:text-[#0077b6] text-xs font-medium rounded flex-shrink-0">
+        {service.pricingType}
+      </span>
+    </div>
+    <p className="text-gray-500 dark:text-gray-400 text-sm">
+      {service.questions.length} questions answered
+    </p>
+  </div>
+);
+
+const BusinessAddressCard = ({ businessAddress }: any) => (
+  <div className="bg-white dark:bg-gray-800 rounded-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+    <h3 className="font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4 flex items-center gap-2 text-sm">
+      <MapPin className="w-4 h-4 text-[#0077B6] dark:text-[#48CAE4]" />
+      Business Address
+    </h3>
+    <div className="space-y-2 text-sm text-gray-800 dark:text-gray-300 mb-3 sm:mb-4">
+      <p className="break-words">{businessAddress?.address_line}, {businessAddress?.city}, {businessAddress?.state}, {businessAddress?.country}, {businessAddress?.zipcode}</p>
+    </div>
+    <div className="h-24 sm:h-32 bg-gray-100 dark:bg-gray-700 rounded-sm flex items-center justify-center">
+      <MapPin className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" />
+    </div>
+  </div>
+);
+
+const BusinessHoursPreview = ({ businessHours, setActiveTab }: any) => (
+  <div className="bg-white dark:bg-gray-800 rounded-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+    <h3 className="font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4 flex items-center gap-2 text-sm">
+      <Clock className="w-4 h-4 text-[#0077B6] dark:text-[#48CAE4]" />
+      Business Hours
+    </h3>
+    <div className="space-y-2">
+      {businessHours.slice(0, 3).map((day: any) => (
+        <div key={day.day} className="flex justify-between items-center text-sm">
+          <span className="text-gray-700 dark:text-gray-300">{day.dayName.slice(0, 3)}</span>
+          <span className="text-gray-900 dark:text-white font-medium">
+            {day.status === 'open' 
+              ? `${new Date(day.start_time).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })} - ${new Date(day.end_time).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}`
+              : 'Closed'
+            }
+          </span>
+        </div>
+      ))}
+    </div>
+    <button
+      onClick={() => setActiveTab('hours')}
+      className="w-full mt-3 text-[#0077B6] dark:text-[#48CAE4] hover:text-[#005f8e] dark:hover:text-[#0096C7] font-medium text-sm text-center pt-2 border-t border-gray-200 dark:border-gray-600"
+    >
+      View All Hours
+    </button>
+  </div>
+);
+
+const ServicesTab = ({ services }: any) => (
+  <div className="bg-white dark:bg-gray-800 rounded-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+    <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-6">Our Services</h2>
+    <div className="space-y-4 sm:space-y-6">
+      {services.map((service: any) => (
+        <ServiceDetailCard key={service.id} service={service} />
+      ))}
+    </div>
+  </div>
+);
+
+const ServiceDetailCard = ({ service }: any) => (
+  <div className="border border-gray-200 dark:border-gray-600 rounded-sm p-4 sm:p-6 hover:border-[#0077B6] dark:hover:border-[#48CAE4] transition-all duration-200 group">
+    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 sm:gap-4 mb-3 sm:mb-4">
+      <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-[#0077B6] dark:group-hover:text-[#48CAE4] text-sm sm:text-base">
+        {service.name}
+      </h3>
+      <span className="px-2 py-1 bg-green-50 dark:bg-green-900/20 text-[#0077b6] dark:text-[#0077b6] text-xs font-medium rounded w-fit">
+        {service.pricingType}
+      </span>
+    </div>
+
+    {service.questions.length > 0 ? (
+      <div className="space-y-3">
+        <h4 className="font-medium text-gray-700 dark:text-gray-300 text-sm">Questions & Answers:</h4>
+        <div className="space-y-3">
+          {service.questions.map((question: any, qIndex: number) => (
+            <div key={qIndex} className="text-sm">
+              <p className="font-medium text-gray-900 dark:text-white text-sm mb-1">
+                {question.question_name}
+              </p>
+              {question.answer && (
+                <p className="text-gray-800 dark:text-gray-300 text-sm bg-gray-50 dark:bg-gray-700 rounded-sm px-3 py-2">
+                  {question.answer}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    ) : (
+      <p className="text-gray-500 dark:text-gray-400 text-sm">No questions answered yet.</p>
+    )}
+  </div>
+);
+
+const LocationsTab = ({ businessAddress, serviceLocations }: any) => (
+  <div className="space-y-4 sm:space-y-6">
+    {/* Business Address Card */}
+    <div className="bg-white dark:bg-gray-800 rounded-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-sm">
+          <Building className="w-5 h-5 text-[#0077b6] dark:text-[#0077b6]" />
+        </div>
+        <div>
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Business Address</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Primary location</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        <div className="space-y-3 sm:space-y-4">
+          <div className="flex items-start gap-3">
+            <MapPin className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="text-sm break-words">{businessAddress?.address_line}, {businessAddress?.city}, {businessAddress?.state}, {businessAddress?.country}, {businessAddress?.zipcode}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="h-40 sm:h-48 bg-gray-100 dark:bg-gray-700 rounded-sm flex items-center justify-center">
+          <div className="text-center">
+            <MapPin className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400 mx-auto mb-2" />
+            <p className="text-sm text-gray-500 dark:text-gray-400">Map View</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {/* Service Locations */}
+    {serviceLocations.length > 0 && (
+      <div className="bg-white dark:bg-gray-800 rounded-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+        <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-6">Service Locations</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+          {serviceLocations.map((location: any, index: number) => (
+            <ServiceLocationCard key={location._id} location={location} index={index} />
+          ))}
+        </div>
+      </div>
+    )}
+  </div>
+);
+
+const ServiceLocationCard = ({ location, index }: any) => (
+  <div className="border border-gray-200 dark:border-gray-600 rounded-sm p-3 sm:p-4 hover:border-[#0077B6] dark:hover:border-[#48CAE4] transition-all duration-200">
+    <div className="flex items-start justify-between mb-3">
+      <h3 className="font-semibold text-gray-900 dark:text-white text-sm">
+        Service Area {index + 1}
+      </h3>
+      <span className="px-2 py-1 bg-green-50 dark:bg-green-900/20 text-[#0077b6] dark:text-[#0077b6] text-xs font-medium rounded">
+        Active
+      </span>
+    </div>
+
+    <div className="space-y-2 text-sm">
+      <p className="text-gray-800 dark:text-gray-300 text-sm break-words">
+        {location.address_line || 'Various locations in'} {location.city}, {location.state}
+      </p>
+      <p className="text-gray-500 dark:text-gray-400 text-sm">
+        Service radius: {location.serviceRadiusMiles} miles
+      </p>
+    </div>
+  </div>
+);
+
+const BusinessHoursTab = ({ businessHours, timezone }: any) => (
+  <div className="bg-white dark:bg-gray-800 rounded-sm border border-gray-200 dark:border-gray-700">
+    {/* Header */}
+    <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-600">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-sm">
+            <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-[#0077b6] dark:text-[#0077b6]" />
+          </div>
+          <div>
+            <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Business Hours</h2>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+              Current timezone: <span className="font-medium text-[#0077B6] dark:text-[#0077b6]">{timezone}</span>
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 px-3 py-2 bg-green-50 dark:bg-green-900/20 rounded-sm border border-green-200 dark:border-green-800 w-fit">
+          <div className="w-2 h-2 bg-[#0077b6] rounded-sm animate-pulse"></div>
+          <span className="text-green-700 dark:text-green-300 text-sm font-medium">Open Now</span>
+        </div>
+      </div>
+    </div>
+
+    {/* Hours Grid */}
+    <div className="p-4 sm:p-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 max-w-4xl">
+        {businessHours.map((day: any) => (
+          <BusinessHourCard key={day.day} day={day} />
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+const BusinessHourCard = ({ day }: any) => {
+  const isToday = new Date().getDay() === day.day;
+  const isOpen = day.status === 'open';
+
+  return (
+    <div
+      className={`relative p-3 sm:p-4 rounded-sm border transition-all duration-300 ${isToday
+          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/10'
+          : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
+        } ${isOpen ? 'hover:shadow-sm' : 'opacity-80'}`}
+    >
+      {/* Today Badge */}
+      {isToday && (
+        <div className="absolute -top-2 left-3 sm:left-4 px-2 py-1 bg-[#0077B6] text-white text-xs font-medium rounded-sm">
+          Today
+        </div>
+      )}
+
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div className="flex items-center gap-3">
+          <div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-sm ${isOpen ? 'bg-[#0077b6]' : 'bg-red-500'
+            }`}></div>
+          <span className={`font-medium text-sm ${isToday
+              ? 'text-[#0077b6] dark:text-blue-300'
+              : 'text-gray-900 dark:text-white'
+            }`}>
+            {day.dayName}
+          </span>
+        </div>
+
+        <div className="text-right">
+          {isOpen ? (
+            <div className="flex flex-col xs:flex-row xs:items-center gap-1 xs:gap-2">
+              <span className="text-[#0077b6] dark:text-[#0077b6] text-sm">
+                {new Date(day.start_time).toLocaleTimeString('en-US', {
+                  hour: 'numeric',
+                  minute: '2-digit',
+                  hour12: true
+                })}
+              </span>
+              <span className="text-gray-400 dark:text-gray-500 text-sm hidden xs:inline">-</span>
+              <span className="text-[#0077b6] dark:text-[#0077b6] font-medium text-sm">
+                {new Date(day.end_time).toLocaleTimeString('en-US', {
+                  hour: 'numeric',
+                  minute: '2-digit',
+                  hour12: true
+                })}
+              </span>
+            </div>
+          ) : (
+            <span className="text-red-600 dark:text-red-400 font-medium text-sm">Closed</span>
+          )}
+        </div>
+      </div>
+
+      {/* Current Status */}
+      {isToday && (
+        <div className="mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-gray-200 dark:border-gray-600">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-gray-500 dark:text-gray-400">Current status:</span>
+            <span className={`font-medium ${isOpen
+                ? 'text-[#0077b6] dark:text-[#0077b6]'
+                : 'text-red-600 dark:text-red-400'
+              }`}>
+              {isOpen ? 'Open • Business as usual' : 'Closed '}
+            </span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const ReviewsTab = ({ rating, reviews }: any) => (
+  <div className="bg-white dark:bg-gray-800 rounded-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+    <div className="text-center py-8 sm:py-12">
+      <Star className="w-12 h-12 sm:w-16 sm:h-16 text-gray-300 dark:text-gray-800 mx-auto mb-3 sm:mb-4" />
+      <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-2">
+        No Reviews Yet
+      </h3>
+      <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto text-sm px-4">
+        Reviews will appear here once customers start rating your services.
+        Provide excellent service to get your first review!
+      </p>
+      <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row items-center justify-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+        <span>Current Rating:</span>
+        <div className="flex items-center gap-1">
+          <RatingStars rating={rating} />
+        </div>
+        <span>({reviews} reviews)</span>
+      </div>
+    </div>
+  </div>
+);
 
 export default ProfessionalProfile;
