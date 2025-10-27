@@ -19,39 +19,45 @@ import toast from "react-hot-toast";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/components/providers/context/auth-context";
 import {} from "@/components/home-services/onboarding/step-4";
-// Create Account For Professional
+
 export function useRegister() {
   const { login } = useAuth();
-  const [isPending, setIsPending] = useState(false);
   const router = useRouter();
-
-  const registerUser = async (data: RegisterFormData) => {
-    setIsPending(true);
-    try {
-      const response = await registerUserAPI(data);
+  const [isPending, setIsPending] = useState(false);
+  const mutation = useMutation({
+    mutationFn: registerUserAPI,
+    retry: false, 
+    onMutate: () => {
+      setIsPending(true);
+    },
+    onSuccess: async (response, variables) => {
       localStorage.setItem(
         "professionalData",
         JSON.stringify(response.professional)
       );
       try {
-        await login(data.email, data.password);
+        await login(variables.email, variables.password);
         router.push("/home-services/dashboard/services/step-2");
       } catch {
         router.push("/auth/login");
       }
-
-      router.push("/home-services/dashboard/services/step-2");
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        toast.error(error.message);
-      }
-    } finally {
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Registration failed. Please try again.");
+    },
+    onSettled: () => {
       setIsPending(false);
-    }
+    },
+  });
+
+  const registerUser = (data: RegisterFormData) => {
+    mutation.mutate(data);
   };
 
-  return { registerUser, isPending };
+  return { registerUser, isPending: mutation.isPending || isPending };
 }
+
+
 
 // Create Professional Account - Step 03
 export function useUpdateBusinessName(token: string) {
@@ -79,6 +85,7 @@ export function useUpdateBusinessName(token: string) {
         error?.response?.data?.message || "Failed to update Business Name"
       );
     },
+    retry: false,
   });
 }
 // End of Create Professional Account - Step 03
@@ -115,6 +122,7 @@ export function useBusinessInfo(token: string) {
         error?.response?.data?.message || "Failed to save Business Info"
       );
     },
+    retry: false,
   });
 }
 
@@ -142,6 +150,7 @@ export function useBusinesAvailability(token: string) {
         error?.response?.data?.message || "Failed to save Business Info"
       );
     },
+    retry: false,
   });
 }
 
@@ -152,6 +161,10 @@ export function useProServicesQuestions(token: string) {
     queryFn: () => getProServicesQuestionsAPI(token),
     enabled: !!token,
     staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    retry: false,
   });
 }
 
@@ -192,9 +205,9 @@ export const useSubmitServiceAnswers = (token: string) => {
         error?.response?.data?.message || "Failed to save Business Info"
       );
     },
+    retry: false,
   });
 };
-
 
 // Create Professional Step 09
 export function useSaveLocation(token: string) {
@@ -222,20 +235,22 @@ export function useSaveLocation(token: string) {
       router.push("/home-services/dashboard/services/step-10");
     },
     onError: (error: any) => {
-      toast.error(
-        error?.response?.data?.message || "Failed to save location"
-      );
+      toast.error(error?.response?.data?.message || "Failed to save location");
     },
+    retry: false,
   });
 }
 
-
-// Create Professional Account - Review Account Profile 
-export function useProfessionalReview( token?: string) {
+// Create Professional Account - Review Account Profile
+export function useProfessionalReview(token?: string) {
   return useQuery({
     queryKey: ["professionalReview"],
     queryFn: () => getProfessionalReviewAPI(token),
     enabled: !!token,
-    staleTime: 1000 * 60 * 5, 
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    retry: false,
   });
 }

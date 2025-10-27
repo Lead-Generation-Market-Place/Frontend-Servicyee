@@ -8,6 +8,7 @@ import React, { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Footer from "@/components/navigation/Footer";
 import dynamic from "next/dynamic";
+import { ProtectedRoute } from "@/components/providers/routes/protected-route";
 
 export default function ConditionalLayout({
   children,
@@ -36,6 +37,7 @@ export default function ConditionalLayout({
   // Return the special HomeLayout if route matches
   if (isDashboardRoute) {
     return (
+      <ProtectedRoute>
       <div className="xl:flex  bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
         {/* Sidebar and Backdrop */}
         <AppSidebar isServiceProvider />
@@ -55,6 +57,7 @@ export default function ConditionalLayout({
           </div>
         </div>
       </div>
+      </ProtectedRoute>
     );
   }
 
