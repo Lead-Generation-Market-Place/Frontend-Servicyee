@@ -42,9 +42,6 @@ export function useRegister() {
         router.push("/auth/login");
       }
     },
-    onError: (error: any) => {
-      toast.error(error.message || "Registration failed. Please try again.");
-    },
     onSettled: () => {
       setIsPending(false);
     },
@@ -248,9 +245,7 @@ export function useProfessionalReview(token?: string) {
     queryFn: () => getProfessionalReviewAPI(token),
     enabled: !!token,
     staleTime: 1000 * 60 * 5,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
     retry: false,
   });
 }
+

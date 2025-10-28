@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useTransition } from 'react';
+import React, { useState,  useTransition, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FaRegStar, FaStar } from 'react-icons/fa';
 import { Loader2 } from 'lucide-react';
@@ -8,6 +8,8 @@ import { toast } from 'sonner';
 import Link from 'next/link';
 import { ProgressBar } from "@/components/home-services/onboarding/ProgressBar";
 import Image from 'next/image';
+import { getAccessToken } from '@/app/api/axios';
+import { useProfessionalReview } from '@/hooks/RegisterPro/useRegister';
 
 const ONBOARDING_STEPS = [
   { id: 1, name: 'Profile' },
@@ -21,34 +23,27 @@ const ONBOARDING_STEPS = [
 export default function ReviewRequest() {
   const router = useRouter();
   const [currentStep] = useState(2);
-  const businessName = 'Servicyee';
-    // Get service Id
-  const params = useSearchParams()
-  const serviceId = params.get('id')
+  const params = useSearchParams();
+  const serviceId = params.get('id');
+
+  const token = useMemo(() => getAccessToken() || "", []);
+  const { data } = useProfessionalReview(token);
 
   const [emails, setEmails] = useState(['']);
   const [isPending] = useTransition();
   const [sendingIndex, setSendingIndex] = useState<number | null>(null);
-  const [userInfo, setUserInfo] = useState<{ imageUrl: string | null; username: string | null }>({ imageUrl: null, username: null });
-  const [userId, setUserId] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    async function fetchUserInfo() {
-      try {
-        const fetchedUserId = '2222';
-        setUserId(fetchedUserId);
-        const res = await fetch('/api/send-review-request/user');
-        if (res.ok) {
-          const data = await res.json();
-          setUserInfo({ imageUrl: data.imageUrl, username: data.username });
-        }
-      } catch {
-        // Fallback to nulls
-      }
-    }
-    fetchUserInfo();
-  }, []);
+  const professional = data?.professional?.professional || {};
+  const businessName = professional.business_name || 'Your Business';
+  const userId = professional._id || '';
+  const imageUrl = professional.profile || '';
+  const username = professional.business_name || 'Your Business';
+
+  const reviewLink =
+    typeof window !== 'undefined' && userId
+      ? `${window.location.origin}/home-services/services/${userId}`
+      : '';
 
   const handleEmailChange = (index: number, value: string) => {
     const updated = [...emails];
@@ -63,14 +58,11 @@ export default function ReviewRequest() {
       toast.message('Please enter a valid email address.');
       return;
     }
-    if (!businessName) {
-      toast.message('Business name is required.');
-      return;
-    }
+
 
     setSendingIndex(index);
     try {
-      const reviewLink = `${window.location.origin}/ask-reviews/services/${userId || ''}/reviews`;
+      const reviewRequestLink = `${window.location.origin}/ask-reviews/services/${userId}/reviews`;
 
       const res = await fetch('/api/send-review-request', {
         method: 'POST',
@@ -78,16 +70,16 @@ export default function ReviewRequest() {
         body: JSON.stringify({
           recipientEmail: email,
           userName: businessName,
-          reviewLink,
+          reviewLink: reviewRequestLink,
         }),
       });
 
-      const data = await res.json();
+      const result = await res.json();
       if (res.ok) {
         toast.success(`Review request sent to: ${email}`);
       } else {
-        toast.error(data.error || 'Failed to send review request.');
-        console.error('API error:', data);
+        toast.error(result.error || 'Failed to send review request.');
+        console.error('API error:', result);
       }
     } catch (err) {
       toast.error('Failed to send review request.');
@@ -98,20 +90,12 @@ export default function ReviewRequest() {
   };
 
   const handleNext = () => {
-    if (serviceId) {
-      router.back()
-    }
-    router.push(`/home-services/dashboard/services/step-6`);
+    if (serviceId) router.back();
+    else router.push(`/home-services/dashboard/services/step-6`);
   };
 
-
-
-  const reviewLink = typeof window !== 'undefined' && userId
-    ? `${window.location.origin}/home-services/services/step-6/${userId}`
-    : '';
-
   return (
-    <div className="">
+    <div>
       {!serviceId && (
         <ProgressBar
           currentStep={currentStep}
@@ -121,18 +105,17 @@ export default function ReviewRequest() {
         />
       )}
 
-      <div className=" dark:bg-gray-900 text-gray-800 dark:text-white text-[13px]">
+      <div className="dark:bg-gray-900 text-gray-800 dark:text-white text-[13px]">
         <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12  dark:border-gray-700 rounded-[7px] p-4 sm:p-8 md:p-10 dark:bg-gray-900">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 rounded-[7px] p-4 sm:p-8 md:p-10 dark:bg-gray-900">
 
-            {/* Left Side */}
+            {/* Left Section */}
             <div>
-              <h2 className="text-2xl font-bold text-[#023E8A] dark:text-white mb-3">
+              <h2 className="text-2xl font-bold text-[#023E8A] mb-3">
                 Add recent ratings for your business
               </h2>
-              <p className="text-gray-600 dark:text-gray-300 mb-5">
-                Add reviews from customers your business had before you joined Thumbtack.
-                This will help generate more jobs earlier on.
+              <p className="text-gray-600 mb-5">
+                Add reviews from customers your business had before joining. This will help you get more jobs faster.
               </p>
 
               {emails.map((email, index) => (
@@ -141,12 +124,12 @@ export default function ReviewRequest() {
                     type="email"
                     value={email}
                     onChange={(e) => handleEmailChange(index, e.target.value)}
-                    className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-[4px] focus:outline-none focus:ring-2 focus:ring-[#0096C7] dark:bg-gray-800 dark:text-white text-sm"
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-[4px] focus:outline-none focus:ring-2 focus:ring-[#0096C7] dark:bg-gray-800 text-sm"
                     placeholder="Enter customer email address"
                   />
                   <button
                     onClick={() => handleSendEmail(email, index)}
-                    className="bg-[#0077B6] hover:bg-[#005f8e] text-white px-4 py-2 rounded-[4px] text-sm transition duration-300 flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed"
+                    className="bg-[#0077B6] hover:bg-[#005f8e] text-white px-4 py-2 rounded-[4px] text-sm transition flex items-center justify-center disabled:opacity-70"
                     disabled={sendingIndex === index}
                   >
                     {sendingIndex === index ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Send'}
@@ -161,86 +144,80 @@ export default function ReviewRequest() {
                 + Add another email address
               </button>
 
-              <div className="mb-4">
-                <button className="w-full border border-gray-300 dark:border-gray-600 py-2 rounded-[4px] flex items-center justify-center text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-800 transition duration-300">
-                  <svg className="mr-2 w-5 h-5" viewBox="0 0 24 24"></svg>
-                  Add reviews from Google
-                </button>
-
-                {userId && (
-                  <div className="mt-3 text-center text-xs">
-                    <button
-                      onClick={async () => {
-                        await navigator.clipboard.writeText(reviewLink);
-                        setCopied(true);
-                        setTimeout(() => setCopied(false), 2000);
-                      }}
-                      className="text-[#0077B6] hover:underline"
-                    >
-                      {copied ? 'Copied to clipboard' : 'Copy shareable link'}
-                    </button>
-                  </div>
-                )}
-              </div>
+              {userId && (
+                <div className="text-center text-xs mt-3">
+                  <button
+                    onClick={async () => {
+                      await navigator.clipboard.writeText(reviewLink);
+                      setCopied(true);
+                      setTimeout(() => setCopied(false), 2000);
+                    }}
+                    className="text-[#0077B6] hover:underline"
+                  >
+                    {copied ? 'Copied to clipboard' : 'Copy shareable link'}
+                  </button>
+                </div>
+              )}
             </div>
 
-            {/* Right Side: Email preview and tips */}
+            {/* Right Section - Email Preview */}
             <div className="space-y-6">
-              <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-[4px] border dark:border-gray-700 text-center">
+              <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-[4px] border text-center">
                 <FaRegStar className="text-[#0096C7] w-12 h-12 mx-auto mb-3" />
                 <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-1">Build Trust</h3>
-                <p className="text-gray-600 dark:text-gray-300">More verified reviews help you earn more jobs.</p>
+                <p className="text-gray-600">More verified reviews help you earn more jobs.</p>
               </div>
 
-              <div className="bg-white dark:bg-gray-900 dark:border-gray-700 rounded-[8px] px-2 py-4 flex flex-col items-center text-center shadow-md w-full">
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Email Preview</p>
-                <div className="flex flex-col items-center mb-3 w-full">
-                  <h2 className="text-2xl font-bold text-[#0077B6] mb-1 w-full">{businessName}</h2>
-                  <p className="text-[15px] text-[#64748b] mb-2 w-full">Review Request</p>
-                  {userInfo.imageUrl ? (
-                    <Image
-                      src={userInfo.imageUrl}
-                      alt="User Avatar"
-                      width={80}
-                      height={80}
-                      className="rounded-full object-cover border-2 border-[#0077B6] mb-3 shadow"
-                    />
-                  ) : (
-                    <Loader2 className="w-20 h-20 text-gray-400 border-2 border-[#0077B6] rounded-full mb-3 p-4 bg-gray-100" />
-                  )}
-                  <p className="text-[12px] text-[#475569] mb-2 mt-2 w-full">
-                    Thank you for being a valued client...
-                  </p>
-                  <p className="text-[12px] text-[#475569] mb-3 w-full">
-                    If you could take a moment to write a brief review...
-                  </p>
-                  <div className="flex justify-center text-[#facc15] text-lg mb-3 w-full">
-                    {[...Array(5)].map((_, i) => (
-                      <FaStar key={i} className="mr-1" />
-                    ))}
-                  </div>
-                  <Link
-                    href={reviewLink}
-                    target="_blank"
-                    className="inline-block bg-[#0077B6] text-white px-6 py-2 rounded-[4px] font-light text-[12px] no-underline mb-2 mt-1 shadow hover:bg-[#005f8e] transition"
-                  >
-                    Submit Review
-                  </Link>
-                  <p className="text-xs text-[12px] text-[#94a3b8] mt-2">
-                    Requested by: <strong>{userInfo.username || ''}</strong>
-                  </p>
+              <div className="bg-white dark:bg-gray-900 rounded-[8px] px-2 py-4 flex flex-col items-center text-center shadow-md">
+                <p className="text-xs text-gray-500 mb-2">Email Preview</p>
+                <h2 className="text-2xl font-bold text-[#0077B6] mb-1">{businessName}</h2>
+                <p className="text-[15px] text-[#64748b] mb-2">Review Request</p>
+
+                {imageUrl ? (
+                  <Image
+                    src={imageUrl}
+                    alt="Business Logo"
+                    width={80}
+                    height={80}
+                    className="rounded-full object-cover border-2 border-[#0077B6] mb-3 shadow"
+                  />
+                ) : (
+                  <Loader2 className="w-20 h-20 text-gray-400 border-2 border-[#0077B6] rounded-full mb-3 p-4 bg-gray-100" />
+                )}
+
+                <p className="text-[12px] text-[#475569] mb-2 mt-2">
+                  Thank you for being a valued client...
+                </p>
+                <p className="text-[12px] text-[#475569] mb-3">
+                  Please take a moment to write a brief review about your experience.
+                </p>
+
+                <div className="flex justify-center text-[#facc15] text-lg mb-3">
+                  {[...Array(5)].map((_, i) => <FaStar key={i} className="mr-1" />)}
                 </div>
+
+                <Link
+                  href={reviewLink}
+                  target="_blank"
+                  className="inline-block bg-[#0077B6] text-white px-6 py-2 rounded-[4px] text-[12px] shadow hover:bg-[#005f8e] transition"
+                >
+                  Submit Review
+                </Link>
+
+                <p className="text-xs text-[#94a3b8] mt-2">
+                  Requested by: <strong>{username}</strong>
+                </p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Navigation Buttons */}
-        <div className="fixed bottom-6 right-6 flex gap-4 text-[13px] ">
+        <div className="fixed bottom-6 right-6 flex gap-4 text-[13px]">
           <button
             type="button"
             onClick={() => router.back()}
-            className="bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-white text-[13px] py-2 px-5 rounded-[4px] font-medium hover:bg-gray-400 dark:hover:bg-gray-600 transition"
+            className="bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-white py-2 px-5 rounded-[4px] font-medium hover:bg-gray-400 transition"
           >
             Back
           </button>
@@ -248,10 +225,9 @@ export default function ReviewRequest() {
             type="submit"
             onClick={handleNext}
             disabled={isPending}
-            className="text-white text-[13px] py-2 px-6 rounded-[4px] bg-[#0077B6] hover:bg-[#005f8e] transition"
+            className="text-white py-2 px-6 rounded-[4px] bg-[#0077B6] hover:bg-[#005f8e] transition"
           >
             {isPending && <Loader2 className="h-4 w-4 animate-spin inline-block mr-2" />}
-
             Skip Now
           </button>
         </div>

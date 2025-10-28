@@ -4,12 +4,18 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { Dropdown } from "@/components/ui/dropdown";
 import { DropdownItem } from "@/components/ui/dropdownitems";
+import { useAuth } from "@/components/providers/context/auth-context";
+import { useRouter } from "next/navigation";
 
 export default function UserDropdown() {
+  const { logout, user: authData, isLoading } = useAuth();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [imageError, setImageError] = useState(false);
-
-  const userName = "Liaqat Paindah"; // you can dynamically set this based on your app's data
+  const authContextData = authData as any;
+  const user = authContextData?.user || authContextData;
+  const userName = user?.username || "";
+  const userEmail = user?.email || "";
 
   function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     e.stopPropagation();
@@ -24,13 +30,34 @@ export default function UserDropdown() {
     setImageError(true);
   };
 
-  const getUserInitial = userName.charAt(0).toUpperCase();
+  const handleLogout = async () => {
+    closeDropdown();
+    await logout();
+    router.push("/auth/login");
+  };
+
+  const getUserInitial = userName ? userName.charAt(0).toUpperCase() : "U";
+
+  // Don't render the dropdown if no user data is available
+  if (!userName) {
+    return (
+      <div className="flex items-center text-gray-700 dark:text-gray-400">
+        <span className="mr-3 overflow-hidden rounded-full h-8 w-8">
+          <span className="flex items-center justify-center w-full h-full text-blue-900 bg-blue-200 rounded-full">
+            U
+          </span>
+        </span>
+        <span className="block mr-1 font-medium text-theme-sm">Loading...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="relative">
       <button
         onClick={toggleDropdown}
         className="flex items-center text-gray-700 dark:text-gray-400 dropdown-toggle"
+        disabled={isLoading}
       >
         <span className="mr-3 overflow-hidden rounded-full h-8 w-8">
           {imageError ? (
@@ -79,7 +106,7 @@ export default function UserDropdown() {
             {userName}
           </span>
           <span className="mt-0.5 block text-theme-xs text-gray-500 dark:text-gray-400">
-            {`Liaqat.Paindah@gmail.com`}
+            {userEmail}
           </span>
         </div>
 
@@ -91,7 +118,6 @@ export default function UserDropdown() {
               href="/home-services/dashboard/integration"
               className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
             >
-              {/* Your icon and text */}
               Integrations
             </DropdownItem>
           </li>
@@ -102,7 +128,6 @@ export default function UserDropdown() {
               href="/home-services/dashboard/profile"
               className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
             >
-              {/* Your icon and text */}
               Insights
             </DropdownItem>
           </li>
@@ -113,11 +138,9 @@ export default function UserDropdown() {
               href="/home-services/dashboard/reviews"
               className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
             >
-              {/* Your icon and text */}
               Reviews
             </DropdownItem>
           </li>
-
           <li>
             <DropdownItem
               onItemClick={closeDropdown}
@@ -125,11 +148,9 @@ export default function UserDropdown() {
               href="/home-services/dashboard/profile/payment"
               className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
             >
-              {/* Your icon and text */}
               Payments
             </DropdownItem>
           </li>
-
           <li>
             <DropdownItem
               onItemClick={closeDropdown}
@@ -137,11 +158,9 @@ export default function UserDropdown() {
               href="/profile"
               className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
             >
-              {/* Your icon and text */}
               Earnings
             </DropdownItem>
           </li>
-
           <li>
             <DropdownItem
               onItemClick={closeDropdown}
@@ -149,7 +168,6 @@ export default function UserDropdown() {
               href="/home-services/dashboard/profile-settings"
               className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
             >
-              {/* Your icon and text */}
               Setting
             </DropdownItem>
           </li>
@@ -161,13 +179,27 @@ export default function UserDropdown() {
         >
           Refer pros. Get up to 100$.
         </Link>
-        <Link
-          href="/signin"
-          className="flex items-center gap-3 px-3 py-2 mt-3 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
+
+        <button
+          onClick={handleLogout}
+          disabled={isLoading}
+          className="flex items-center gap-3 px-3 py-2 mt-3 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {/* Sign-out icon */}
-          Sign out
-        </Link>
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+            />
+          </svg>
+          {isLoading ? "Signing out..." : "Sign out"}
+        </button>
       </Dropdown>
     </div>
   );

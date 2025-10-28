@@ -194,3 +194,5 @@ export const getProfessionalReviewAPI = async ( token?:string) => {
     throw handleApiError(error);
   }
 };
+
+// Get Professional Only Details For All 

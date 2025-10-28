@@ -126,17 +126,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
     };
 
-    const logout = async (): Promise<void> => {
-        dispatch({ type: 'SET_LOADING', payload: true });
+const logout = async (): Promise<void> => {
+    dispatch({ type: 'SET_LOADING', payload: true });
 
-        try {
-            await authAPI.logout();
-        } catch (error) {
-            console.error('Logout error:', error);
-        } finally {
-            dispatch({ type: 'AUTH_LOGOUT' });
-        }
-    };
+    try {
+        // Clear stored tokens
+        tokenManager.clearTokens(); // implement this to remove access & refresh tokens
+
+        // Clear user state
+        dispatch({ type: 'AUTH_LOGOUT' });
+
+    } catch (error) {
+        console.error('Logout error:', error);
+    } finally {
+        dispatch({ type: 'SET_LOADING', payload: false });
+    }
+};
+
 
     const clearError = (): void => {
         dispatch({ type: 'CLEAR_ERROR' });
