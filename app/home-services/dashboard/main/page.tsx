@@ -15,7 +15,6 @@ import MonthlyTarget from "./_MonthlyTarget";
 import RecentActivity from "./_RecentActivity";
 import LeadsMonthly from "./CreditsMonthly";
 
-
 // Animation Variants
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },

@@ -7,6 +7,7 @@ import { getAccessToken } from '@/app/api/axios';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
+import GlobalLoader from '@/components/ui/global-loader';
 
 // Memoized components to prevent unnecessary re-renders
 const ProfileImage = ({ profileImage, name, Backend_URL }: { profileImage: string; name: string; Backend_URL: string }) => (
@@ -61,12 +62,7 @@ const StatCard = ({ stat }: { stat: any }) => (
 );
 
 const LoadingSpinner = () => (
-  <div className="flex justify-center items-center min-h-screen bg-gray-50 dark:bg-gray-900">
-    <div className="text-center">
-      <Loader2 className="h-12 w-12 animate-spin text-[#0077B6] mx-auto mb-4" />
-      <span className="text-gray-800 dark:text-gray-300 text-lg">Loading professional profile...</span>
-    </div>
-  </div>
+  <GlobalLoader></GlobalLoader>
 );
 
 const ProfessionalProfile = () => {
@@ -85,7 +81,7 @@ const ProfessionalProfile = () => {
         duration: 3000,
         position: 'top-right'
       });
-        router.push("/home-services/dashboard/main");
+      router.push("/home-services/dashboard/main");
 
     } catch {
       setIsLoading(false);

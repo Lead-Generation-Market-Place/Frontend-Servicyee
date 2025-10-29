@@ -10,6 +10,7 @@ import {
   useProServicesQuestions,
   useSubmitServiceAnswers,
 } from "@/hooks/RegisterPro/useRegister";
+import GlobalLoader from "@/components/ui/global-loader";
 
 // --- Steps
 const ONBOARDING_STEPS = [
@@ -276,9 +277,7 @@ export default function MultiChoiceServiceForm() {
   // --- Loading states
   if (isLoading || questionsLoading) {
     return (
-      <div className="flex justify-center items-center h-[80vh]">
-        <Loader2 className="h-6 w-6 animate-spin text-[#0077B6]" />
-      </div>
+      <GlobalLoader></GlobalLoader>
     );
   }
 
@@ -334,8 +333,8 @@ export default function MultiChoiceServiceForm() {
             disabled={isSubmitting || groupedData.length === 0}
             onClick={handleNext}
             className={`text-white py-2 px-6 rounded-[4px] transition duration-300 flex items-center justify-center gap-2 ${isSubmitting || groupedData.length === 0
-                ? "bg-[#0077B6]/70 cursor-not-allowed"
-                : "bg-[#0077B6] hover:bg-[#005f8e]"
+              ? "bg-[#0077B6]/70 cursor-not-allowed"
+              : "bg-[#0077B6] hover:bg-[#005f8e]"
               }`}
           >
             {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
