@@ -1,15 +1,16 @@
 'use client';
 
-import React, { useState,  useTransition, useMemo } from 'react';
+import React, { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FaRegStar, FaStar } from 'react-icons/fa';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
-import { ProgressBar } from "@/components/home-services/onboarding/ProgressBar";
 import Image from 'next/image';
+import { ProgressBar } from "@/components/home-services/onboarding/ProgressBar";
 import { getAccessToken } from '@/app/api/axios';
 import { useProfessionalReview } from '@/hooks/RegisterPro/useRegister';
+import { useSendReview } from '@/hooks/useSendReview';
 
 const ONBOARDING_STEPS = [
   { id: 1, name: 'Profile' },
@@ -22,15 +23,14 @@ const ONBOARDING_STEPS = [
 
 export default function ReviewRequest() {
   const router = useRouter();
-  const [currentStep] = useState(2);
   const params = useSearchParams();
   const serviceId = params.get('id');
 
-  const token = useMemo(() => getAccessToken() || "", []);
+  const token = getAccessToken() || "";
   const { data } = useProfessionalReview(token);
+  const sendReviewMutation = useSendReview(token);
 
   const [emails, setEmails] = useState(['']);
-  const [isPending] = useTransition();
   const [sendingIndex, setSendingIndex] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
 
@@ -40,50 +40,39 @@ export default function ReviewRequest() {
   const imageUrl = professional.profile || '';
   const username = professional.business_name || 'Your Business';
 
-  const reviewLink =
-    typeof window !== 'undefined' && userId
-      ? `${window.location.origin}/home-services/services/${userId}`
-      : '';
+  const reviewLink = userId ? `${window.location.origin}/home-services/services/${userId}` : '';
 
+  // Handle email input changes
   const handleEmailChange = (index: number, value: string) => {
     const updated = [...emails];
     updated[index] = value;
     setEmails(updated);
   };
 
+  // Add new email input field
   const addEmailField = () => setEmails([...emails, '']);
 
+  // Send review email using React Query mutation
   const handleSendEmail = async (email: string, index: number) => {
     if (!email || !email.includes('@')) {
       toast.message('Please enter a valid email address.');
       return;
     }
 
-
     setSendingIndex(index);
+
     try {
       const reviewRequestLink = `${window.location.origin}/ask-reviews/services/${userId}/reviews`;
 
-      const res = await fetch('/api/send-review-request', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          recipientEmail: email,
-          userName: businessName,
-          reviewLink: reviewRequestLink,
-        }),
+      await sendReviewMutation.mutateAsync({
+        recipientEmail: email,
+        businessName,
+        reviewLink: reviewRequestLink,
       });
 
-      const result = await res.json();
-      if (res.ok) {
-        toast.success(`Review request sent to: ${email}`);
-      } else {
-        toast.error(result.error || 'Failed to send review request.');
-        console.error('API error:', result);
-      }
-    } catch (err) {
-      toast.error('Failed to send review request.');
-      console.error('Fetch error:', err);
+      toast.success(`Review request sent to: ${email}`);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to send review request.');
     } finally {
       setSendingIndex(null);
     }
@@ -98,7 +87,7 @@ export default function ReviewRequest() {
     <div>
       {!serviceId && (
         <ProgressBar
-          currentStep={currentStep}
+          currentStep={2}
           totalSteps={ONBOARDING_STEPS.length}
           steps={ONBOARDING_STEPS}
           className="mb-8"
@@ -222,12 +211,10 @@ export default function ReviewRequest() {
             Back
           </button>
           <button
-            type="submit"
+            type="button"
             onClick={handleNext}
-            disabled={isPending}
             className="text-white py-2 px-6 rounded-[4px] bg-[#0077B6] hover:bg-[#005f8e] transition"
           >
-            {isPending && <Loader2 className="h-4 w-4 animate-spin inline-block mr-2" />}
             Skip Now
           </button>
         </div>

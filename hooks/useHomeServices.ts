@@ -1,13 +1,11 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {  useQuery } from "@tanstack/react-query";
 import {
-  createUserLocationById,
   getAllServices,
   getFeaturedServices,
   getPopularServices,
   getSubcategoriesServices,
   getSubcategoryServicesBySlug,
   getTopProfessionals,
-  getUserLocation,
   loadUserLocation,
 } from "@/app/api/homepage/popularService";
 import { getServiceQuestion } from "@/app/api/homepage/generateLead";
