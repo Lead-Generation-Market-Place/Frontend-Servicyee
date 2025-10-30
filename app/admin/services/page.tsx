@@ -1,8 +1,91 @@
 "use client";
 
-import { useState } from "react";
+import { PostCategory } from "@/app/api/homepage/postServices";
+import { CircleCheck, Info } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+
+// ✅ Type definition
+interface CategoryType {
+  name: string;
+  slug: string;
+  description: string;
+  is_active: boolean;
+  category_image_file: File | null; // actual file
+  category_image_url: string; // preview URL
+}
 
 const ManageServices = () => {
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
+  const [categoryFormData, setCategoryFormData] = useState<CategoryType>({
+    name: "",
+    slug: "",
+    description: "",
+    is_active: true,
+    category_image_file: null,
+    category_image_url: "",
+  });
+
+  const slugify = (text: string) =>
+    text
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "_")
+      .replace(/^-+|-+$/g, "");
+
+  // Auto-update slug when name changes
+  useEffect(() => {
+    setCategoryFormData((prev) => ({ ...prev, slug: slugify(prev.name) }));
+  }, [categoryFormData.name]);
+
+  const handlePostCategory = async () => {
+    if (!categoryFormData.category_image_file) {
+      setError("Category image is required");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      setError(null);
+      setSuccess(null);
+
+      // ✅ Create FormData
+      const formData = new FormData();
+      formData.append("name", categoryFormData.name);
+      formData.append("slug", categoryFormData.slug);
+      formData.append("description", categoryFormData.description);
+      formData.append("is_active", String(categoryFormData.is_active));
+      formData.append(
+        "category_image_url",
+        categoryFormData.category_image_file
+      );
+
+      // ✅ Pass FormData directly
+      const response = await PostCategory(formData);
+
+      setSuccess("Category created successfully!");
+      setCategoryFormData({
+        name: "",
+        slug: "",
+        description: "",
+        is_active: true,
+        category_image_file: null,
+        category_image_url: "",
+      });
+    } catch (err: any) {
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          "Failed to create category"
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const [activeTab, setActiveTab] = useState<
     "category" | "subcategory" | "service"
   >("category");
@@ -58,8 +141,26 @@ const ManageServices = () => {
                 </label>
                 <input
                   type="text"
+                  onChange={(e) =>
+                    setCategoryFormData((prev) => ({
+                      ...prev,
+                      name: e.target.value,
+                    }))
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                   placeholder="Enter category name"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Slug
+                </label>
+                <input
+                  type="text"
+                  value={categoryFormData.slug}
+                  disabled
+                  className="w-full text-gray-500 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
+                  placeholder="will be auto generated"
                 />
               </div>
               <div>
@@ -69,6 +170,12 @@ const ManageServices = () => {
                 <textarea
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                   rows={3}
+                  onChange={(e) =>
+                    setCategoryFormData((prev) => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
+                  }
                   placeholder="Enter category description"
                 />
               </div>
@@ -76,7 +183,11 @@ const ManageServices = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Category Image
                 </label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+
+                <div
+                  className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:bg-gray-50"
+                  onClick={() => fileInputRef.current?.click()} // 👈 trigger file input
+                >
                   <div className="text-gray-500">
                     <svg
                       className="mx-auto h-12 w-12"
@@ -96,8 +207,50 @@ const ManageServices = () => {
                       SVG, PNG, JPG or GIF (max. 800x400px)
                     </p>
                   </div>
-                  <input type="file" className="hidden" />
+
+                  {/* ✅ Hidden input triggered programmatically */}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        console.log("Selected file:", file);
+                        setCategoryFormData((prev) => ({
+                          ...prev,
+                          category_image_file: file, // store actual file
+                          category_image_url: URL.createObjectURL(file),
+                        }));
+                      }
+                    }}
+                  />
                 </div>
+
+                {/* ✅ Optional Preview */}
+                {categoryFormData.category_image_url && (
+                  <img
+                    src={categoryFormData.category_image_url}
+                    alt="Preview"
+                    className="w-24 h-16 object-cover rounded-lg mt-3 mx-auto"
+                  />
+                )}
+              </div>
+              <div className="flex flex-row justify-center items-center gap-2 text-sm">
+                {error && (
+                  <>
+                    <Info className="text-red-500" size={18} />
+                    <p className="text-red-500">{error}</p>
+                  </>
+                )}
+
+                {success && (
+                  <>
+                    <CircleCheck className="text-green-500" size={18} />
+                    <p className="text-green-500">{success}</p>
+                  </>
+                )}
               </div>
 
               {/* Category Active Status */}
@@ -105,7 +258,13 @@ const ManageServices = () => {
                 <input
                   type="checkbox"
                   id="categoryIsActive"
-                  defaultChecked
+                  checked={categoryFormData.is_active}
+                  onChange={(e) =>
+                    setCategoryFormData((prev) => ({
+                      ...prev,
+                      is_active: e.target.checked, // ✅ updates the boolean
+                    }))
+                  }
                   className="h-4 w-4 text-sky-600 focus:ring-sky-500 border-gray-300 rounded"
                 />
                 <label
@@ -117,8 +276,45 @@ const ManageServices = () => {
               </div>
 
               <div className="flex justify-end">
-                <button className="bg-sky-600 text-white px-6 py-2 rounded-lg hover:bg-sky-700 transition-colors font-medium">
-                  Add Category
+                <button
+                  onClick={handlePostCategory}
+                  disabled={isSubmitting} // prevent multiple clicks
+                  className={`relative inline-flex items-center justify-center px-6 py-2 text-sm font-medium text-white rounded transition-colors
+                  ${
+                    isSubmitting
+                      ? "bg-sky-400 cursor-not-allowed"
+                      : "bg-sky-600 hover:bg-sky-700"
+                  }
+                `}
+                >
+                  {isSubmitting ? (
+                    <>
+                      {/* Simple spinner */}
+                      <svg
+                        className="animate-spin -ml-1 mr-2 h-5 w-5 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v8H4z"
+                        ></path>
+                      </svg>
+                      Posting...
+                    </>
+                  ) : (
+                    "Add Category"
+                  )}
                 </button>
               </div>
             </div>

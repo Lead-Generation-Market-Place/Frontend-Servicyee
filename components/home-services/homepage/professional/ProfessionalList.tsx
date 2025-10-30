@@ -134,7 +134,7 @@ export default function ProfessionalList({
                       •
                     </span>
                     <span className="text-xs text-gray-500 dark:text-gray-400">
-                      {professional.total_hires} hires {professional.zipCodes}
+                      {professional.total_hires} hires 
                     </span>
                   </div>
 
