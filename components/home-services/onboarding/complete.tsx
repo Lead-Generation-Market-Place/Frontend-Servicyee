@@ -70,10 +70,8 @@ const ProfessionalProfile = () => {
   const Backend_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000';
   const token = useMemo(() => getAccessToken() || "", []);
   const { data } = useProfessionalReview(token);
-  console.log("The data is", data)
   const [activeTab, setActiveTab] = useState('overview');
   const [isLoading, setIsLoading] = useState(false);
-
   const handleNext = useCallback(async () => {
     setIsLoading(true);
     try {

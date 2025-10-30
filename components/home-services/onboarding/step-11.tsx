@@ -77,12 +77,9 @@ export default function BackgroundCheckSelection() {
             setIsLoading(true)
             router.back()
         }
-        // Form submission logic here
-        // Simulate API call
-        setTimeout(() => {
-            router.push('/home-services/dashboard/services/complete');
-            setIsLoading(false);
-        }, 1500);
+
+        router.push('/home-services/dashboard/services/complete');
+        setIsLoading(false);
     };
 
     const handleNext = () => {

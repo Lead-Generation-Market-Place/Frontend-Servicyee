@@ -26,7 +26,7 @@ export function useRegister() {
   const [isPending, setIsPending] = useState(false);
   const mutation = useMutation({
     mutationFn: registerUserAPI,
-    retry: false, 
+    retry: false,
     onMutate: () => {
       setIsPending(true);
     },
@@ -42,6 +42,11 @@ export function useRegister() {
         router.push("/auth/login");
       }
     },
+    onError: (error: any) => {
+      toast.error(
+        error?.response?.data?.message || "Failed to update Business Name"
+      );
+    },
     onSettled: () => {
       setIsPending(false);
     },
@@ -53,8 +58,6 @@ export function useRegister() {
 
   return { registerUser, isPending: mutation.isPending || isPending };
 }
-
-
 
 // Create Professional Account - Step 03
 export function useUpdateBusinessName(token: string) {
@@ -229,6 +232,7 @@ export function useSaveLocation(token: string) {
         };
         localStorage.setItem("professionalData", JSON.stringify(parsed));
       }
+      router.refresh();
       router.push("/home-services/dashboard/services/step-10");
     },
     onError: (error: any) => {
@@ -241,10 +245,9 @@ export function useSaveLocation(token: string) {
 // Create Professional Account - Review Account Profile
 export function useProfessionalReview(token?: string) {
   return useQuery({
-    queryKey: ["professionalReview", token], // include token in key
+    queryKey: ["professionalReview", token],
     queryFn: () => getProfessionalReviewAPI(token),
-    enabled: !!token, 
-    staleTime: 1000 * 60 * 5,
-    retry: 1,
+    enabled: !!token,
+    staleTime: 0, 
   });
 }
