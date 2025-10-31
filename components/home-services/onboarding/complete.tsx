@@ -72,8 +72,6 @@ const ProfessionalProfile = () => {
   const { data } = useProfessionalReview(token);
   const [activeTab, setActiveTab] = useState('overview');
   const [isLoading, setIsLoading] = useState(false);
-
-
   const handleNext = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -82,14 +80,15 @@ const ProfessionalProfile = () => {
         position: 'top-right'
       });
       router.push("/home-services/dashboard/main");
-
     } catch {
       setIsLoading(false);
       toast.error('Confirmation failed. Please try again.');
     }
   }, [router]);
+
   const processedData = useMemo(() => {
     if (!data || !data.professional) return null;
+
     const professional = data.professional;
     const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const businessAddress = professional.locations?.find((loc: any) => loc.type === 'professional') || professional.locations?.[0];
@@ -112,7 +111,7 @@ const ProfessionalProfile = () => {
       timezone: professional.professional.timezone,
       services: professional.services?.map((service: any) => ({
         id: service._id,
-        name: service.answered_questions?.[0]?.question_name || "N/A",
+        name: service.service_name || "Unnamed Service", // Use service_name directly
         pricingType: service.pricing_type,
         questions: service.answered_questions?.filter((q: any) => q.answer) || []
       })) || []
@@ -140,7 +139,8 @@ const ProfessionalProfile = () => {
       businessHours,
       profileData,
       stats,
-      tabs
+      tabs,
+      reviewsData: professional.reviews || [] // Include reviews data
     };
   }, [data]);
 
@@ -148,12 +148,12 @@ const ProfessionalProfile = () => {
     return <LoadingSpinner />;
   }
 
-  const { businessAddress, serviceLocations, businessHours, profileData, stats, tabs } = processedData;
+  const { businessAddress, serviceLocations, businessHours, profileData, stats, tabs, reviewsData } = processedData;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header Section */}
-      <div className="   dark:border-gray-700">
+      <div className="dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
           <div className="py-4 sm:py-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -280,14 +280,15 @@ const ProfessionalProfile = () => {
         {/* Reviews Tab */}
         {activeTab === 'reviews' && (
           <ReviewsTab
+            reviews={reviewsData}
             rating={profileData.rating}
-            reviews={profileData.reviews}
+            totalReviews={profileData.reviews}
           />
         )}
       </div>
 
       {/* Save Button */}
-      <div className="dark:bg-gray-900  dark:border-gray-700">
+      <div className="dark:bg-gray-900 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
           <div className="flex justify-end">
             <button
@@ -333,9 +334,14 @@ const OverviewTab = ({ profileData, businessAddress, businessHours, setActiveTab
             View All
           </button>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+
+        <div className=" sm:grid-cols-2 gap-3 sm:gap-4">
           {profileData.services.slice(0, 4).map((service: any) => (
-            <ServicePreviewCard key={service.id} service={service} />
+            <div key={service.id} className="space-y-2">
+              <ServicePreviewCard service={service} />
+              <p className="text-sm font-medium text-gray-800 dark:text-gray-200 text-center">
+              </p>
+            </div>
           ))}
         </div>
       </div>
@@ -492,7 +498,7 @@ const LocationsTab = ({ businessAddress, serviceLocations }: any) => (
       <div className="bg-white dark:bg-gray-800 rounded-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
         <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-6">Service Locations</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-          {serviceLocations.map((location: any, index: number) => (
+          {serviceLocations.map((location: any, index: any) => (
             <ServiceLocationCard key={location._id} location={location} index={index} />
           ))}
         </div>
@@ -630,25 +636,156 @@ const BusinessHourCard = ({ day }: any) => {
   );
 };
 
-const ReviewsTab = ({ rating, reviews }: any) => (
+const ReviewsTab = ({ reviews, rating, totalReviews }: any) => (
   <div className="bg-white dark:bg-gray-800 rounded-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
-    <div className="text-center py-8 sm:py-12">
-      <Star className="w-12 h-12 sm:w-16 sm:h-16 text-gray-300 dark:text-gray-800 mx-auto mb-3 sm:mb-4" />
-      <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-2">
-        No Reviews Yet
-      </h3>
-      <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto text-sm px-4">
-        Reviews will appear here once customers start rating your services.
-        Provide excellent service to get your first review!
-      </p>
-      <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row items-center justify-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-        <span>Current Rating:</span>
-        <div className="flex items-center gap-1">
-          <RatingStars rating={rating} />
+    {reviews.length > 0 ? (
+      <div>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+            Customer Reviews
+          </h2>
+          <div className="flex items-center gap-4 mt-2 sm:mt-0">
+            <div className="flex items-center gap-2">
+              <RatingStars rating={rating} />
+              <span className="text-lg font-semibold text-gray-900 dark:text-white">
+                {rating}/5
+              </span>
+            </div>
+            <span className="text-gray-500 dark:text-gray-400">
+              ({totalReviews} reviews)
+            </span>
+          </div>
         </div>
-        <span>({reviews} reviews)</span>
+
+        <div className="space-y-6">
+          {reviews.map((review: any) => (
+            <ReviewCard
+              key={review._id}
+              review={review}
+              reviews={reviews}
+              rating={rating}
+              totalReviews={totalReviews}
+            />
+          ))}
+        </div>
+      </div>
+    ) : (
+      <div className="text-center py-8 sm:py-12">
+        <Star className="w-12 h-12 sm:w-16 sm:h-16 text-gray-300 dark:text-gray-800 mx-auto mb-3 sm:mb-4" />
+        <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-2">
+          No Reviews Yet
+        </h3>
+        <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto text-sm px-4">
+          Reviews will appear here once customers start rating your services.
+          Provide excellent service to get your first review!
+        </p>
+        <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row items-center justify-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+          <span>Current Rating:</span>
+          <div className="flex items-center gap-1">
+            <RatingStars rating={rating} />
+          </div>
+          <span>({totalReviews} reviews)</span>
+        </div>
+      </div>
+    )}
+  </div>
+);
+const ReviewCard = ({ review }: any) => (
+  <div className=" dark:border-gray-600 rounded-sm p-4 sm:p-6 hover:border-gray-300 dark:hover:border-gray-500 transition-all duration-200">
+    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+        <div className="flex items-center gap-4">
+          {/* User Avatar and Info */}
+          <div className="flex items-center gap-3">
+            {/* User Avatar */}
+            <div className="relative">
+              <div className="w-10 h-10 bg-gradient-to-br from-[#0077B6] to-[#48CAE4] rounded-full flex items-center justify-center border-2 border-white dark:border-gray-800 shadow-sm">
+                <span className="text-sm font-bold text-white">
+                  {review.user_id?.username?.slice(0, 2).toUpperCase() || 'CU'}
+                </span>
+              </div>
+              {/* Online Status Indicator */}
+              <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full"></div>
+            </div>
+
+            {/* User Details */}
+            <div className="flex flex-col">
+              <div className="flex items-center gap-2">
+                <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
+                  {review.user_id?.username || 'Customer'}
+                </h4>
+                {/* Verified Badge */}
+                <div className="flex items-center gap-1 px-2 py-0.5 bg-blue-50 dark:bg-blue-900/20 rounded-full">
+                  <svg className="w-3 h-3 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                {review.user_id?.email || 'customer@example.com'}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          {/* Rating and Status */}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 bg-white dark:bg-gray-800 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center gap-1">
+                <RatingStars rating={review.rating} />
+                <span className="text-sm font-bold text-gray-900 dark:text-white ml-1">
+                  {review.rating}/5
+                </span>
+              </div>
+            </div>
+
+            {/* Review Status Badge */}
+            <div className={`px-3 py-2 rounded-lg border text-xs font-medium ${review.review_type === 'pending'
+              ? 'bg-yellow-50 text-yellow-800 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-300 dark:border-yellow-800'
+              : 'bg-green-50 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800'
+              }`}>
+              <div className="flex items-center gap-1.5">
+                <div className={`w-2 h-2 rounded-full ${review.review_type === 'pending' ? 'bg-yellow-500' : 'bg-green-500'
+                  }`}></div>
+                <span className="capitalize">{review.review_type || 'completed'}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Review Date */}
+
+
+          <div className="text-sm text-gray-500 dark:text-gray-400">
+            {new Date(review.createdAt || review.date || new Date()).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            })}
+          </div>
+        </div>
       </div>
     </div>
+
+    <p className="text-gray-700 dark:text-gray-300 mb-4 leading-relaxed">
+      {review.message || review.comment || review.content || 'No review content available.'}
+    </p>
+
+    {review.tags && review.tags.length > 0 && (
+      <div className="flex flex-wrap gap-2">
+        {review.tags.map((tag: string, index: number) => (
+          <span
+            key={index}
+            className="px-2 py-1 bg-blue-50 dark:bg-blue-900/20 text-[#0077b6] dark:text-[#0077b6] text-xs font-medium rounded"
+          >
+            {tag}
+          </span>
+        ))}
+      </div>
+    )}
   </div>
 );
 
