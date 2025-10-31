@@ -9,7 +9,7 @@ import {
   loadUserLocation,
 } from "@/app/api/homepage/popularService";
 import { getServiceQuestion } from "@/app/api/homepage/generateLead";
-import { getCategoryServiceCount } from "@/app/api/homepage/postServices";
+import { getCategoryServiceCount, getSubcategoryServiceCount } from "@/app/api/homepage/postServices";
 
 
 export const usePopularServices = () => {
@@ -106,6 +106,14 @@ export const useCategoryServiceCount = () => {
   return useQuery({
     queryKey: ['categoryServiceCount'],
     queryFn: () => getCategoryServiceCount(),
+    staleTime: 5*60*1000,
+  });
+}
+
+export const useSubcategoryServiceCount = () => {
+  return useQuery({
+    queryKey: ['subcategoryServiceCount'],
+    queryFn: () => getSubcategoryServiceCount(),
     staleTime: 5*60*1000,
   });
 }

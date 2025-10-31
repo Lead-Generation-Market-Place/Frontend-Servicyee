@@ -11,13 +11,14 @@ export type ServiceType = {
 
 // Subcategory Type (basic)
 export type SubcategoryType = {
-  _id: string;
+  _id?: string; // Make optional for new items
   name: string;
   slug: string;
   subcategory_image_url: string;
-  category_id?: string; // Optional if you have category reference
-  is_active?: boolean; // Optional if you have active status
-  description?: string; // Optional if you have description
+  subcategory_image_file: File | null; // Allow null
+  category_id?: string;
+  is_active?: boolean;
+  description?: string;
 }
 
 // Subcategory with Services Type
