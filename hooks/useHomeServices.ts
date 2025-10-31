@@ -11,6 +11,7 @@ import {
   loadUserLocation,
 } from "@/app/api/homepage/popularService";
 import { getServiceQuestion } from "@/app/api/homepage/generateLead";
+import { getCategoryServiceCount } from "@/app/api/homepage/postServices";
 
 
 export const usePopularServices = () => {
@@ -95,6 +96,18 @@ export const useServiceQuestions = (service_id:string) => {
     queryKey: ['serviceQuestions', service_id],
     queryFn: () => getServiceQuestion(service_id),
     enabled: !!service_id,
+    staleTime: 5*60*1000,
+  });
+}
+
+// =====================================================
+//         get categories and its service count
+//======================================================
+
+export const useCategoryServiceCount = () => {
+  return useQuery({
+    queryKey: ['categoryServiceCount'],
+    queryFn: () => getCategoryServiceCount(),
     staleTime: 5*60*1000,
   });
 }

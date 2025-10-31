@@ -267,7 +267,8 @@ const Questioner = ({
 
     try {
       console.log("Submitting:", payload);
-      const response = await generateLead(payload);
+      await generateLead(payload);
+
       alert("Quotation request submitted successfully!");
       setIsOpen(false);
     } catch (error) {

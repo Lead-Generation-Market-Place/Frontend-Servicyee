@@ -10,10 +10,7 @@ export interface CategoryType {
   category_image_url:string;
 }
 
-// ✅ Define the props type for PostCategory
-interface CategoryProps {
-  categoryData: CategoryType;
-}
+
 
 // ✅ Correct PostCategory function
 export const PostCategory = async (formData: FormData) => {
@@ -31,3 +28,12 @@ export const PostCategory = async (formData: FormData) => {
   }
 };
 
+export const getCategoryServiceCount = async () => {
+  try {
+    const response = await api.get('/categories/with-service-count');
+    return response;
+  } catch (error) {
+    console.error("Error getting categories: ", error);
+    throw error;
+  }
+}

@@ -2,12 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, Variants, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
-import {
-  ChevronDown,
-  ExternalLink,
-  MapPinHouse,
-  SquareMousePointer,
-} from "lucide-react";
+import { MapPinHouse, SquareMousePointer } from "lucide-react";
 import NoMatchDialog from "@/components/home-services/homepage/titleComponents/NoMatchDialog";
 import LocationDialog from "@/components/home-services/homepage/titleComponents/LocationDialog";
 import SearchBar from "@/components/home-services/homepage/titleComponents//SearchBar";
