@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ArrowLeft, ArrowRight, CheckCircle2 } from "lucide-react";
 import { useServiceQuestions } from "@/hooks/useHomeServices";
+import { generateLead } from "@/app/api/homepage/generateLead";
 
 // Define TypeScript interfaces based on API response
 interface Question {
@@ -37,7 +38,9 @@ interface Service {
 
 interface UserInfo {
   email: string;
+  username: string;
   phone: string;
+  password: string;
   description: string;
   files: FileList | null;
 }
@@ -115,7 +118,9 @@ const Questioner = ({
   const [service, setService] = useState<Service | null>(null);
   const [userInfo, setUserInfo] = useState<UserInfo>({
     email: "",
+    username: "username",
     phone: "",
+    password: "oqujs4o988q45",
     description: "",
     files: null,
   });
@@ -170,7 +175,9 @@ const Questioner = ({
     setResponses({});
     setUserInfo({
       email: "",
+      username: "",
       phone: "",
+      password: "",
       description: "",
       files: null,
     });
@@ -247,19 +254,27 @@ const Questioner = ({
     userLocation = null;
   }
 
-  const handleSubmit = () => {
-    // Here you would typically send the data to your backend
-    console.log("Submitting:", {
+  const handleSubmit = async () => {
+    const payload = {
       serviceId,
       responses,
       professionalId,
       userInfo,
       userLocation,
-      sendOption,
-      selectedProfessionals,
-    });
-    alert("Quotation request submitted successfully!");
-    setIsOpen(false);
+      sendOption: sendOption as "top5" | "selected", // ✅ type assertion
+      selectedProfessionals: selectedProfessionals.map(String), // ensure string[]
+    };
+
+    try {
+      console.log("Submitting:", payload);
+      await generateLead(payload);
+
+      alert("Quotation request submitted successfully!");
+      setIsOpen(false);
+    } catch (error) {
+      console.error("Error submitting lead:", error);
+      alert("Failed to submit lead.");
+    }
   };
 
   const progressValue = service

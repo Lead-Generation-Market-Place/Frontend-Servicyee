@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, Variants, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { SquareMousePointer } from "lucide-react";
+import { MapPinHouse, SquareMousePointer } from "lucide-react";
 import NoMatchDialog from "@/components/home-services/homepage/titleComponents/NoMatchDialog";
 import LocationDialog from "@/components/home-services/homepage/titleComponents/LocationDialog";
 import SearchBar from "@/components/home-services/homepage/titleComponents//SearchBar";
@@ -681,13 +681,17 @@ const TitlePage = ({ location }: TitlePageProps) => {
                     className="cursor-pointer focus-visible:outline-none border-b-2 border-dashed border-gray-800 dark:border-gray-300 self-center mt-2 sm:mt-3"
                   >
                     {userLocation ? (
-                      <span>{userLocation}</span>
+                      <span>{userLocation} </span>
                     ) : (
                       <span className="flex flex-row gap-2 justify-center items-center">
                         <span>{userDefaultLocation}</span>
                         <SquareMousePointer className="w-5 h-5 sm:w-6 sm:h-6" />
                       </span>
                     )}
+                    <MapPinHouse
+                      className="inline p-1 rounded bg-sky-200 dark:bg-sky-900 text-sky-600 dark:text-sky-500 hover:bg-sky-500 hover:text-white dark:hover:bg-sky-900 dark:hover:text-white duration-500 transition"
+                      size={32}
+                    />
                   </button>
                 </div>
               </motion.h1>
