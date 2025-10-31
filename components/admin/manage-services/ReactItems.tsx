@@ -2,6 +2,7 @@ interface ItemTypes {
   _id: string;
   name: string;
   serviceCount: number;
+  servicesCount: number;
   is_active: boolean;
 }
 
@@ -16,8 +17,6 @@ const RecentItems = ({
   maxItems = 3,
   sortBy = "recent",
 }: RecentItemsProps) => {
-  console.log("Data item in RecentItems: ", dataItem);
-
   // Extract the actual array from the data structure
   let itemsArray: ItemTypes[] = [];
 
@@ -78,7 +77,7 @@ const RecentItems = ({
           >
             <div className="flex flex-col space-y-2 sm:space-y-3">
               <div className="flex items-start justify-between gap-2">
-                <p className="font-medium font-bold text-gray-800 text-xs sm:text-base leading-tight break-words flex-1">
+                <p className="text-xs font-bold text-gray-800 leading-tight break-words flex-1">
                   {item.name}
                 </p>
                 <span
@@ -95,7 +94,7 @@ const RecentItems = ({
               <div className="flex items-center justify-between pt-1 border-t border-gray-100">
                 <span className="text-xs text-gray-500">Services</span>
                 <span className="text-sm font-medium text-gray-700">
-                  {item.serviceCount}
+                  {item.serviceCount || item.servicesCount}
                 </span>
               </div>
             </div>
