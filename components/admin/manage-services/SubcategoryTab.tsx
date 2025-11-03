@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import ActiveToggle from "@/components/ui/admin/ActiveToggle";
 import ImageUploadSection from "@/components/ui/admin/ImageUploadSection";
-import { useSubcategoryServiceCount } from "@/hooks/useHomeServices";
+import {
+  useCategoryServiceCount,
+  useSubcategoryServiceCount,
+} from "@/hooks/useHomeServices";
 import { SubcategoryType } from "@/types/service/services";
 import StatusMessage from "@/components/ui/admin/StatusMessage";
 import SubmitButton from "@/components/ui/admin/SubmitButton";
@@ -108,7 +111,21 @@ const SubcategoryTab = () => {
   ) {
     itemsArray = subcategroyData.data;
   }
-  console.log(itemsArray, "**************");
+
+  const { data: categoryServiceCount } = useCategoryServiceCount();
+  const categoryList = categoryServiceCount?.data || [];
+
+  let categoryArray: ItemTypes[] = [];
+  if (Array.isArray(categoryList)) {
+    categoryArray = categoryList;
+  } else if (
+    categoryList &&
+    categoryList.data &&
+    Array.isArray(categoryList.data)
+  ) {
+    categoryArray = categoryList.data;
+  }
+  console.log("category Array: ", categoryArray);
 
   return (
     <div className="space-y-6">
@@ -130,7 +147,7 @@ const SubcategoryTab = () => {
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
           >
             <option value="">Select a category</option>
-            {itemsArray.map((item: { _id: string; name: string }) => (
+            {categoryArray.map((item: { _id: string; name: string }) => (
               <option key={item._id} value={item._id}>
                 {item.name}
               </option>

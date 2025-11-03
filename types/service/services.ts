@@ -5,7 +5,9 @@ export type ServiceType = {
   slug: string;
   subcategory_id: string;
   is_active: boolean;
+  is_featured:boolean;
   image_url: string;
+  image_file: File | null;
   description: string;
 }
 
