@@ -4,9 +4,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { ProgressBar } from "@/components/home-services/onboarding/ProgressBar";
-import { useBusinesAvailability } from '@/hooks/RegisterPro/useRegister';
+import { useBusinesAvailability, useProfessionalReview } from '@/hooks/RegisterPro/useRegister';
 import { getAccessToken } from '@/app/api/axios';
 import { BusinessAvailabilityPayload } from '@/app/api/services/ProAccount';
+import GlobalLoader from '@/components/ui/global-loader';
 
 const ONBOARDING_STEPS = [
   { id: 1, name: 'Profile' },
@@ -47,6 +48,8 @@ export interface SaveAvailabilityResult {
 
 export default function AvailabilityForm() {
   const token = getAccessToken() || "";
+  const { data: professionalData, isLoading: isLoadingProfessionalData, isError: isProfessionalError } = useProfessionalReview(token);
+  console.log("The data is", professionalData)
   const [businessName, setBusinessName] = useState<string>("");
   const [professionalId, setProfessionalId] = useState<string>("");
   const { mutate, isPending, isError, error } = useBusinesAvailability(token);
@@ -60,43 +63,39 @@ export default function AvailabilityForm() {
   // Get ServiceId
   const params = useSearchParams();
   const serviceId = params.get('id');
-
-  // 🟢 Load Data from LocalStorage (Business Info + Saved Availability)
   useEffect(() => {
-    const localData = localStorage.getItem("professionalData");
-    if (localData) {
-      try {
-        const parseData = JSON.parse(localData);
-        if (parseData.professional) {
-          setBusinessName(parseData.professional.business_name || "");
-          setProfessionalId(parseData.professional._id || "");
+    if (professionalData?.professional?.professional) {
+      const professional = professionalData.professional.professional;
+      setBusinessName(professional?.business_name || "");
+      setProfessionalId(professional._id || "");
+      const savedAvailability = professional.business_hours;
+      if (Array.isArray(savedAvailability) && savedAvailability.length > 0) {
+        const normalizedSchedule = savedAvailability.map((day: any) => ({
+          dayOfWeek: day.day,
+          day: [
+            "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+          ][day.day],
+          shifts: [
+            {
+              openTime: new Date(day.start_time).toISOString().substring(11, 16),
+              closeTime: new Date(day.end_time).toISOString().substring(11, 16),
+              isClosed: day.status !== "open",
+            },
+          ],
+        }));
+        setSchedule(normalizedSchedule);
+        const isAnytime = normalizedSchedule.every(
+          (day) =>
+            day.shifts.length === 1 &&
+            day.shifts[0].openTime === "00:00" &&
+            day.shifts[0].closeTime === "23:59" &&
+            !day.shifts[0].isClosed
+        );
 
-          // 🟢 Prefill schedule if availability exists
-          const savedAvailability = parseData.professional.availability;
-
-          if (Array.isArray(savedAvailability) && savedAvailability.length > 0) {
-            setSchedule(savedAvailability);
-
-            // Detect if availability is "anytime"
-            const isAnytime = savedAvailability.every(
-              (day: any) =>
-                day.shifts.length === 1 &&
-                day.shifts[0].openTime === "00:00" &&
-                day.shifts[0].closeTime === "23:59" &&
-                !day.shifts[0].isClosed
-            );
-
-            setSelectedOption(isAnytime ? "anytime" : "business");
-          } else {
-            setSchedule(defaultSchedule);
-          }
-        }
-      } catch (error) {
-        console.error("Error parsing professional data from localStorage:", error);
-        setSchedule(defaultSchedule);
+        setSelectedOption(isAnytime ? "anytime" : "business");
       }
     }
-  }, []);
+  }, [professionalData]); // Added dependency
 
   const handleTimeChange = (
     dayIndex: number,
@@ -141,9 +140,13 @@ export default function AvailabilityForm() {
       })
     );
   };
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!professionalId) {
+      console.error('No professional ID available');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -156,33 +159,55 @@ export default function AvailabilityForm() {
           shifts: [{ openTime: '00:00', closeTime: '23:59', isClosed: false }],
         }));
       }
-
       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
-      // Build payload
       const payload: BusinessAvailabilityPayload = {
         id: professionalId,
         schedule: finalSchedule,
         timezone
       };
+      mutate(payload, {
+        onSuccess: () => {
+          // Navigate back if serviceId exists
+          if (serviceId) {
+            router.back();
+          } else {
+            // router.push('/next-step');
+          }
+        }
+      });
 
-      // Call mutation (will also save to localStorage on success)
-      mutate(payload);
-
-      // Navigate back if serviceId exists
-      if (serviceId) {
-        router.back();
-      }
     } finally {
       setIsSubmitting(false);
     }
   };
-
   const handleBack = () => {
     router.back();
   };
 
-  const isLoading = isPending || isSubmitting;
+  const isFormLoading = isPending || isSubmitting;
+  const isPageLoading = isLoadingProfessionalData;
+  if (isPageLoading) {
+    return (
+      <GlobalLoader></GlobalLoader>
+    );
+  }
+
+  // Show error state if professional data fails to load
+  if (isProfessionalError) {
+    return (
+      <div className="flex justify-center items-center min-h-64">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">Failed to load professional data</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="bg-[#0077B6] text-white px-4 py-2 rounded"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -246,6 +271,7 @@ export default function AvailabilityForm() {
                             checked={day.shifts[0].isClosed}
                             onChange={() => handleAvailabilityToggle(dayIndex, 0)}
                             className="mr-2 accent-[#0077B6]"
+                            disabled={isFormLoading}
                           />
                           Closed
                         </label>
@@ -260,7 +286,7 @@ export default function AvailabilityForm() {
                               value={day.shifts[0].openTime}
                               onChange={(e) => handleTimeChange(dayIndex, 0, 'openTime', e.target.value)}
                               className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded px-2 py-1 focus:border-[#0077B6] focus:ring-1 focus:ring-[#0077B6] transition-colors"
-                              disabled={isLoading}
+                              disabled={isFormLoading}
                             >
                               {timeOptions.map((time) => (
                                 <option key={time} value={time}>{time}</option>
@@ -271,7 +297,7 @@ export default function AvailabilityForm() {
                               value={day.shifts[0].closeTime}
                               onChange={(e) => handleTimeChange(dayIndex, 0, 'closeTime', e.target.value)}
                               className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded px-2 py-1 focus:border-[#0077B6] focus:ring-1 focus:ring-[#0077B6] transition-colors"
-                              disabled={isLoading}
+                              disabled={isFormLoading}
                             >
                               {timeOptions.map((time) => (
                                 <option key={time} value={time}>{time}</option>
@@ -291,7 +317,7 @@ export default function AvailabilityForm() {
                   ? 'border-[#0077B6] bg-blue-50 dark:bg-blue-900/20'
                   : 'border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600'
                   }`}
-                onClick={() => !isLoading && setSelectedOption('anytime')}
+                onClick={() => !isFormLoading && setSelectedOption('anytime')}
               >
                 <div className="flex items-center space-x-2">
                   <input
@@ -318,23 +344,23 @@ export default function AvailabilityForm() {
         <button
           onClick={handleBack}
           type="button"
-          disabled={isLoading}
+          disabled={isFormLoading}
           className="bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-white mt-6 w-full text-[13px] py-2 px-5 rounded-[4px] disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
         >
           Back
         </button>
         <button
           type="button"
-          disabled={isLoading}
+          disabled={isFormLoading || !professionalId}
           onClick={() => formRef.current?.requestSubmit()}
           className={`mt-6 w-full text-white text-[13px] py-2 px-6 rounded-[4px] transition duration-300 flex items-center justify-center gap-2
-            ${isLoading
+            ${isFormLoading || !professionalId
               ? 'bg-[#0077B6]/70 cursor-not-allowed'
               : 'bg-[#0077B6] hover:bg-[#005f8e]'
             }`}
         >
-          {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-          <span>{isLoading ? 'Saving...' : 'Next'}</span>
+          {isFormLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+          <span>{isFormLoading ? 'Saving...' : 'Next'}</span>
         </button>
       </div>
     </div>

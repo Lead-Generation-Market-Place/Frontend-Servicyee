@@ -16,7 +16,7 @@ import {
   UpdateBusinessName,
 } from "@/app/api/services/ProAccount";
 import toast from "react-hot-toast";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/components/providers/context/auth-context";
 import {} from "@/components/home-services/onboarding/step-4";
 
@@ -62,21 +62,15 @@ export function useRegister() {
 // Create Professional Account - Step 03
 export function useUpdateBusinessName(token: string) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   return useMutation({
     mutationKey: ["UpdateBusinessName"],
     mutationFn: (data: { businessName: string; id: string }) =>
       UpdateBusinessName(data, token),
-    onSuccess: (updatedProfessional) => {
-      const storedData = localStorage.getItem("professionalData");
-      if (storedData) {
-        const parsedData = JSON.parse(storedData);
-
-        if (parsedData.professional) {
-          parsedData.professional.business_name =
-            updatedProfessional.professional.business_name;
-        }
-        localStorage.setItem("professionalData", JSON.stringify(parsedData));
-      }
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["professionalReview"],
+      });
 
       router.push(`/home-services/dashboard/services/step-4`);
     },
@@ -93,28 +87,15 @@ export function useUpdateBusinessName(token: string) {
 // Craete Prof Account Business Info - Step 04
 export function useBusinessInfo(token: string) {
   const router = useRouter();
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationKey: ["BusinessInfo"],
     mutationFn: (data: BusinessInfoPayload) => saveBusinessInfoAPI(data, token),
-    onSuccess: (responseData, variables) => {
-      const localData = localStorage.getItem("professionalData");
-
-      if (localData) {
-        const parsed = JSON.parse(localData);
-
-        parsed.professional = {
-          ...parsed.professional,
-          businessType: variables.businessType,
-          employees: variables.employees,
-          founded: variables.founded,
-          about: variables.about,
-          profileUrl:
-            responseData?.profileUrl || parsed.professional?.profileUrl || null,
-        };
-
-        localStorage.setItem("professionalData", JSON.stringify(parsed));
-      }
-
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["professionalReview"],
+      });
       router.push("/home-services/dashboard/services/step-5");
     },
     onError: (error: any) => {
@@ -126,23 +107,18 @@ export function useBusinessInfo(token: string) {
   });
 }
 
-// Create Pro Account Business Availibilty Step 07
+
 export function useBusinesAvailability(token: string) {
+  const queryClient = useQueryClient();
   const router = useRouter();
   return useMutation({
     mutationKey: ["BusinesAvailability"],
     mutationFn: (data: BusinessAvailabilityPayload) =>
       BusinesAvailabilityAPI(data, token),
-    onSuccess: (responseData, variables) => {
-      const localData = localStorage.getItem("professionalData");
-      if (localData) {
-        const parsed = JSON.parse(localData);
-        parsed.professional = {
-          ...parsed.professional,
-          availability: variables.schedule || [],
-        };
-        localStorage.setItem("professionalData", JSON.stringify(parsed));
-      }
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["professionalReview"],
+      });
       router.push("/home-services/dashboard/services/step-8");
     },
     onError: (error: any) => {
@@ -170,45 +146,26 @@ export function useProServicesQuestions(token: string) {
 
 // Create Professional Account 08
 export const useSubmitServiceAnswers = (token: string) => {
+  const queryClient = useQueryClient();
   const router = useRouter();
   return useMutation({
     mutationKey: ["submitServiceAnswers"],
     mutationFn: (data: AnswerPayload[]) => submitServiceAnswersAPI(data, token),
-    onSuccess: (responseData, variables) => {
-      const localData = localStorage.getItem("professionalData");
-      if (localData) {
-        try {
-          const parsed = JSON.parse(localData);
-          parsed.professional = {
-            ...parsed.professional,
-            serviceAnswers: variables || [],
-          };
-          localStorage.setItem("professionalData", JSON.stringify(parsed));
-        } catch (error) {
-          console.error(
-            "Failed to save service answers to localStorage:",
-            error
-          );
-        }
-      } else {
-        const newData = {
-          professional: {
-            serviceAnswers: variables || [],
-          },
-        };
-        localStorage.setItem("professionalData", JSON.stringify(newData));
-      }
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["professionalReview"],
+      });
+      toast.error("Submitted")
       router.push("/home-services/dashboard/services/step-9");
     },
     onError: (error: any) => {
       toast.error(
-        error?.response?.data?.message || "Failed to save Business Info"
+        error?.response?.data?.message || "Failed to save service answers"
       );
     },
     retry: false,
   });
 };
-
 // Create Professional Step 09
 export function useSaveLocation(token: string) {
   const router = useRouter();
@@ -248,6 +205,6 @@ export function useProfessionalReview(token?: string) {
     queryKey: ["professionalReview", token],
     queryFn: () => getProfessionalReviewAPI(token),
     enabled: !!token,
-    staleTime: 0, 
+    staleTime: 0,
   });
 }
