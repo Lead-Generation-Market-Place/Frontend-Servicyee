@@ -142,8 +142,6 @@ export default function MultiChoiceServiceForm() {
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
   }, [answers, servicesWithQuestions]);
-
-  // --- Submit handler
   const handleNext = useCallback(() => {
     if (!validateAnswers()) {
       toast.error("Please fill in all required fields");
@@ -169,8 +167,6 @@ export default function MultiChoiceServiceForm() {
     submitAnswers(payload, {
     });
   }, [answers, validateAnswers, submitAnswers, professionalId, servicesWithQuestions]);
-
-  // --- Field Renderer
   const renderField = useCallback(
     (q: ServiceQuestion) => {
       const value = answers[q._id] ?? "";
@@ -191,7 +187,7 @@ export default function MultiChoiceServiceForm() {
                         : (value as string[]).filter((v) => v !== opt);
                       handleAnswerChange(q._id, newValue);
                     }}
-                    className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-[#0077B6]"
+                    className="h-4 w-4 text-[#0077B6] border-gray-300 rounded focus:ring-[#0077B6]"
                   />
                   <span className="ml-2 text-sm text-gray-700">{opt}</span>
                 </label>
@@ -308,19 +304,16 @@ export default function MultiChoiceServiceForm() {
         <div className="space-y-8">
           {servicesWithQuestions.length > 0 ? (
             servicesWithQuestions.map((service: ServiceData, serviceIndex: number) => (
-              <div key={service.service_id} className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                {/* Service Header */}
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-gray-200">
+              <div key={service.service_id} className="overflow-hidden">
+                <div className="  px-6 py-4  ">
                   <div className="flex items-center justify-between">
                     <div>
                       <h2 className="text-lg font-semibold text-gray-800">
-                        Service {serviceIndex + 1}: {service.service_name || `Service ${service.service_id}`}
+                        Service {serviceIndex + 1}: {service.service_name || ``}
                       </h2>
-                      <p className="text-sm text-gray-600 mt-1">
-                        Service ID: {service.service_id}
-                      </p>
+
                     </div>
-                    <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                    <div className="bg-blue-100 text-[#0077B6] px-3 py-1 rounded-full text-sm font-medium">
                       {service.questions.length} question{service.questions.length !== 1 ? 's' : ''}
                     </div>
                   </div>
@@ -332,7 +325,7 @@ export default function MultiChoiceServiceForm() {
                     service.questions.map((q: ServiceQuestion, qIndex: number) => (
                       <div key={q._id} className="pb-4 border-b border-gray-100 last:border-none">
                         <div className="flex items-start gap-3">
-                          <div className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-800 rounded-full flex items-center justify-center text-xs font-medium mt-0.5">
+                          <div className="flex-shrink-0 w-6 h-6 bg-blue-100 text-[#0077B6] rounded-full flex items-center justify-center text-xs font-medium mt-0.5">
                             {qIndex + 1}
                           </div>
                           <div className="flex-1">
