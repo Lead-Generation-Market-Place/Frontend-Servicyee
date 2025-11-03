@@ -247,7 +247,7 @@ export default function ReviewRequest() {
             onClick={handleNext}
             className="text-white py-2 px-6 rounded-[4px] bg-[#0077B6] hover:bg-[#005f8e] transition"
           >
-            Skip Now
+            Next
           </button>
         </div>
       </div>

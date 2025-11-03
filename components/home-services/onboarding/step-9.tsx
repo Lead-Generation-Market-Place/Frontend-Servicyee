@@ -11,8 +11,9 @@ import {
 } from "@react-google-maps/api";
 import { Loader2 } from "lucide-react";
 import { ProgressBar } from "./ProgressBar";
-import { useSaveLocation } from "@/hooks/RegisterPro/useRegister";
+import { useProfessionalReview, useSaveLocation } from "@/hooks/RegisterPro/useRegister";
 import { getAccessToken } from "@/app/api/axios";
+import GlobalLoader from "@/components/ui/global-loader";
 
 const ONBOARDING_STEPS = [
   { id: 1, name: "Profile" },
@@ -22,17 +23,12 @@ const ONBOARDING_STEPS = [
   { id: 5, name: "Payment" },
   { id: 6, name: "Background" },
 ];
-
 const containerStyle = { width: "100%", height: "400px" };
-
 const TAB_OPTIONS = [
   { label: "Select by Distance", value: "distance" },
   { label: "Advanced", value: "advanced" },
 ];
-
 const milesToMeters = (miles: number) => miles * 1609.34;
-
-// Default fallback center (center of the world)
 const DEFAULT_CENTER = { lat: 0, lng: 0 };
 const DEFAULT_ZOOM = 2;
 
@@ -42,7 +38,7 @@ const Map = () => {
   const searchBoxRef = useRef<google.maps.places.SearchBox | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
-  const circleRef = useRef<google.maps.Circle | null>(null); // <-- Added for circle management
+  const circleRef = useRef<google.maps.Circle | null>(null);
   const [professionalId, setProfessionalId] = useState<string | null>(null);
   const [serviceId, setServiceId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("distance");
@@ -59,50 +55,50 @@ const Map = () => {
   const [zoom] = useState<number>(DEFAULT_ZOOM);
   const [locationError, setLocationError] = useState<string>("");
   const [isGeolocationAllowed, setIsGeolocationAllowed] = useState<boolean | null>(null);
-
   const saveLocationMutation = useSaveLocation(token);
-
+  const {
+    data: professionalData,
+    isLoading: isLoadingProfessionalData,
+    error: professionalError,
+  } = useProfessionalReview(token);
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   if (!apiKey) throw new Error('Missing NEXT_PUBLIC_GOOGLE_MAPS_API_KEY');
-
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: apiKey,
     libraries: ['places'],
   });
-
   const onMapLoad = useCallback((map: google.maps.Map) => {
     mapRef.current = map;
   }, []);
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const professionalData = localStorage.getItem("professionalData");
+    if (professionalData) {
+      try {
+        const professional = professionalData.professional || professionalData;
+        const proId = professional?.professional?._id || professional?.id;
+        const serviceAnswers = professional?.serviceAnswers || professional?.services || [];
+        const servId = serviceAnswers[0]?.service_id || serviceAnswers[0]?.id;
 
-      if (professionalData) {
-        try {
-          const parsedData = JSON.parse(professionalData);
-          const proId = parsedData.professional?._id;
-          const servId = parsedData.professional?.serviceAnswers?.[0]?.service_id;
-          if (proId) {
-            setProfessionalId(proId);
-          }
-          if (servId) {
-            setServiceId(servId);
-          }
-          else {
-            toast.error("Professional ID not found in profile data.");
-          }
-        } catch {
-          toast.error("Error parsing professional data.");
+        if (proId) {
+          setProfessionalId(proId);
+        } else {
+          toast.error("Professional ID not found. Please complete previous steps.");
         }
-      } else {
-        toast.error("Professional data not found. Please complete previous steps.");
+
+        if (servId) {
+          setServiceId(servId);
+        }
+      } catch (error) {
+        toast.error(`Error parsing professional data.${error}`);
       }
     }
-  }, []);
-
-  // Auto zoom and pan based on radius and selected location
+  }, [professionalData]);
   useEffect(() => {
-    if (mapRef.current && selectedLocation) {
+    if (professionalError) {
+      toast.error("Failed to load professional data. Please complete previous steps.");
+    }
+  }, [professionalError]);
+  useEffect(() => {
+    if (mapRef.current && selectedLocation && isLoaded) {
       const bounds = new google.maps.LatLngBounds();
       bounds.extend({ lat: selectedLocation.lat, lng: selectedLocation.lng });
 
@@ -110,16 +106,12 @@ const Map = () => {
         center: { lat: selectedLocation.lat, lng: selectedLocation.lng },
         radius: milesToMeters(radiusMiles),
       }).getBounds();
-
       if (circleBounds) bounds.union(circleBounds);
-
       mapRef.current.fitBounds(bounds);
     }
-  }, [radiusMiles, selectedLocation]);
-
-  // Update circle on radius change or location change
+  }, [radiusMiles, selectedLocation, isLoaded]);
   useEffect(() => {
-    if (!mapRef.current || !selectedLocation) return;
+    if (!mapRef.current || !selectedLocation || !isLoaded) return;
 
     if (circleRef.current) {
       circleRef.current.setCenter(selectedLocation);
@@ -136,11 +128,11 @@ const Map = () => {
         strokeWeight: 1.5,
       });
     }
-  }, [radiusMiles, selectedLocation]);
+  }, [radiusMiles, selectedLocation, isLoaded]);
 
   // Get user geolocation
   useEffect(() => {
-    if (navigator.geolocation) {
+    if (navigator.geolocation && isLoaded) {
       navigator.geolocation.getCurrentPosition(
         async (pos) => {
           const userLoc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
@@ -220,15 +212,20 @@ const Map = () => {
       return;
     }
 
+    if (!professionalId) {
+      toast.error("Professional data not available. Please complete previous steps.");
+      return;
+    }
+
     try {
       saveLocationMutation.mutate({
-        professional_id: professionalId as string,
-        service_id: serviceId as string,
+        professional_id: professionalId,
+        service_id: serviceId || "", // Use empty string as fallback
         lat: selectedLocation.lat,
         lng: selectedLocation.lng,
-        city: selectedLocation.city,
-        state: selectedLocation.state,
-        zip: selectedLocation.zip,
+        city: selectedLocation.city || "",
+        state: selectedLocation.state || "",
+        zip: selectedLocation.zip || "",
         radiusMiles,
         isLoading: false,
       });
@@ -236,21 +233,17 @@ const Map = () => {
       toast.error((err as Error).message);
     }
   };
-
   const handleBack = () => router.back();
-
   const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.value.trim() && locationError) setLocationError("");
   };
-
+  const canProceed = selectedLocation && professionalId && !saveLocationMutation.isPending;
   if (loadError) return <div>Error loading Google Maps</div>;
-  if (!isLoaded)
+  if (!isLoaded || isLoadingProfessionalData) {
     return (
-      <div className="flex justify-center items-center" style={{ height: 400 }}>
-        <Loader2 className="h-6 w-6 animate-spin text-[#0077B6]" />
-      </div>
+      <GlobalLoader></GlobalLoader>
     );
-
+  }
   return (
     <div className="space-y-4">
       <ProgressBar currentStep={currentStep} totalSteps={ONBOARDING_STEPS.length} steps={ONBOARDING_STEPS} className="mb-8" />
@@ -321,6 +314,7 @@ const Map = () => {
                 style={{ accentColor: "#0077B6" }}
               />
             </div>
+
           </div>
 
           {/* Map Panel */}
@@ -355,7 +349,8 @@ const Map = () => {
         <button
           type="button"
           onClick={handleNext}
-          className={`mt-6 py-2 px-6 rounded-[4px] flex items-center justify-center gap-2 text-white text-[13px] transition duration-300 ${!selectedLocation || saveLocationMutation.isPending ? "bg-[#0077B6]/70 cursor-not-allowed" : "bg-[#0077B6] hover:bg-[#0077B6]/90"
+          disabled={!canProceed}
+          className={`mt-6 py-2 px-6 rounded-[4px] flex items-center justify-center gap-2 text-white text-[13px] transition duration-300 ${!canProceed ? "bg-[#0077B6]/70 cursor-not-allowed" : "bg-[#0077B6] hover:bg-[#0077B6]/90"
             }`}
         >
           {saveLocationMutation.isPending && <Loader2 className="animate-spin w-4 h-4" />}

@@ -111,7 +111,7 @@ const ProfessionalProfile = () => {
       timezone: professional.professional.timezone,
       services: professional.services?.map((service: any) => ({
         id: service._id,
-        name: service.service_name || "Unnamed Service", // Use service_name directly
+        name: service.service_name || "Service Name", // Use service_name directly
         pricingType: service.pricing_type,
         questions: service.answered_questions?.filter((q: any) => q.answer) || []
       })) || []
