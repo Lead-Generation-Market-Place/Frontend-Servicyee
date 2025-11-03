@@ -142,7 +142,6 @@ export const submitServiceAnswersAPI = async (
   token: string
 ) => {
   try {
-    console.log("The professional data is", data)
     const response = await api.post("/professionals/services-answers", data, {
       headers: {
         Authorization: `Bearer ${token}`,

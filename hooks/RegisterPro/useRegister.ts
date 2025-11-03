@@ -155,7 +155,6 @@ export const useSubmitServiceAnswers = (token: string) => {
       queryClient.invalidateQueries({
         queryKey: ["professionalReview"],
       });
-      toast.error("Submitted")
       router.push("/home-services/dashboard/services/step-9");
     },
     onError: (error: any) => {
