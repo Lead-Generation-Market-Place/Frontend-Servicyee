@@ -40,6 +40,21 @@ export const postSubcategory = async (formData: FormData) => {
     throw error;
   }
 }
+// post services
+export const postServices = async (formData: FormData) => {
+  try {
+    console.log("in PostService.ts: ", formData);
+    const response = await api.post("/services", formData,{
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error creating service: ", error);
+    throw error;
+  }
+}
 
 export const getCategoryServiceCount = async () => {
   try {
