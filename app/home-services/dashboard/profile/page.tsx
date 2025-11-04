@@ -1,11 +1,13 @@
 "use client";
 
-import { CheckCircle, UserCheck, DollarSign, ArrowRight, Sparkles, Target, Clock, Award } from "lucide-react";
+import { CheckCircle, UserCheck, ArrowRight, Sparkles, Target, Clock, Award, MapPin, CreditCard, Settings, AlertCircle } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { getAccessToken } from "@/app/api/axios";
+import { useProfesssionalProgress } from "@/hooks/RegisterPro/useRegister";
 
-type TaskKey = "business" | "dub" | "service" | "review" | "background";
+type TaskKey = "business" | "reviews" | "availability" | "preferences" | "location" | "payment" | "background";
 
 interface Task {
   id: number;
@@ -15,21 +17,55 @@ interface Task {
   icon: React.ComponentType<{ size?: number; className?: string }>;
   href?: string;
   description?: string;
+  backendStep: number; // The backend step number when this task becomes completed
 }
 
-const initialTasks: Task[] = [
-  { id: 1, text: "Business Profile", key: "business", completed: true, icon: UserCheck, href: "/home-services/dashboard/services/step-4", description: "Basic business information and contact details" },
-  { id: 2, text: "Availability", key: "dub", completed: true, icon: Clock, href: "/home-services/dashboard/services/step-7", description: "Set your working hours and availability" },
-  { id: 3, text: "Pricing & Budget", key: "service", completed: true, icon: DollarSign, href: "/home-services/dashboard/services/step-10", description: "Define your service rates and budget" },
-  { id: 4, text: "Customer Reviews", key: "review", completed: false, icon: Award, href: "/home-services/dashboard/services/step-5", description: "Add testimonials from past clients" },
-  { id: 5, text: "Background Check", key: "background", completed: false, icon: Target, href: "/home-services/dashboard/services/step-11", description: "Verify your credentials and trustworthiness" },
+const taskDefinitions: Task[] = [
+  { id: 1, text: "Business Info", key: "business", completed: false, icon: UserCheck, href: "/home-services/dashboard/services/step-2", description: "Save your business name and basic information", backendStep: 2 },
+  { id: 3, text: "Customer Reviews", key: "reviews", completed: false, icon: Award, href: "/home-services/dashboard/services/step-5", description: "Add testimonials from past clients", backendStep: 5 },
+  { id: 5, text: "Business Availability", key: "availability", completed: false, icon: Clock, href: "/home-services/dashboard/services/step-7", description: "Define when your business are available", backendStep: 7 },
+  { id: 6, text: "Service Preferences", key: "preferences", completed: false, icon: Settings, href: "/home-services/dashboard/services/step-8", description: "Set your service preferences and options", backendStep: 8 },
+  { id: 7, text: "Service Location", key: "location", completed: false, icon: MapPin, href: "/home-services/dashboard/services/step-9", description: "Define your service areas and locations", backendStep: 9 },
+  { id: 8, text: "Payment Setup", key: "payment", completed: false, icon: CreditCard, href: "/home-services/dashboard/services/step-10", description: "Set up payment and pricing", backendStep: 10 },
+  { id: 9, text: "Background Check", key: "background", completed: false, icon: Target, href: "/home-services/dashboard/services/step-11", description: "Verify Professional and business license", backendStep: 11 },
 ];
 
-
 export default function SetupProgress() {
-  const [tasks] = useState<Task[]>(initialTasks);
+  const token = getAccessToken() || "";
+  const { data } = useProfesssionalProgress(token);
+  const [tasks, setTasks] = useState<Task[]>(taskDefinitions);
   const [progressPercent, setProgressPercent] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [nextStep, setNextStep] = useState(2); // Default to step 2
+
+  // Update tasks based on backend progress
+  useEffect(() => {
+    if (data?.step !== undefined) {
+      const currentBackendStep = data.step; // Current step from backend
+      const updatedTasks = taskDefinitions.map(task => ({
+        ...task,
+        completed: currentBackendStep >= task.backendStep
+      }));
+
+      setTasks(updatedTasks);
+
+      // Calculate the next step to continue from
+      calculateNextStep(updatedTasks);
+    }
+  }, [data]);
+
+  const calculateNextStep = (currentTasks: Task[]) => {
+    // Find the first incomplete task
+    const nextIncompleteTask = currentTasks.find(task => !task.completed);
+    
+    if (nextIncompleteTask) {
+      // If there's an incomplete task, go to its step
+      setNextStep(nextIncompleteTask.backendStep);
+    } else {
+      // If all tasks are completed, go to the final step + 1 or show completion
+      setNextStep(12); // Or whatever your final step is
+    }
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -43,6 +79,8 @@ export default function SetupProgress() {
   }, [tasks]);
 
   const incompleteCount = tasks.filter((t) => !t.completed).length;
+  const completedCount = tasks.filter((t) => t.completed).length;
+  const currentStep = data?.step || 0;
   const radius = 20;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference * (1 - progressPercent);
@@ -55,9 +93,14 @@ export default function SetupProgress() {
         <div className="flex-1 space-y-6 sm:space-y-8 w-full">
           <div className="space-y-3 pb-4 border-b border-gray-200 dark:border-gray-700">
             <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100">Complete Your Professional Profile</h2>
-            <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base">
+            <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-sm">
               Finish these steps to optimize your profile and start receiving quality leads
             </p>
+            {/* Display current progress from backend */}
+            <div className="text-xs text-[#0077B6] dark:text-[#0077B6] mt-2">
+              Progress: {completedCount} of {taskDefinitions.length} steps completed
+              {currentStep > 0 && ` (Current backend step: ${currentStep})`}
+            </div>
           </div>
 
           {/* Progress card */}
@@ -95,20 +138,22 @@ export default function SetupProgress() {
                   // ✅ Incomplete tasks are clickable
                   <Link
                     key={id}
-                    href={`${href}?id=${id}`}
-                    className={`block rounded-lg transition-all duration-200 ${completed
+                    href={href}
+                    className={`block rounded-lg transition-all duration-200 ${
+                      completed
                         ? "bg-blue-50 dark:bg-blue-900/30"
                         : "bg-white dark:bg-gray-900 hover:bg-blue-50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700"
-                      }`}
+                    }`}
                   >
                     <li className="flex items-start justify-between p-3 sm:p-4">
                       {/* Left side (icon + text) */}
                       <div className="flex items-start gap-3 sm:gap-4">
                         <div
-                          className={`flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full ${completed
+                          className={`flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full ${
+                            completed
                               ? "bg-[#0077B6]"
                               : "bg-white dark:bg-gray-800 border border-[#0077B6]"
-                            }`}
+                          }`}
                         >
                           {completed ? (
                             <CheckCircle className="text-white" size={18} />
@@ -119,10 +164,11 @@ export default function SetupProgress() {
                         <div>
                           <div className="flex items-center gap-2">
                             <span
-                              className={`font-medium ${completed
+                              className={`font-medium ${
+                                completed
                                   ? "text-[#0077B6]"
                                   : "text-gray-900 dark:text-gray-100 hover:text-[#0077B6] transition-colors"
-                                }`}
+                              }`}
                             >
                               {text}
                             </span>
@@ -136,29 +182,39 @@ export default function SetupProgress() {
                         </div>
                       </div>
 
-                      {/* Right side arrow */}
-                      {!completed && (
-                        <div className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#0077B6] text-white group-hover:bg-[#023E8A] transition-colors opacity-90">
-                          <ArrowRight size={12} />
-                        </div>
-                      )}
+                      {/* Right side - Warning icon for incomplete steps */}
+                      <div className="flex items-center gap-2">
+                        {!completed && (
+                          <>
+                            <div className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
+                              <AlertCircle size={14} />
+                              <span className="text-xs font-medium">Incomplete</span>
+                            </div>
+                            <div className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#0077B6] text-white group-hover:bg-[#023E8A] transition-colors opacity-90">
+                              <ArrowRight size={12} />
+                            </div>
+                          </>
+                        )}
+                      </div>
                     </li>
                   </Link>
                 ) : (
                   // ✅ Completed tasks (or no href) — not clickable
                   <li
                     key={id}
-                    className={`flex items-start justify-between p-3 sm:p-4 rounded-lg transition-all duration-200 ${completed
+                    className={`flex items-start justify-between p-3 sm:p-4 rounded-lg transition-all duration-200 ${
+                      completed
                         ? "bg-blue-50 dark:bg-blue-900/30"
                         : "bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700"
-                      }`}
+                    }`}
                   >
                     <div className="flex items-start gap-3 sm:gap-4">
                       <div
-                        className={`flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full ${completed
+                        className={`flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full ${
+                          completed
                             ? "bg-[#0077B6]"
                             : "bg-white dark:bg-gray-800 border border-[#0077B6]"
-                          }`}
+                        }`}
                       >
                         {completed ? (
                           <CheckCircle className="text-white" size={18} />
@@ -169,10 +225,11 @@ export default function SetupProgress() {
                       <div>
                         <div className="flex items-center gap-2">
                           <span
-                            className={`font-medium ${completed
+                            className={`font-medium ${
+                              completed
                                 ? "text-[#0077B6]"
                                 : "text-gray-900 dark:text-gray-100"
-                              }`}
+                            }`}
                           >
                             {text}
                           </span>
@@ -185,13 +242,28 @@ export default function SetupProgress() {
                         </p>
                       </div>
                     </div>
+                    
+                    {/* Right side - Status indicator */}
+                    <div className="flex items-center">
+                      {completed ? (
+                        <div className="flex items-center gap-1 text-green-600 dark:text-green-400">
+                          <CheckCircle size={14} />
+                          <span className="text-xs font-medium">Completed</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
+                          <AlertCircle size={14} />
+                          <span className="text-xs font-medium">Incomplete</span>
+                        </div>
+                      )}
+                    </div>
                   </li>
                 )
               )}
             </ul>
-
           </div>
         </div>
+
         {/* Right side */}
         <div className="flex-1 flex justify-center items-start w-full mt-8 lg:mt-0">
           <div className="relative w-full max-w-sm sm:max-w-md">
@@ -210,7 +282,9 @@ export default function SetupProgress() {
                     {progressPercent === 1 ? "Profile Complete!" : "Complete Your Profile"}
                   </h3>
                   <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-[13px]">
-                    {progressPercent === 1 ? "Your profile is now 5x more likely to be contacted by potential clients" : "Complete your profile to become eligible for leads — incomplete profiles won't be displayed to clients."}
+                    {progressPercent === 1 
+                      ? "Your profile is now 5x more likely to be contacted by potential clients" 
+                      : `Complete ${incompleteCount} more step${incompleteCount !== 1 ? 's' : ''} to become eligible for leads`}
                   </p>
                 </div>
 
@@ -225,9 +299,12 @@ export default function SetupProgress() {
                 </div>
 
                 {incompleteCount > 0 && (
-                  <button className="w-full bg-[#0077B6] hover:bg-[#023E8A] text-white font-normal py-2 sm:py-2.5 text-sm rounded-sm transition-colors">
-                    Complete Setup Now
-                  </button>
+                  <Link 
+                    href={`/home-services/dashboard/services/step-${nextStep}`}
+                    className="block w-full bg-[#0077B6] hover:bg-[#023E8A] text-white font-normal py-2 sm:py-2.5 text-sm rounded-sm transition-colors text-center"
+                  >
+                    Continue to Step {nextStep}
+                  </Link>
                 )}
               </div>
             </div>

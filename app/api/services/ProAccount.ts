@@ -196,3 +196,17 @@ export const getProfessionalReviewAPI = async ( token?:string) => {
 };
 
 // Get Professional Only Details For All 
+
+// Check the Progress Account of Professional //
+export const ProfessionalProgressAPI = async (token: string) => {
+  try {
+    const response = await api.get("/professionals/progress", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};

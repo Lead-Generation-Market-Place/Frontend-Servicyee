@@ -9,6 +9,7 @@ import {
   getProfessionalReviewAPI,
   getProServicesQuestionsAPI,
   LocationData,
+  ProfessionalProgressAPI,
   registerUserAPI,
   saveBusinessInfoAPI,
   saveLocationAPI,
@@ -31,10 +32,6 @@ export function useRegister() {
       setIsPending(true);
     },
     onSuccess: async (response, variables) => {
-      localStorage.setItem(
-        "professionalData",
-        JSON.stringify(response.professional)
-      );
       try {
         await login(variables.email, variables.password);
         router.push("/home-services/dashboard/services/step-2");
@@ -107,7 +104,6 @@ export function useBusinessInfo(token: string) {
   });
 }
 
-
 export function useBusinesAvailability(token: string) {
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -171,23 +167,7 @@ export function useSaveLocation(token: string) {
   return useMutation({
     mutationKey: ["ProfessionalLocation"],
     mutationFn: (data: LocationData) => saveLocationAPI(data, token),
-    onSuccess: (responseData, variables) => {
-      const localData = localStorage.getItem("professionalData");
-      if (localData) {
-        const parsed = JSON.parse(localData);
-        parsed.professional = {
-          ...parsed.professional,
-          location: {
-            lat: variables.lat,
-            lng: variables.lng,
-            city: variables.city,
-            state: variables.state,
-            zip: variables.zip,
-            radiusMiles: variables.radiusMiles,
-          },
-        };
-        localStorage.setItem("professionalData", JSON.stringify(parsed));
-      }
+    onSuccess: () => {
       router.refresh();
       router.push("/home-services/dashboard/services/step-10");
     },
@@ -205,5 +185,19 @@ export function useProfessionalReview(token?: string) {
     queryFn: () => getProfessionalReviewAPI(token),
     enabled: !!token,
     staleTime: 0,
+  });
+}
+
+// Check Progress Account of Professional
+
+export function useProfesssionalProgress(token: string) {
+  return useQuery({
+    queryKey: ["ProfessionalProgress"],
+    queryFn: () => ProfessionalProgressAPI(token),
+    enabled: !!token,
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   });
 }
