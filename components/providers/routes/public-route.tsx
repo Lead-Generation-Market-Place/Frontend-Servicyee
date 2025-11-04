@@ -15,7 +15,7 @@ export const PublicRoute: React.FC<PublicRouteProps> = ({
     const { isAuthenticated, isLoading } = useAuth();
     const router = useRouter();
     const searchParams = useSearchParams();
-    const redirect = searchParams.get('redirect') || '/home-services/dashboard/main';
+    const redirect = searchParams.get('redirect') || '/home-services/dashboard/profile';
 
     useEffect(() => {
         if (!isLoading && isAuthenticated) {
