@@ -21,12 +21,12 @@ function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
     password: "",
   });
   const { login, isLoading, error, clearError, isAuthenticated } = useAuth();
-  const [redirect, setRedirect] = useState("/home-services/dashboard");
+  const [redirect, setRedirect] = useState("/home-services/dashboard/profile");
 
   const router = useRouter();
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const r = params.get("redirect") || "/home-services/dashboard";
+    const r = params.get("redirect") || "/home-services/dashboard/profile";
     setRedirect(r);
   }, []);
 
