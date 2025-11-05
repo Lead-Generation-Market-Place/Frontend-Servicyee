@@ -22,6 +22,8 @@ export const generateLead = async (leadData: {
   sendOption: "top5" | "selected";
   selectedProfessionals?: string[];
 }) => {
+  console.log("the lead Data posted: ", leadData);
   const response = await api.post("/lead/generate", leadData);
+  console.log("this is the response: ", response);
   return response.data;
 };
