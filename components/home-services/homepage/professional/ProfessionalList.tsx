@@ -65,6 +65,8 @@ export default function ProfessionalList({
     const currentYear = new Date().getFullYear();
     return currentYear - founded;
   };
+  const selectedProfessionals: string[] = professionals.map((item) => item.id);
+  console.log("PROFESSIONAL SELECTED FOR LEAD: ", selectedProfessionals);
 
   return (
     <div className="grid gap-4 bg-white dark:bg-gray-900">
@@ -134,7 +136,7 @@ export default function ProfessionalList({
                       •
                     </span>
                     <span className="text-xs text-gray-500 dark:text-gray-400">
-                      {professional.total_hires} hires 
+                      {professional.total_hires} hires
                     </span>
                   </div>
 
@@ -228,6 +230,7 @@ export default function ProfessionalList({
                 className="bg-sky-600 dark:bg-sky-500 dark:hover:bg-sky-600 hover:bg-sky-500 px-4 py-2 rounded-xs text-white font-semibold text-sm"
                 serviceId={serviceId}
                 professionalId={professional.id}
+                professionalIds={selectedProfessionals}
                 triggerText="Request Quotation"
               />
               <Button

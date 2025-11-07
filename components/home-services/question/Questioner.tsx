@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ArrowLeft, ArrowRight, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, Loader2 } from "lucide-react";
 import { useServiceQuestions } from "@/hooks/useHomeServices";
 import { generateLead } from "@/app/api/homepage/generateLead";
 
@@ -45,46 +45,22 @@ interface UserInfo {
   files: FileList | null;
 }
 
-interface Professional {
-  id: number;
-  name: string;
-  rating: number;
-  completedProjects: number;
-  specialty: string;
-}
+// interface Professional {
+//   id: number;
+//   name: string;
+//   rating: number;
+//   completedProjects: number;
+//   specialty: string;
+// }
 
 interface QuestionerProps {
   serviceId: string;
   professionalId: string;
+  professionalIds: string[];
   triggerText?: string;
   className?: string;
   trigger?: React.ReactNode;
 }
-
-// Sample professionals data (you can replace this with real data later)
-const professionalsData: Professional[] = [
-  {
-    id: 1,
-    name: "John Smith",
-    rating: 4.8,
-    completedProjects: 124,
-    specialty: "Furniture Assembly",
-  },
-  {
-    id: 2,
-    name: "Sarah Johnson",
-    rating: 4.9,
-    completedProjects: 98,
-    specialty: "Home Services",
-  },
-  {
-    id: 3,
-    name: "Michael Brown",
-    rating: 4.7,
-    completedProjects: 156,
-    specialty: "General Handyman",
-  },
-];
 
 // Custom ProgressBar component
 const CustomProgressBar = ({
@@ -106,9 +82,18 @@ const CustomProgressBar = ({
   );
 };
 
+// Constants for send options - CHANGED TO STRINGS
+const SEND_OPTIONS = {
+  TOP5: "top5" as const,
+  SELECTED: "selected" as const,
+};
+
+type SendOption = typeof SEND_OPTIONS.TOP5 | typeof SEND_OPTIONS.SELECTED;
+
 const Questioner = ({
   serviceId,
   professionalId,
+  professionalIds,
   triggerText = "Request Quotation",
   className,
   trigger,
@@ -126,10 +111,8 @@ const Questioner = ({
   });
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [uploadedFileNames, setUploadedFileNames] = useState<string[]>([]);
-  const [selectedProfessionals, setSelectedProfessionals] = useState<number[]>(
-    professionalsData.map((p) => p.id)
-  );
-  const [sendOption, setSendOption] = useState<string>("top5");
+  const [sendOption, setSendOption] = useState<SendOption>(SEND_OPTIONS.TOP5);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
     data: serviceQuestions,
@@ -182,8 +165,7 @@ const Questioner = ({
       files: null,
     });
     setUploadedFileNames([]);
-    setSelectedProfessionals(professionalsData.map((p) => p.id));
-    setSendOption("top5");
+    setSendOption(SEND_OPTIONS.TOP5);
   }, [serviceId, isOpen, serviceQuestions]);
 
   const handleResponse = (questionId: string, answer: string) => {
@@ -240,11 +222,9 @@ const Questioner = ({
   };
 
   const handleSendOptionChange = (value: string) => {
-    setSendOption(value);
-    if (value === "top5") {
-      setSelectedProfessionals(professionalsData.map((p) => p.id));
-    }
+    setSendOption(value as SendOption);
   };
+
   const userLocationRaw = localStorage.getItem("user_location");
   let userLocation: any = null;
   try {
@@ -253,20 +233,29 @@ const Questioner = ({
     console.error("Failed to parse user_location from localStorage:", e);
     userLocation = null;
   }
+  console.log("INSIDE QUESTIONER: ", professionalIds);
 
   const handleSubmit = async () => {
     const payload = {
       serviceId,
       responses,
       professionalId,
-      userInfo,
+      // Narrow the userInfo shape to what the API expects
+      userInfo: {
+        email: userInfo.email,
+        phone: userInfo.phone,
+        description: userInfo.description || undefined,
+      },
       userLocation,
-      sendOption: sendOption as "top5" | "selected", // ✅ type assertion
-      selectedProfessionals: selectedProfessionals.map(String), // ensure string[]
+      // API currently expects the property name "ssendOption" (typo) — provide it here
+      sendOption: sendOption,
+      // The API expects "professionalIds"
+      professionalIds: professionalIds,
     };
 
     try {
       console.log("Submitting:", payload);
+      setIsSubmitting(true);
       await generateLead(payload);
 
       alert("Quotation request submitted successfully!");
@@ -274,6 +263,8 @@ const Questioner = ({
     } catch (error) {
       console.error("Error submitting lead:", error);
       alert("Failed to submit lead.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -661,7 +652,7 @@ const Questioner = ({
                 </p>
 
                 <RadioGroup
-                  value={sendOption}
+                  value={sendOption} // Now this directly uses the string value
                   onValueChange={handleSendOptionChange}
                 >
                   {[
@@ -674,10 +665,11 @@ const Questioner = ({
                     {
                       id: "select",
                       label: "Request to selected professional",
-                      value: "select",
+                      value: "selected", // CHANGED from "select" to "selected"
                     },
                   ].map((option) => {
                     const isSelected = sendOption === option.value;
+
                     return (
                       <Label
                         htmlFor={option.id}
@@ -713,13 +705,23 @@ const Questioner = ({
                   <Button
                     onClick={handleSubmit}
                     disabled={
-                      sendOption === "select" &&
-                      selectedProfessionals.length === 0
+                      (sendOption === SEND_OPTIONS.SELECTED &&
+                        professionalIds.length === 0) ||
+                      isSubmitting
                     }
-                    className="bg-sky-600 hover:bg-sky-700 flex items-center gap-2"
+                    className="bg-sky-600 hover:bg-sky-700 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <CheckCircle2 size={16} />
-                    Submit Quotation Request
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Submitting...
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 size={16} />
+                        Submit Quotation Request
+                      </>
+                    )}
                   </Button>
                 </div>
               </div>

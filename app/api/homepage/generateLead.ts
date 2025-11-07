@@ -9,6 +9,7 @@ export const generateLead = async (leadData: {
   serviceId: string;
   responses: Record<string, any>;
   professionalId?: string;
+  professionalIds?: string[];
   userInfo: {
     email: string;
     phone: string;
@@ -19,9 +20,10 @@ export const generateLead = async (leadData: {
     state?: string;
     postcode?: string;
   };
-  sendOption: "top5" | "selected";
-  selectedProfessionals?: string[];
+  sendOption: 'top5' | 'selected';
 }) => {
+  console.log("the lead Data posted: ", leadData);
   const response = await api.post("/lead/generate", leadData);
+  console.log("this is the response: ", response);
   return response.data;
 };
