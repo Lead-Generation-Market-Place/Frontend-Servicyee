@@ -6,6 +6,7 @@ import {
   Frown,
   Server,
   WifiOff,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -15,7 +16,13 @@ interface ErrorDisplayProps {
   title?: string;
   message?: string;
   onRetry?: () => void;
-  errorType?: "generic" | "network" | "not-found" | "server" | "loading";
+  errorType?:
+    | "generic"
+    | "network"
+    | "not-found"
+    | "server"
+    | "loading"
+    | "leadNotFound";
   fullScreen?: boolean;
   className?: string;
   showHomeButton?: boolean;
@@ -62,6 +69,14 @@ const errorConfig = {
     color: "text-gray-500",
     bgColor: "bg-gray-50 dark:bg-gray-900/20",
     borderColor: "border-gray-200 dark:border-gray-800",
+  },
+  leadNotFound: {
+    icon: Sparkles,
+    title: "No Leads Yet",
+    message: "Stay tuned — new opportunities will arrive soon!",
+    color: "text-blue-500",
+    bgColor: "bg-blue-50 dark:bg-blue-900/20",
+    borderColor: "border-blue-200 dark:border-blue-800",
   },
 };
 
