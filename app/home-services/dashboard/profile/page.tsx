@@ -191,7 +191,7 @@ export default function SetupProgress() {
   }
 
   return (
-    <div className=" bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8">
+    <div className="bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
         <div className="text-center mb-6 sm:mb-8 lg:mb-12">
@@ -209,9 +209,9 @@ export default function SetupProgress() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-          {/* Left Column - Progress Overview */}
-          <div className="xl:col-span-2 space-y-4 sm:space-y-6 lg:space-y-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+          {/* Left Column - Progress Overview (2/3 on large screens) */}
+          <div className="lg:col-span-2 space-y-4 sm:space-y-6 lg:space-y-8">
             {/* Progress Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
               {/* Main Progress Card */}
@@ -307,7 +307,6 @@ export default function SetupProgress() {
                               }`} />
                           )}
                         </div>
-
                       </div>
 
                       {/* Content */}
@@ -344,10 +343,10 @@ export default function SetupProgress() {
             </div>
           </div>
 
-          {/* Right Column - Profile & Actions */}
-          <div className="space-y-4 sm:space-y-6 lg:space-y-8">
+          {/* Right Column - Profile & Actions (1/3 on large screens) */}
+          <div className="lg:col-span-1 space-y-4 sm:space-y-6 lg:space-y-8">
             {/* Profile Completion Card */}
-            <div className="bg-white dark:bg-gray-800 rounded-sm p-4 sm:p-5 lg:p-6 border border-gray-200 dark:border-gray-700 shadow-sm  top-4 sm:top-6">
+            <div className="bg-white dark:bg-gray-800 rounded-sm p-4 sm:p-5 lg:p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
               <div className="text-center">
                 {/* Profile Avatar */}
                 <div className="relative inline-block mb-4">
