@@ -90,7 +90,7 @@ const PersonalDetails = () => {
   }
   // Default professional fallback
   const professional = {
-    id: professionalDetails.id || user?.id || "unknown", // 🆕 Use context user as fallback
+    id: professionalDetails.id || user?._id || "unknown", // 🆕 Use context user as fallback
     phone: professionalDetails.phone || user?.email || "N/A", // 🆕 Use context user email
   };
 

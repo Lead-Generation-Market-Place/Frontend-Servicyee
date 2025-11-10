@@ -138,7 +138,7 @@ const HomeServicesPage = () => {
       if (isAuthenticated && user) {
         // Send to backend (example)
         await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/users/${user.id}/location`,
+          `${process.env.NEXT_PUBLIC_API_URL}/users/${user._id}/location`,
           {
             method: "POST",
             headers: {

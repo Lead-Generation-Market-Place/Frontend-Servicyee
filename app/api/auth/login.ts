@@ -2,11 +2,18 @@
 import { api, tokenManager } from "@/app/api/axios";
 
 export interface User {
-  id: string;
+  _id: string;
   email: string;
   username: string;
   createdAt?: string;
   updatedAt?: string;
+  user: {
+    _id: string;
+    email: string;
+    username: string;
+    createdAt?: string;
+    updatedAt?: string;
+  };
 }
 
 export interface LoginResponse {
@@ -93,7 +100,8 @@ class AuthService {
   async getCurrentUser(): Promise<User> {
     try {
       const accessToken = tokenManager.getAccessToken();
-      if (!accessToken) throw new Error("No access token found. Please log in again.");
+      if (!accessToken)
+        throw new Error("No access token found. Please log in again.");
 
       const response = await api.get("/auth/me", {
         headers: {
