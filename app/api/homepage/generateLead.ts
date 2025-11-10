@@ -1,3 +1,4 @@
+  
 import { api } from "../axios";
 
 export const getServiceQuestion = async (service_id: string) => {
@@ -26,4 +27,15 @@ export const generateLead = async (leadData: {
   const response = await api.post("/lead/generate", leadData);
   console.log("this is the response: ", response);
   return response.data;
+};
+
+export const getProfessionalLead = async (professionalId: string) => {
+  try {
+    const response = await api.get(`/lead/professional-leads/${professionalId}`);
+    return response.data; // { success, message, data }
+  } catch (error: any) {
+    // If backend sent a message, show it
+    const message = error.response?.data?.message || "Something went wrong";
+    throw new Error(message);
+  }
 };
