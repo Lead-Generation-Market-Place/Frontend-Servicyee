@@ -1,93 +1,118 @@
-// app/dashboard/page.tsx
 "use client";
-
-import React, { useState } from "react";
-import { Plus, Info, ChevronRight, TrendingUp, Wallet, Zap, Target, Sparkles, CheckCircle, MapPin, Users, Star, Settings } from "lucide-react";
+import React, { useMemo } from "react";
+import {
+  Plus, Info, ChevronRight, TrendingUp, Wallet, Zap, Target,
+  Sparkles, CheckCircle, MapPin, Users, Star, Settings,
+} from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { useAuth } from "@/components/providers/context/auth-context";
 import { useGetServices } from "@/hooks/useServices";
 import { getAccessToken } from "@/app/api/axios";
 import ServicesList from "./ServiceList";
-
-// Type definitions
-interface Location {
-  country?: string;
-  city?: string;
-  state?: string;
-  address_line?: string;
-}
-
-interface Service {
-  _id: string;
-  service_name: string;
-  service_status: boolean;
-  completed_tasks: number;
-  totalLeads: number;
-  pricing_type: string;
-  location_ids: Location[];
-  createdAt: string;
-  updatedAt: string;
-}
-
-
+import GlobalLoader from "@/components/ui/global-loader";
 
 export default function Dashboard() {
-  const { user } = useAuth();
   const token = getAccessToken() || "";
-  const id = user?.user?._id || "";
-  const { data } = useGetServices(token, id);
-  const [services, setServices] = useState<Service[]>(data?.services?.services || []);
-  React.useEffect(() => {
-    if (data?.services?.services) {
-      setServices(data.services.services);
+  const { data, error, isLoading } = useGetServices(token);
+  const businessInfo = useMemo(() => {
+    if (!data?.services?.services?.[0]?.location_ids?.[0]) {
+      return {
+        displayLocation: "Add your business location",
+        businessName: data?.services?.professional?.business_name || "Your Business"
+      };
     }
+    const location = data.services.services[0].location_ids[0];
+    const locationParts = [
+      location.address_line,
+      location.city,
+      location.state,
+      location.country
+    ].filter(Boolean);
+
+    return {
+      displayLocation: locationParts.length > 0 ? locationParts.join(", ") : "Add your business location",
+      businessName: data?.services?.professional?.business_name || "Your Business"
+    };
+  }, [data]);
+  const stats = useMemo(() => {
+    const services = data?.services?.services || [];
+    const professional = data?.services?.professional || {};
+    const incompleteSetups = professional.step < 9 ? 1 : 0;
+
+    return [
+      {
+        title: "Services",
+        value: services.length,
+        icon: Users,
+        color: "text-blue-600",
+        bgColor: "bg-blue-50 dark:bg-blue-900/20"
+      },
+      {
+        title: "Avg. Rating",
+        value: professional.rating_avg || 0,
+        icon: Star,
+        color: "text-amber-600",
+        bgColor: "bg-amber-50 dark:bg-amber-900/20"
+      },
+      {
+        title: "Total Reviews",
+        value: professional.total_review || 0,
+        icon: TrendingUp,
+        color: "text-green-600",
+        bgColor: "bg-green-50 dark:bg-green-900/20"
+      },
+      {
+        title: "Setup Status",
+        value: incompleteSetups === 0 ? "Complete" : "In Progress",
+        icon: Settings,
+        color: incompleteSetups === 0 ? "text-green-600" : "text-amber-600",
+        bgColor: incompleteSetups === 0 ? "bg-green-50 dark:bg-green-900/20" : "bg-amber-50 dark:bg-amber-900/20"
+      },
+    ];
   }, [data]);
 
-  const incompleteSetups = data?.services?.professional?.step < 9 ? 1 : 0;
+  // Activity stats
+  const activityStats = useMemo(() => {
+    const services = data?.services?.services || [];
+    const totalLeads = services.reduce((acc: number, service: any) => acc + (service.totalLeads || 0), 0);
+
+    return [
+      { label: "Credits Spent", value: "0", color: "text-blue-600" },
+      { label: "New Leads", value: totalLeads.toString(), color: "text-green-600" },
+      { label: "Profile Views", value: "0", color: "text-purple-600" },
+    ];
+  }, [data]);
+
+  const activeServicesCount = useMemo(() => {
+    return data?.services?.services?.filter((s: any) => s.service_status).length || 0;
+  }, [data]);
+
   const isProfessionalSetupComplete = data?.services?.professional?.step >= 8;
-  const businessCountry = data?.services?.services?.[0]?.location_ids?.[0]?.country || "";
-  const businessCity = data?.services?.services?.[0]?.location_ids?.[0]?.city || "";
-  const businessState = data?.services?.services?.[0]?.location_ids?.[0]?.state || "";
-  const businessAddress = data?.services?.services?.[0]?.location_ids?.[0]?.address_line || "";
-  const locationParts = [businessAddress, businessCity, businessState, businessCountry].filter(Boolean);
-  const displayLocation = locationParts.length > 0 ? locationParts.join(", ") : "Add your business location";
-  const stats = [
-    {
-      title: "Services",
-      value: services?.length || 0,
-      icon: Users,
-      color: "text-blue-600",
-      bgColor: "bg-blue-50 dark:bg-blue-900/20"
-    },
-    {
-      title: "Avg. Rating",
-      value: data?.services?.professional?.rating_avg || 0,
-      icon: Star,
-      color: "text-amber-600",
-      bgColor: "bg-amber-50 dark:bg-amber-900/20"
-    },
-    {
-      title: "Total Reviews",
-      value: data?.services?.professional?.total_review || 0,
-      icon: TrendingUp,
-      color: "text-green-600",
-      bgColor: "bg-green-50 dark:bg-green-900/20"
-    },
-    {
-      title: "Setup Status",
-      value: incompleteSetups === 0 ? "Complete" : "In Progress",
-      icon: Settings,
-      color: incompleteSetups === 0 ? "text-green-600" : "text-amber-600",
-      bgColor: incompleteSetups === 0 ? "bg-green-50 dark:bg-green-900/20" : "bg-amber-50 dark:bg-amber-900/20"
-    },
-  ];
+  if (isLoading) {
+    return <GlobalLoader></GlobalLoader>
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-500 text-lg mb-4">Error loading dashboard</div>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-[#0077B6] text-white rounded-md hover:bg-[#005f91] transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-3 sm:p-5 lg:p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
-        <div className="mb-4 sm:mb-6 lg:mb-8">
+        <div className="mb-6 sm:mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <div>
               <div className="inline-flex items-center gap-2 bg-white dark:bg-gray-800 rounded-full px-3 py-1.5 border border-gray-200 dark:border-gray-700 mb-3">
@@ -97,11 +122,11 @@ export default function Dashboard() {
                 </span>
               </div>
               <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                {data?.services?.professional?.business_name || "Your Business"}
+                {businessInfo.businessName}
               </h1>
               <p className="text-[13px] text-gray-600 dark:text-gray-400 flex items-center gap-1">
                 <MapPin className="w-3 h-3" />
-                {displayLocation}
+                {businessInfo.displayLocation}
               </p>
             </div>
             <Link
@@ -127,7 +152,7 @@ export default function Dashboard() {
                   <div className={`p-2 rounded-sm ${stat.bgColor}`}>
                     <stat.icon className={`w-4 h-4 ${stat.color}`} />
                   </div>
-                  {incompleteSetups === 0 && stat.title === "Setup Status" && (
+                  {stat.title === "Setup Status" && stat.value === "Complete" && (
                     <Sparkles className="w-4 h-4 text-[#0077B6] animate-pulse" />
                   )}
                 </div>
@@ -142,15 +167,15 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-3 sm:gap-4 lg:gap-6">
-          {/* Main Content - Services Section */}
-          <div className="xl:col-span-2 space-y-3 sm:space-y-6 lg:space-y-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+          {/* Main Content - Services Section (66.6%) */}
+          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             {/* Services Overview Card */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="bg-white dark:bg-gray-800 rounded-sm p-3 sm:p-4 lg:p-5 border border-gray-200 dark:border-gray-700 shadow-sm"
+              className="bg-white dark:bg-gray-800 rounded-sm p-4 sm:p-5 border border-gray-200 dark:border-gray-700 shadow-sm"
             >
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-[13px] font-semibold text-gray-900 dark:text-white flex items-center gap-2">
@@ -158,15 +183,13 @@ export default function Dashboard() {
                   Your Services
                 </h2>
                 <span className="text-[13px] text-gray-500 dark:text-gray-400">
-                  {services.filter(s => s.service_status).length} Active
+                  {activeServicesCount} Active
                 </span>
               </div>
 
               <p className="text-[13px] text-gray-600 dark:text-gray-400 mb-6">
                 Manage your service offerings, set preferences, and optimize your visibility to attract more clients.
               </p>
-
-
 
               <div className="flex flex-col sm:flex-row gap-3">
                 <Link
@@ -176,7 +199,7 @@ export default function Dashboard() {
                   <Plus className="w-4 h-4 mr-2" />
                   Add New Service
                 </Link>
-                {services.length > 3 && (
+                {data?.services?.services?.length > 3 && (
                   <Link
                     href="#"
                     className="inline-flex items-center justify-center px-3 py-1.5 border border-gray-200 dark:border-gray-700 text-[13px] font-medium rounded-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
@@ -186,34 +209,24 @@ export default function Dashboard() {
                   </Link>
                 )}
               </div>
-
             </motion.div>
-
-        <ServicesList data={data} />
+            <ServicesList data={data} />
 
           </div>
-          
-
-          {/* Sidebar */}
-          <div className="space-y-3 sm:space-y-6 lg:space-y-8">
-            {/* Activity This Week */}
+          <div className="space-y-4 sm:space-y-6">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="bg-white dark:bg-gray-800 rounded-sm p-3 sm:p-4 lg:p-5 border border-gray-200 dark:border-gray-700 shadow-sm"
+              className="bg-white dark:bg-gray-800 rounded-sm p-4 sm:p-5 border border-gray-200 dark:border-gray-700 shadow-sm"
             >
               <h3 className="text-[13px] font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                 <TrendingUp className="w-4 h-4 text-[#0077B6]" />
-                 Activity
+                Activity
               </h3>
 
               <div className="space-y-3">
-                {[
-                  { label: "Credits Spent", value: "0", color: "text-blue-600" },
-                  { label: "New Leads", value: services.reduce((acc, service) => acc + (service.totalLeads || 0), 0).toString(), color: "text-green-600" },
-                  { label: "Profile Views", value: "0", color: "text-purple-600" },
-                ].map((stat) => (
+                {activityStats.map((stat) => (
                   <div key={stat.label} className="flex items-center justify-between">
                     <span className="text-[13px] text-gray-600 dark:text-gray-400">{stat.label}</span>
                     <span className={`text-[13px] font-semibold ${stat.color}`}>{stat.value}</span>
@@ -237,7 +250,7 @@ export default function Dashboard() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className="bg-[#0077B6] rounded-sm p-4 sm:p-5 lg:p-6 text-white shadow-sm"
+              className="bg-[#0077B6] rounded-sm p-5 text-white shadow-sm"
             >
               <h3 className="text-[13px] font-semibold mb-3 flex items-center gap-2">
                 <Wallet className="w-4 h-4" />
@@ -272,7 +285,7 @@ export default function Dashboard() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6 }}
-                className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-sm p-4 sm:p-5 lg:p-6"
+                className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-sm p-5"
               >
                 <div className="flex items-center gap-3 mb-3">
                   <div className="p-2 bg-amber-100 dark:bg-amber-800 rounded-sm">
@@ -302,7 +315,7 @@ export default function Dashboard() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7 }}
-              className="bg-white dark:bg-gray-800 rounded-sm p-3 sm:p-4 lg:p-5 border border-gray-200 dark:border-gray-700 shadow-sm"
+              className="bg-white dark:bg-gray-800 rounded-sm p-4 sm:p-5 border border-gray-200 dark:border-gray-700 shadow-sm"
             >
               <h3 className="text-[13px] font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
                 <CheckCircle className="w-4 h-4 text-green-600" />
@@ -322,15 +335,10 @@ export default function Dashboard() {
                   <span>Respond quickly to new leads</span>
                 </li>
               </ul>
-
             </motion.div>
-       
           </div>
-
-       
         </div>
       </div>
-
     </div>
   );
 }
