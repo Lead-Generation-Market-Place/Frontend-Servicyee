@@ -7,6 +7,8 @@ import {
   Server,
   WifiOff,
   Sparkles,
+  Mail,
+  Phone,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -144,9 +146,23 @@ export default function ErrorDisplay({
       </div>
 
       {/* Additional Help Text */}
-      <p className="text-xs text-gray-500 dark:text-gray-400 mt-6">
-        If the problem persists, contact our support team.
-      </p>
+      <div className="text-xs text-gray-500 dark:text-gray-400 mt-6">
+        <p>
+          Our support team is here to assist you with any platform features or
+          technical assistance.
+        </p>
+        <div className="flex flex-row gap-2 items-center justify-center">
+          <span>
+            <Mail className="w-3 h-3 text-gray-500" />
+          </span>
+          <span className="text-sky-500">support@allneeda.com</span>
+          <span>&nbsp;|&nbsp;</span>
+          <span>
+            <Phone className="w-3 h-3 text-gray-500" />
+          </span>
+          <span className="text-sky-500">(555) 123-4567</span>
+        </div>
+      </div>
     </motion.div>
   );
 

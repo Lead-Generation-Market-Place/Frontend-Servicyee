@@ -13,6 +13,7 @@ import Link from "next/link";
 import { getAccessToken } from "@/app/api/axios";
 import { useProfesssionalProgress } from "@/hooks/RegisterPro/useRegister";
 import { useProfessionalLead } from "@/hooks/useHomeServices";
+import ErrorDisplay from "@/components/ui/ErrorDisplay";
 
 const ACCENT = "#0066B7";
 
@@ -200,7 +201,6 @@ export default function CustomerRequests() {
     data: professionalLead,
     isLoading,
     isError,
-    error,
   } = useProfessionalLead(cachedProId || "");
 
   // Transform API data to Request format
@@ -249,19 +249,11 @@ export default function CustomerRequests() {
   // Error state
   if (isError) {
     return (
-      <div className="w-full max-w-6xl mx-auto sm:p-4 md:p-6 transition-colors duration-300 dark:bg-gray-900 min-h-screen">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-center">
-            <div className="bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-4 rounded-lg max-w-md">
-              <h3 className="font-semibold mb-2">Error Loading Leads</h3>
-              <p className="text-sm">
-                {error?.message ||
-                  "Failed to load professional leads. Showing fallback data."}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <ErrorDisplay
+        errorType="leadNotFound"
+        fullScreen={false}
+        onRetry={() => window.location.reload()}
+      />
     );
   }
 
