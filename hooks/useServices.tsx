@@ -1,18 +1,41 @@
-import { GetProfessionalServicesAPI } from "@/app/api/services/services";
-import { useQuery } from "@tanstack/react-query";
+import { GetProfessionalServicesAPI, UpdateServiceStatusAPI } from "@/app/api/services/services";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
 
-export function useGetServices(token: string, id: string) {
-    return useQuery({
-        queryKey: ["professionalServices", id],
-        queryFn: async () => {
-            if (!token || !id) throw new Error("Missing token or professional ID");
-            return await GetProfessionalServicesAPI(token, id);
-        },
-        enabled: !!token && !!id,
-        staleTime: 1000 * 60 * 5,
-        refetchOnWindowFocus: false,
-        refetchOnMount: false,
-        refetchOnReconnect: false,
-    });
+export function useGetServices(token: string | null) {
+  return useQuery({
+    queryKey: ["professionalServices"],
+    queryFn: () => GetProfessionalServicesAPI(token!),
+    enabled: !!token,
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    refetchOnReconnect: true,
+  });
+}
+
+
+export function useUpdateServiceStatus() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: ["update-service-status"],
+    mutationFn: (data: {
+      service_id: string;
+      professional_id: string;
+      service_status: boolean;
+      token: string;
+    }) => UpdateServiceStatusAPI(data),
+
+    onSuccess: (response) => {
+      toast.success(response?.message || "Service status updated successfully");
+      queryClient.invalidateQueries({ queryKey: ["services"] });
+    },
+    onError: (error: any) => {
+      toast.error(
+        error?.response?.data?.message || "Failed to update Service Status"
+      );
+    },
+    retry: false,
+  });
 }

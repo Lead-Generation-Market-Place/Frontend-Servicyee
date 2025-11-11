@@ -4,6 +4,7 @@ import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { authAPI } from '@/app/api/auth/login';
 import { User } from '@/app/api/auth/login';
 import { tokenManager } from '@/app/api/axios'; // Import token manager
+import { useQueryClient } from '@tanstack/react-query';
 
 interface AuthState {
     user: User | null;
@@ -91,6 +92,8 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [state, dispatch] = useReducer(authReducer, initialState);
+    const queryClient = useQueryClient();
+
 
     useEffect(() => {
         checkAuth();
@@ -100,6 +103,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         try {
             if (!authAPI.isAuthenticated()) {
                 dispatch({ type: 'AUTH_LOGOUT' });
+                queryClient.clear();
                 return;
             }
 
@@ -119,6 +123,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         try {
             const response = await authAPI.login({ email, password });
             dispatch({ type: 'AUTH_SUCCESS', payload: response.user });
+            queryClient.invalidateQueries();
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Login failed';
             dispatch({ type: 'AUTH_FAILURE', payload: errorMessage });
@@ -132,9 +137,8 @@ const logout = async (): Promise<void> => {
     try {
         // Clear stored tokens
         tokenManager.clearTokens(); // implement this to remove access & refresh tokens
-
-        // Clear user state
         dispatch({ type: 'AUTH_LOGOUT' });
+        queryClient.clear();
 
     } catch (error) {
         console.error('Logout error:', error);
