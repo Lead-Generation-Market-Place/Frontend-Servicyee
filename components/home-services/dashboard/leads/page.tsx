@@ -201,7 +201,6 @@ export default function CustomerRequests() {
     data: professionalLead,
     isLoading,
     isError,
-    error,
   } = useProfessionalLead(cachedProId || "");
 
   // Transform API data to Request format
