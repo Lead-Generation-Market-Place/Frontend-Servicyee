@@ -42,12 +42,29 @@ export const UpdateServiceStatusAPI = async (data: { service_id: string;  profes
 };
 
 
-
-
-// Get Services Hook
 export const GetServicesAPI = async (token: string) => {
   try {
     const response = await api.get(`/services/list`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+
+
+
+
+
+
+// Get Services Hook
+export const getProfessionalStepsAPI = async (token: string) => {
+  try {
+    const response = await api.get("/professionals/professional_steps", {
       headers: {
         Authorization: `Bearer ${token}`,
       },

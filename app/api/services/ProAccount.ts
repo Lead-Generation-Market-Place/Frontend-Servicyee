@@ -181,21 +181,7 @@ export const saveLocationAPI = async (data: LocationData, token: string) => {
 };
 
 
-// Get Provessional Account Details -  For Final Reviews!
-export const getProfessionalReviewAPI = async ( token?:string) => {
-  try {
-    const response = await api.get("/professionals/profileReviews", {
-      headers: {
-        Authorization: `Bearer ${token}`, 
-      },
-    });
-    return response.data;
-  } catch (error) {
-    throw handleApiError(error);
-  }
-};
-
-// Get Professional Only Details For All 
+// Get Professional Only Details For All
 
 // Check the Progress Account of Professional //
 export const ProfessionalProgressAPI = async (token: string) => {
