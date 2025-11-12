@@ -181,10 +181,13 @@ export function useSaveLocation(token: string) {
 // Create Professional Account - Review Account Profile
 export function useProfessionalReview(token?: string) {
   return useQuery({
-    queryKey: ["professionalReview", token],
+    queryKey: ["professionalReview"],
     queryFn: () => getProfessionalReviewAPI(token),
     enabled: !!token,
-    staleTime: 0,
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   });
 }
 

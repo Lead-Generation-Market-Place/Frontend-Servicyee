@@ -16,17 +16,17 @@ import {
   CommandList,
   CommandEmpty,
 } from '@/components/ui/command';
-import { useRouter } from 'next/navigation';
-import { useGetServicesList } from '@/hooks/useServices';
+import { useAddNewService, useGetServicesList } from '@/hooks/useServices';
 import { getAccessToken } from '@/app/api/axios';
 import { cn } from '@/lib/utils';
 import GlobalLoader from '@/components/ui/global-loader';
+import { useProfesssionalProgress } from '@/hooks/RegisterPro/useRegister';
 
-// Type for Service
 interface Service {
   id: string;
   name: string;
 }
+
 export default function Services() {
   const token = getAccessToken() || "";
   const {
@@ -34,17 +34,22 @@ export default function Services() {
     isLoading: servicesLoading,
     error: servicesError,
   } = useGetServicesList(token);
-
+  const addNewServiceMutation = useAddNewService(token);
+  const { data: ProfessionalAccount } = useProfesssionalProgress(token);
+  
   const [services, setServices] = useState<Service[]>([]);
   const [selectedService, setSelectedService] = useState<string>('');
+  const [selectedServiceName, setSelectedServiceName] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [loading, setLoading] = useState(false);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-  const router = useRouter();
+
   useEffect(() => {
     if (servicesData) {
+      console.log('Services Data:', servicesData); // Debug log
+      
       let servicesArray: any[] = [];
 
+      // Try different possible data structures
       if (Array.isArray(servicesData)) {
         servicesArray = servicesData;
       } else if (servicesData?.data && Array.isArray(servicesData.data)) {
@@ -55,13 +60,23 @@ export default function Services() {
         servicesArray = servicesData.results;
       } else if (servicesData?.items && Array.isArray(servicesData.items)) {
         servicesArray = servicesData.items;
+      } else if (servicesData?.content && Array.isArray(servicesData.content)) {
+        servicesArray = servicesData.content;
       } else {
+        // If no array found, try to find any array in the object
         const findAnyArray = (obj: any): any[] => {
           if (Array.isArray(obj)) return obj;
           if (typeof obj === 'object' && obj !== null) {
             for (const key in obj) {
-              if (Array.isArray(obj[key])) {
-                return obj[key];
+              const value = obj[key];
+              if (Array.isArray(value)) {
+                console.log('Found array in key:', key, value); // Debug log
+                return value;
+              }
+              // Also check nested objects
+              if (typeof value === 'object' && value !== null) {
+                const nestedArray = findAnyArray(value);
+                if (nestedArray.length > 0) return nestedArray;
               }
             }
           }
@@ -69,48 +84,89 @@ export default function Services() {
         };
         servicesArray = findAnyArray(servicesData);
       }
+
+      console.log('Extracted services array:', servicesArray); // Debug log
+
+      // More flexible filtering - accept services with either id or _id
       const cleanServices = servicesArray
         .filter((service) => {
           if (!service) return false;
-          const hasId = service.id !== undefined && service.id !== null;
-          const hasName = service.name !== undefined && service.name !== null;
-          return hasId || hasName;
+          
+          // Check for id in different possible formats
+          const hasId = (
+            (service.id && service.id !== null && service.id !== undefined) ||
+            (service._id && service._id !== null && service._id !== undefined) ||
+            (service.service_id && service.service_id !== null && service.service_id !== undefined)
+          );
+          
+          // Check for name in different possible formats
+          const hasName = (
+            (service.name && service.name !== null && service.name !== undefined) ||
+            (service.service_name && service.service_name !== null && service.service_name !== undefined) ||
+            (service.title && service.title !== null && service.title !== undefined)
+          );
+          
+          return hasId && hasName;
         })
-        .map((service, index) => ({
-          id: service.id || `temp-${service.name?.replace(/\s+/g, '-')}-${index}`.toLowerCase(),
-          name: service.name || `Service ${index + 1}`
-        }));
+        .map((service) => {
+          // Use the first available ID field
+          const id = service.id || service._id || service.service_id;
+          // Use the first available name field
+          const name = service.name || service.service_name || service.title;
+          
+          return {
+            id: id,
+            name: name
+          };
+        });
 
+      console.log('Clean services:', cleanServices); // Debug log
       setServices(cleanServices);
     }
   }, [servicesData]);
+
   const filteredServices = searchQuery
     ? services.filter(service =>
       service?.name?.toLowerCase().includes(searchQuery.toLowerCase())
     )
     : services;
 
-  const toggleService = (id: string) => {
-    setSelectedService(prev => prev === id ? '' : id);
+  const toggleService = (id: string, name: string) => {
+    setSelectedService(id);
+    setSelectedServiceName(name);
     setIsPopoverOpen(false);
     setSearchQuery('');
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      router.push('/home-services/dashboard/services/step-2');
-    }, 800);
+
+    if (!selectedService || !selectedServiceName) {
+      return;
+    }
+
+    const professional_id = ProfessionalAccount?._id || ProfessionalAccount?.id;
+    
+    if (!professional_id) {
+      console.error('Professional ID not found');
+      return;
+    }
+
+    try {
+      await addNewServiceMutation.mutateAsync({
+        service_name: selectedServiceName,
+        service_id: selectedService,
+        professional_id: professional_id
+      });
+    } catch (error) {
+      console.error('Failed to add service:', error);
+    }
   };
 
-  // Loading state for initial data fetch
   if (servicesLoading) {
-    return (
-      <GlobalLoader></GlobalLoader>
-    );
+    return <GlobalLoader />;
   }
+
   if (servicesError) {
     return (
       <div className="max-w-2xl mx-auto p-6">
@@ -210,7 +266,7 @@ export default function Services() {
                     <CommandItem
                       key={`service-${item.id}`}
                       value={item.name}
-                      onSelect={() => toggleService(item.id)}
+                      onSelect={() => toggleService(item.id, item.name)}
                       className={cn(
                         "cursor-pointer py-3 px-4 text-sm transition-colors",
                         "hover:bg-gray-50 dark:hover:bg-gray-800",
@@ -244,7 +300,10 @@ export default function Services() {
               </span>
               <button
                 type="button"
-                onClick={() => setSelectedService('')}
+                onClick={() => {
+                  setSelectedService('');
+                  setSelectedServiceName('');
+                }}
                 className="ml-1 p-0.5 rounded-full hover:bg-white/20 transition-colors"
               >
                 <X className="w-3.5 h-3.5" />
@@ -258,9 +317,14 @@ export default function Services() {
             <p className="text-amber-800 dark:text-amber-300 font-medium mb-2">
               No Services Available
             </p>
-            <p className="text-amber-700 dark:text-amber-400 text-sm">
+            <p className="text-amber-700 dark:text-amber-400 text-sm mb-4">
               Please check your connection or contact support
             </p>
+            <div className="text-xs text-amber-600 dark:text-amber-500 bg-amber-100 dark:bg-amber-900/30 p-3 rounded">
+              <p>Debug Info:</p>
+              <p>Services Data: {servicesData ? 'Exists' : 'Null'}</p>
+              <p>Data Type: {typeof servicesData}</p>
+            </div>
           </div>
         )}
       </div>
@@ -303,19 +367,19 @@ export default function Services() {
       {/* Submit Button */}
       <button
         type="submit"
-        disabled={loading || !selectedService || services.length === 0}
+        disabled={addNewServiceMutation.isPending || !selectedService || services.length === 0}
         className={cn(
           "w-full py-2.5 px-6 text-sm rounded-sm transition-all duration-300",
           "flex items-center justify-center space-x-2",
-          loading || !selectedService || services.length === 0
+          addNewServiceMutation.isPending || !selectedService || services.length === 0
             ? "bg-gray-300 dark:bg-gray-700 text-gray-500 cursor-not-allowed"
             : "bg-gradient-to-r from-[#0077B6] to-[#0096C7] hover:from-[#006da4] hover:to-[#0082b3] text-white shadow-sm hover:shadow-xl transform hover:-translate-y-0.5"
         )}
       >
-        {loading ? (
+        {addNewServiceMutation.isPending ? (
           <>
             <Loader2 className="animate-spin h-3 w-3" />
-            <span>Processing...</span>
+            <span>Adding Service...</span>
           </>
         ) : (
           <span>Continue to Next Step</span>
