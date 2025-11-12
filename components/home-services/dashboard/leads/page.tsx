@@ -19,6 +19,7 @@ const ACCENT = "#0066B7";
 
 interface Request {
   id: string;
+  title: string;
   customerName: string;
   leadResponse: string;
   timeAgo: string;
@@ -40,6 +41,7 @@ interface Request {
 const fallbackRequests: Request[] = [
   {
     id: "1",
+    title: "Request for Wall mount",
     customerName: "Alexia Ghiran",
     leadResponse: "1st to respond (83)",
     timeAgo: "about 15 hours ago",
@@ -136,15 +138,15 @@ function transformLeadData(apiData: any): Request[] {
   if (!apiData || !apiData.data || !Array.isArray(apiData.data)) return [];
 
   return apiData.data.map((lead: any, index: number) => {
-    const userEmail = lead.lead?.user?.email || "No email provided";
+    const innerLead = lead.lead || {};
+    const userEmail = innerLead.user?.email || "No email provided";
     const userName = userEmail.split("@")[0] || "Customer";
-    const location = lead.lead?.user_location
-      ? `${lead.lead.user_location.city || ""}, ${
-          lead.lead.user_location.state || ""
-        } ${lead.lead.user_location.postcode || ""}`.trim()
+    const location = innerLead.user_location
+      ? `${innerLead.user_location.city || ""}, ${
+          innerLead.user_location.state || ""
+        } ${innerLead.user_location.postcode || ""}`.trim()
       : "Location not specified";
 
-    // Generate lead response based on position in array or random
     const responseOptions = [
       "1st to respond (83)",
       "2nd to respond (53)",
@@ -154,23 +156,24 @@ function transformLeadData(apiData: any): Request[] {
       responseOptions[index % responseOptions.length] || "1st to respond (83)";
 
     return {
-      id: lead._id || `lead-${index}`,
+      id: innerLead._id || `lead-${index}`, // ✅ Use the actual Lead ID
       customerName: userName.charAt(0).toUpperCase() + userName.slice(1),
-      leadResponse: leadResponse,
+      leadResponse,
       timeAgo: getTimeAgo(
-        lead.created_at || lead.lead?.created_at || new Date().toISOString()
+        lead.created_at || innerLead.created_at || new Date().toISOString()
       ),
-      location: location,
-      dateRange: "Flexible dates", // You might want to extract this from answers if available
+      location,
+      dateRange: "Flexible dates",
       openDates: true,
       tags: extractTags(lead),
       createdAt:
-        lead.created_at || lead.lead?.created_at || new Date().toISOString(),
-      service: lead.lead?.service?.name || "General Service",
+        lead.created_at || innerLead.created_at || new Date().toISOString(),
+      service: innerLead.service?.name || "General Service",
       status: lead.status || "sent",
-      note: lead.lead?.note,
-      userEmail: userEmail,
-      userPhone: lead.lead?.user?.phone || "Phone not provided",
+      note: innerLead.note || "No additional note provided",
+      title: innerLead.title || "Untitled Lead", // ✅ Add lead title
+      userEmail,
+      userPhone: innerLead.user?.phone || "Phone not provided",
     };
   });
 }
@@ -202,7 +205,6 @@ export default function CustomerRequests() {
     isLoading,
     isError,
   } = useProfessionalLead(cachedProId || "");
-
   // Transform API data to Request format
   const requests = useMemo(() => {
     if (professionalLead) {
@@ -256,7 +258,6 @@ export default function CustomerRequests() {
       />
     );
   }
-
   return (
     <div className="w-full">
       <div className="w-full max-w-6xl mx-auto sm:p-4 md:p-6 transition-colors duration-300 dark:bg-gray-900 min-h-screen">
@@ -421,6 +422,9 @@ export default function CustomerRequests() {
                     {req.status}
                   </span>
                 </div>
+                <h3 className="mt-4 text-base md:text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  {req.title}
+                </h3>
 
                 {/* Customer Note */}
                 {req.note && (
@@ -451,14 +455,51 @@ export default function CustomerRequests() {
                 </div>
 
                 {/* Contact Info */}
-                <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-600 dark:text-gray-400">
-                  <div className="truncate">
-                    <span className="font-medium">Email:</span> {req.userEmail}
+                {req.status === "accpted" ? (
+                  <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-600 dark:text-gray-400">
+                    <div className="truncate">
+                      <span className="font-medium">Email:</span>{" "}
+                      {req.userEmail}
+                    </div>
+                    <div className="truncate">
+                      <span className="font-medium">Phone:</span>{" "}
+                      {req.userPhone}
+                    </div>
                   </div>
-                  <div className="truncate">
-                    <span className="font-medium">Phone:</span> {req.userPhone}
+                ) : (
+                  <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-600 dark:text-gray-400">
+                    <div className="truncate">
+                      <span className="font-medium">Email:</span>{" "}
+                      {(() => {
+                        const email = req.userEmail || "";
+                        const [local, domain] = email.split("@");
+                        if (!local || !domain) return email;
+
+                        const firstTwo = local.slice(0, 2);
+                        const lastTwo = local.slice(-2);
+                        const domainParts = domain.split(".");
+                        const tld =
+                          domainParts[domainParts.length - 1] || "com";
+
+                        return `${firstTwo}***${lastTwo}@****.${tld}`;
+                      })()}
+                    </div>
+
+                    <div className="truncate">
+                      <span className="font-medium">Phone:</span>{" "}
+                      {(() => {
+                        const phone = req.userPhone || "";
+                        const digits = phone.replace(/\D/g, ""); // only digits
+                        if (digits.length < 4) return phone.replace(/\d/g, "*");
+
+                        const firstTwo = digits.slice(0, 2);
+                        const lastTwo = digits.slice(-2);
+
+                        return `${firstTwo}******${lastTwo}`;
+                      })()}
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* Tags */}
                 {req.tags.length > 0 && (

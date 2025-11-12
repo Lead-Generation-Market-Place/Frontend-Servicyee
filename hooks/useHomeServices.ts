@@ -8,7 +8,7 @@ import {
   getTopProfessionals,
   loadUserLocation,
 } from "@/app/api/homepage/popularService";
-import { getProfessionalLead, getServiceQuestion } from "@/app/api/homepage/generateLead";
+import { getLeadDetails, getProfessionalLead, getServiceQuestion } from "@/app/api/homepage/generateLead";
 import { getCategoryServiceCount, getSubcategoryServiceCount } from "@/app/api/homepage/postServices";
 
 
@@ -124,5 +124,14 @@ export const useProfessionalLead = (professionalId: string) => {
     queryFn: () => getProfessionalLead(professionalId),
     enabled: !!professionalId,
     staleTime: 5 * 60 * 1000,
+  });
+}
+
+export const useLeadDetails = (LeadId: string) => {
+  return useQuery({
+    queryKey: ['LeadDetails', LeadId],
+    queryFn: () => getLeadDetails(LeadId),
+    enabled: !!LeadId,
+    staleTime: 5*60*1000,
   });
 }

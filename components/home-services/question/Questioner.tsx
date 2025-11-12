@@ -382,7 +382,10 @@ const Questioner = ({
                 </h3>
 
                 <RadioGroup
-                  value={responses[service.questions[currentStep]._id] || ""}
+                  value={
+                    responses[service.questions[currentStep].question_name] ||
+                    ""
+                  }
                   onValueChange={(value) =>
                     handleResponse(service.questions[currentStep]._id, value)
                   }

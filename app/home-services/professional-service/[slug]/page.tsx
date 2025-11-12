@@ -128,14 +128,10 @@ export default function ProfessionalPage({
     .join(" ");
 
   // Use the service_id from URL params or fallback to slug
-  console.log(
-    `if this service ${service_id} not found it will fallback to default`
-  );
-  console.log(
-    `Due to limit professional service data if the professional not found it will fallback to ${zipcode} zipcode`
-  );
+
   const service = service_id || "68e7ce11b0735d6e372e4380";
   const zip = zipcode || "95814";
+  console.log("Requesting professionals for service:", service, "in zip:", zip);
 
   const {
     data: topProfessionals,
