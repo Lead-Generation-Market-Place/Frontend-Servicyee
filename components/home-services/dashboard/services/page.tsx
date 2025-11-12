@@ -2,7 +2,7 @@
 import React, { useMemo } from "react";
 import {
   Plus, Info, ChevronRight, TrendingUp, Wallet, Zap, Target,
-  Sparkles, CheckCircle, MapPin, Users, Star, Settings,
+  Sparkles, CheckCircle, Users, Star, Settings,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -15,22 +15,7 @@ export default function Dashboard() {
   const token = getAccessToken() || "";
   const { data, error, isLoading } = useGetServices(token);
   const businessInfo = useMemo(() => {
-    if (!data?.services?.services?.[0]?.location_ids?.[0]) {
-      return {
-        displayLocation: "Add your business location",
-        businessName: data?.services?.professional?.business_name || "Your Business"
-      };
-    }
-    const location = data.services.services[0].location_ids[0];
-    const locationParts = [
-      location.address_line,
-      location.city,
-      location.state,
-      location.country
-    ].filter(Boolean);
-
     return {
-      displayLocation: locationParts.length > 0 ? locationParts.join(", ") : "Add your business location",
       businessName: data?.services?.professional?.business_name || "Your Business"
     };
   }, [data]);
@@ -82,16 +67,13 @@ export default function Dashboard() {
       { label: "Profile Views", value: "0", color: "text-purple-600" },
     ];
   }, [data]);
-
   const activeServicesCount = useMemo(() => {
     return data?.services?.services?.filter((s: any) => s.service_status).length || 0;
   }, [data]);
-
-  const isProfessionalSetupComplete = data?.services?.professional?.step >= 8;
+  const isProfessionalSetupComplete = data?.services?.professional?.step > 9;
   if (isLoading) {
     return <GlobalLoader></GlobalLoader>
   }
-
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6 flex items-center justify-center">
@@ -124,10 +106,6 @@ export default function Dashboard() {
               <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white mb-2">
                 {businessInfo.businessName}
               </h1>
-              <p className="text-[13px] text-gray-600 dark:text-gray-400 flex items-center gap-1">
-                <MapPin className="w-3 h-3" />
-                {businessInfo.displayLocation}
-              </p>
             </div>
             <Link
               href="/home-services/dashboard/services/businessAvailability"
@@ -193,7 +171,7 @@ export default function Dashboard() {
 
               <div className="flex flex-col sm:flex-row gap-3">
                 <Link
-                  href="/professional"
+                  href="/home-services/dashboard/services/addServices"
                   className="inline-flex items-center justify-center px-3 py-1.5 bg-[#0077B6] text-white text-[13px] font-medium rounded-sm hover:bg-[#005f91] transition-colors shadow-sm"
                 >
                   <Plus className="w-4 h-4 mr-2" />
@@ -201,7 +179,7 @@ export default function Dashboard() {
                 </Link>
                 {data?.services?.services?.length > 3 && (
                   <Link
-                    href="#"
+                    href="/home-services/dashboard/services/addServices"
                     className="inline-flex items-center justify-center px-3 py-1.5 border border-gray-200 dark:border-gray-700 text-[13px] font-medium rounded-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                   >
                     <Info className="w-4 h-4 mr-2" />

@@ -277,68 +277,91 @@ export default function SetupProgress() {
               </div>
 
               <div className="space-y-3">
-                {tasks.map((task) => (
-                  <Link
-                    key={task.id}
-                    href={task.href || "#"}
-                    className={`group block p-3 sm:p-4 rounded-sm border transition-all duration-200 ${task.completed
-                        ? 'border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 cursor-default'
-                        : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-[#0077B6] hover:shadow-md cursor-pointer'
+                {tasks.map((task) => {
+                  const TaskContent = (
+                    <div
+                      className={`group block p-3 sm:p-4 rounded-sm border transition-all duration-200 ${
+                        task.completed
+                          ? 'border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 cursor-default'
+                          : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-[#0077B6] hover:shadow-md cursor-pointer'
                       }`}
-                  >
-                    <div className="flex items-start gap-3 sm:gap-4">
-                      {/* Step Number & Icon */}
-                      <div className="flex flex-col items-center">
-                        <div className={`relative flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full transition-all ${task.completed
-                            ? 'bg-[#0077B6] shadow-sm'
-                            : 'bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 group-hover:bg-[#0077B6] group-hover:border-[#0077B6]'
-                          }`}>
-                          {task.completed ? (
-                            <>
-                              <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-                              {isAnimating && task.completed && (
-                                <Sparkles className="absolute -top-1 -right-1 w-3 h-3 text-[#0077B6] animate-ping" />
-                              )}
-                            </>
-                          ) : (
-                            <task.icon className={`w-4 h-4 sm:w-5 sm:h-5 transition-colors ${task.completed
-                                ? 'text-white'
-                                : 'text-gray-400 group-hover:text-white'
-                              }`} />
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Content */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex-1">
-                            <h4 className={`text-[13px] font-semibold transition-colors ${task.completed
-                                ? 'text-gray-900 dark:text-white'
-                                : 'text-gray-700 dark:text-gray-300 group-hover:text-[#0077B6]'
-                              }`}>
-                              {task.text}
-                            </h4>
-                            <p className={`text-[13px] transition-colors ${task.completed
-                                ? 'text-gray-500 dark:text-gray-400'
-                                : 'text-gray-500 dark:text-gray-400 group-hover:text-gray-600'
-                              }`}>
-                              {task.description}
-                            </p>
+                    >
+                      <div className="flex items-start gap-3 sm:gap-4">
+                        {/* Step Number & Icon */}
+                        <div className="flex flex-col items-center">
+                          <div
+                            className={`relative flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full transition-all ${
+                              task.completed
+                                ? 'bg-[#0077B6] shadow-sm'
+                                : 'bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 group-hover:bg-[#0077B6] group-hover:border-[#0077B6]'
+                            }`}
+                          >
+                            {task.completed ? (
+                              <>
+                                <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                                {isAnimating && task.completed && (
+                                  <Sparkles className="absolute -top-1 -right-1 w-3 h-3 text-[#0077B6] animate-ping" />
+                                )}
+                              </>
+                            ) : (
+                              <task.icon
+                                className={`w-4 h-4 sm:w-5 sm:h-5 transition-colors ${
+                                  task.completed ? 'text-white' : 'text-gray-400 group-hover:text-white'
+                                }`}
+                              />
+                            )}
                           </div>
+                        </div>
 
-                          {/* Status Badge */}
-                          <div className={`px-2 py-1 rounded-full text-[11px] font-medium ${task.completed
-                              ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
-                              : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 group-hover:bg-[#0077B6] group-hover:text-white'
-                            }`}>
-                            {task.completed ? 'Completed' : 'Click to Start'}
+                        {/* Content */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1">
+                              <h4
+                                className={`text-[13px] font-semibold transition-colors ${
+                                  task.completed
+                                    ? 'text-gray-900 dark:text-white'
+                                    : 'text-gray-700 dark:text-gray-300 group-hover:text-[#0077B6]'
+                                }`}
+                              >
+                                {task.text}
+                              </h4>
+                              <p
+                                className={`text-[13px] transition-colors ${
+                                  task.completed
+                                    ? 'text-gray-500 dark:text-gray-400'
+                                    : 'text-gray-500 dark:text-gray-400 group-hover:text-gray-600'
+                                }`}
+                              >
+                                {task.description}
+                              </p>
+                            </div>
+
+                            {/* Status Badge */}
+                            <div
+                              className={`px-2 py-1 rounded-full text-[11px] font-medium ${
+                                task.completed
+                                  ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+                                  : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 group-hover:bg-[#0077B6] group-hover:text-white'
+                              }`}
+                            >
+                              {task.completed ? 'Completed' : 'Click to Start'}
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </Link>
-                ))}
+                  );
+
+                  // Render as Link only if not completed, otherwise as div
+                  return task.completed ? (
+                    <div key={task.id}>{TaskContent}</div>
+                  ) : (
+                    <Link key={task.id} href={task.href || "#"}>
+                      {TaskContent}
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           </div>

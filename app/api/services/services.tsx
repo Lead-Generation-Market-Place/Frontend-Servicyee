@@ -40,3 +40,21 @@ export const UpdateServiceStatusAPI = async (data: { service_id: string;  profes
     throw handleApiError(error);
   }
 };
+
+
+
+
+// Get Services Hook
+export const GetServicesAPI = async (token: string) => {
+  try {
+    const response = await api.get(`/services/list`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log("Services API Response:", response.data);
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};

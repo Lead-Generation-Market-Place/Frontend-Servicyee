@@ -1,4 +1,4 @@
-import { GetProfessionalServicesAPI, UpdateServiceStatusAPI } from "@/app/api/services/services";
+import {  GetProfessionalServicesAPI, GetServicesAPI, UpdateServiceStatusAPI } from "@/app/api/services/services";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
@@ -16,6 +16,8 @@ export function useGetServices(token: string | null) {
 }
 
 
+
+// Update Service Status Hook
 export function useUpdateServiceStatus() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -37,5 +39,20 @@ export function useUpdateServiceStatus() {
       );
     },
     retry: false,
+  });
+}
+
+
+
+
+export function useGetServicesList(token: string | null) {
+  return useQuery({
+    queryKey: ["services"],
+    queryFn: () => GetServicesAPI(token!),
+    enabled: !!token,
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    refetchOnReconnect: true,
   });
 }
