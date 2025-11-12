@@ -39,3 +39,12 @@ export const getProfessionalLead = async (professionalId: string) => {
     throw new Error(message);
   }
 };
+
+export const getLeadDetails = async (LeadId: string) => {
+  try {
+    const response = await api.get(`/lead/${LeadId}`);
+    return response;
+  } catch (error) {
+    throw new Error(`Failed to fetch lead details: ${error}`);
+  }
+}
