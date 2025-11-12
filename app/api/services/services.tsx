@@ -40,3 +40,43 @@ export const UpdateServiceStatusAPI = async (data: { service_id: string;  profes
     throw handleApiError(error);
   }
 };
+
+
+
+
+// Get Services Hook
+export const GetServicesAPI = async (token: string) => {
+  try {
+    const response = await api.get(`/services/list`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+
+
+
+export const AddNewServiceAPI = async (  data: { service_name: string; service_id: string, professional_id: string },
+  token: string
+) => {
+  try {
+    const response = await api.post(
+      `/service/create_service`,
+      { service_name: data.service_name, service_id: data.service_id, professional_id: data.professional_id },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};

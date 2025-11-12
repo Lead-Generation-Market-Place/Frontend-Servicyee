@@ -1,5 +1,6 @@
-import { GetProfessionalServicesAPI, UpdateServiceStatusAPI } from "@/app/api/services/services";
+import {  AddNewServiceAPI, GetProfessionalServicesAPI, GetServicesAPI, UpdateServiceStatusAPI } from "@/app/api/services/services";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
 
@@ -16,6 +17,8 @@ export function useGetServices(token: string | null) {
 }
 
 
+
+// Update Service Status Hook
 export function useUpdateServiceStatus() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -37,5 +40,37 @@ export function useUpdateServiceStatus() {
       );
     },
     retry: false,
+  });
+}
+
+
+// Get Services List Hook
+export function useGetServicesList(token: string | null) {
+  return useQuery({
+    queryKey: ["services"],
+    queryFn: () => GetServicesAPI(token!),
+    enabled: !!token,
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    refetchOnReconnect: true,
+  });
+}
+
+
+
+// Insert New service Hook
+export function useAddNewService(token: string) {
+  const router = useRouter();
+  return useMutation({
+    mutationKey: ["AddNewService"],
+    mutationFn: (data: { service_name: string; service_id: string; professional_id: string }) =>
+      AddNewServiceAPI(data, token),
+    onSuccess: () => {
+      router.push(`/home-services/dashboard/services/step-2`);
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || "Failed to add new service");
+    },
   });
 }

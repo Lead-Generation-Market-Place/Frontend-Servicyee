@@ -184,7 +184,7 @@ const ServicesList = ({ data }: ServicesListProps) => {
             <div className="text-center py-6">
               <div className="text-gray-500 mb-3 text-[13px]">No services found</div>
               <Link
-                href="/professional"
+                href="/home-services/dashboard/services/addServices"
                 className="inline-flex items-center px-3 py-1.5 bg-[#0077B6] text-white rounded-md hover:bg-[#005f91] transition-colors text-[13px]"
               >
                 Add Your First Service
