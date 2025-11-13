@@ -1,5 +1,6 @@
 import { handleApiError } from "@/lib/errorHandler";
 import { api } from "../axios"
+import { AnswerPayload } from "@/hooks/useServices";
 
 // Get Professional Services or services of a professional
 export const GetProfessionalServicesAPI = async (token: string) => {
@@ -14,8 +15,6 @@ export const GetProfessionalServicesAPI = async (token: string) => {
     throw handleApiError(error);
   }
 };
-
-
 
 // Update Service Status API
 export const UpdateServiceStatusAPI = async (data: { service_id: string; professional_id: string; service_status: boolean; token: string; }) => {
@@ -118,7 +117,7 @@ export const UseServicePricingAPI = async (data: {
 };
 
 
-
+// Get Services Questions by Service ID
 export const UseGetServicesQuestionAPI = async (token: string, serviceId: string) => {
   try {
     const id = serviceId
@@ -127,7 +126,20 @@ export const UseGetServicesQuestionAPI = async (token: string, serviceId: string
         Authorization: `Bearer ${token}`,
       },
     });
-    console.log("the response is", response.data)
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+// Submit Service Questions Answers API
+export const UseSubmitQuestionAnswerAPI = async (data: AnswerPayload[], token: string) => {
+  try {
+    const response = await api.put(`/services/answers_submit`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   } catch (error) {
     throw handleApiError(error);
