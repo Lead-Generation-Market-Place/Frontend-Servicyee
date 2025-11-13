@@ -69,8 +69,5 @@ export function useAddNewService(token: string) {
     onSuccess: () => {
       router.push(`/home-services/dashboard/services/step-2`);
     },
-    onError: (error: any) => {
-      toast.error(error?.response?.data?.message || "Failed to add new service");
-    },
   });
 }
