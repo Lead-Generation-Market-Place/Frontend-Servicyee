@@ -18,7 +18,7 @@ export const GetProfessionalServicesAPI = async (token: string) => {
 
 
 // Update Service Status API
-export const UpdateServiceStatusAPI = async (data: { service_id: string;  professional_id: string;  service_status: boolean;  token: string;}) => {
+export const UpdateServiceStatusAPI = async (data: { service_id: string; professional_id: string; service_status: boolean; token: string; }) => {
   const { service_id, professional_id, service_status, token } = data;
 
   try {
@@ -56,6 +56,9 @@ export const GetServicesAPI = async (token: string) => {
 };
 
 
+
+
+
 // Get Services Hook
 export const getProfessionalStepsAPI = async (token: string) => {
   try {
@@ -71,7 +74,7 @@ export const getProfessionalStepsAPI = async (token: string) => {
 };
 
 
-export const AddNewServiceAPI = async (  data: { service_name: string; service_id: string, professional_id: string },
+export const AddNewServiceAPI = async (data: { service_name: string; service_id: string, professional_id: string },
   token: string
 ) => {
   try {
@@ -91,3 +94,33 @@ export const AddNewServiceAPI = async (  data: { service_name: string; service_i
   }
 };
 
+
+
+
+export const UseServicePricingAPI = async (data: {
+  service_id: string; professional_id: string; pricing_type: string; minimum_price: string;
+  maximum_price: string;
+  completed_tasks: string;
+  description: string;
+},
+  token: string
+) => {
+  try {
+    const response = await api.put(
+      `/services/pricing`,
+      {
+        service_id: data.service_id, professional_id: data.professional_id, pricing_type: data.pricing_type, minimum_price: data.minimum_price,
+        maximum_price: data.maximum_price, completed_tasks: data.completed_tasks, description: data.description,
+      }, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    }
+    );
+
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};

@@ -1,4 +1,4 @@
-import {  AddNewServiceAPI, GetProfessionalServicesAPI, GetServicesAPI, UpdateServiceStatusAPI } from "@/app/api/services/services";
+import { AddNewServiceAPI, GetProfessionalServicesAPI, GetServicesAPI, UpdateServiceStatusAPI, UseServicePricingAPI } from "@/app/api/services/services";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
@@ -66,8 +66,29 @@ export function useAddNewService(token: string) {
     mutationKey: ["AddNewService"],
     mutationFn: (data: { service_name: string; service_id: string; professional_id: string }) =>
       AddNewServiceAPI(data, token),
+    onSuccess: (data, variables) => {
+      router.push(`/home-services/dashboard/services/pricing?service_id=${variables.service_id}&professional_id=${variables.professional_id}`);
+    },
+  });
+}
+
+// Service Pricing Hook
+export interface ServicePricingPayload {
+  service_id: string;
+  professional_id: string;
+  pricing_type: string;
+  minimum_price: string;
+  maximum_price: string;
+  completed_tasks: string;
+  description: string;
+}
+export function useServicePricing(token: string) {
+  const router = useRouter();
+  return useMutation({
+    mutationKey: ["UseServicePricing"],
+    mutationFn: (data: ServicePricingPayload) => UseServicePricingAPI(data, token),
     onSuccess: () => {
-      router.push(`/home-services/dashboard/services/step-2`);
+      router.push(`/home-services/dashboard/services/questions`);
     },
   });
 }
