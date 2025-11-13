@@ -55,10 +55,6 @@ export const GetServicesAPI = async (token: string) => {
   }
 };
 
-
-
-
-
 // Get Services Hook
 export const getProfessionalStepsAPI = async (token: string) => {
   try {
@@ -72,7 +68,6 @@ export const getProfessionalStepsAPI = async (token: string) => {
     throw handleApiError(error);
   }
 };
-
 
 export const AddNewServiceAPI = async (data: { service_name: string; service_id: string, professional_id: string },
   token: string
@@ -93,9 +88,6 @@ export const AddNewServiceAPI = async (data: { service_name: string; service_id:
     throw handleApiError(error);
   }
 };
-
-
-
 
 export const UseServicePricingAPI = async (data: {
   service_id: string; professional_id: string; pricing_type: string; minimum_price: string;
@@ -119,6 +111,23 @@ export const UseServicePricingAPI = async (data: {
     }
     );
 
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+
+
+export const UseGetServicesQuestionAPI = async (token: string, serviceId: string) => {
+  try {
+    const id = serviceId
+    const response = await api.get(`/services/service_questions/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log("the response is", response.data)
     return response.data;
   } catch (error) {
     throw handleApiError(error);

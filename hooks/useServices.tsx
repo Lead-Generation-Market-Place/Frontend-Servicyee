@@ -1,4 +1,4 @@
-import { AddNewServiceAPI, GetProfessionalServicesAPI, GetServicesAPI, UpdateServiceStatusAPI, UseServicePricingAPI } from "@/app/api/services/services";
+import { AddNewServiceAPI, GetProfessionalServicesAPI, GetServicesAPI, UpdateServiceStatusAPI, UseGetServicesQuestionAPI, UseServicePricingAPI } from "@/app/api/services/services";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
@@ -87,8 +87,22 @@ export function useServicePricing(token: string) {
   return useMutation({
     mutationKey: ["UseServicePricing"],
     mutationFn: (data: ServicePricingPayload) => UseServicePricingAPI(data, token),
-    onSuccess: () => {
-      router.push(`/home-services/dashboard/services/questions`);
+    onSuccess: (data, variables) => {
+      router.push(`/home-services/dashboard/services/questions?service_id=${variables.service_id}`);
     },
+  });
+}
+
+
+
+export function useGetServicesQuestionByServiceId(token: string | null, serviceId: string | null) {
+  return useQuery({
+    queryKey: ["questions", serviceId],
+    queryFn: () => UseGetServicesQuestionAPI(token!, serviceId!),
+    enabled: !!token && !!serviceId,
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    refetchOnReconnect: true,
   });
 }
