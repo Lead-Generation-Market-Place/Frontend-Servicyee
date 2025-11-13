@@ -111,6 +111,8 @@ export function useGetServicesQuestionByServiceId(token: string | null, serviceI
 
 // Submit Service Questions Answers Hook
 export interface AnswerPayload {
+  professional_id: string;
+  service_id: string;
   question_id: string;
   answer: string | string[];
 }
