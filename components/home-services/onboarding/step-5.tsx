@@ -195,7 +195,7 @@ export default function ReviewRequest() {
                 <p className="text-xs text-gray-500 mb-2">Email Preview</p>
                 {imageUrl ? (
                   <Image
-                    src={`${Backend_URL}${imageUrl}`}
+                    src={`${Backend_URL}/uploads/professionals/${imageUrl}`}
                     alt="Business Logo"
                     width={80}
                     height={80}

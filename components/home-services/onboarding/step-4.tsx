@@ -48,7 +48,7 @@ const BusinessInfo = () => {
       if (prof.profile_image) {
         const fullImageUrl = prof.profile_image.startsWith('http')
           ? prof.profile_image
-          : `${Backend_URL}${prof.profile_image}`;
+          : `${Backend_URL}/uploads/professionals/${prof.profile_image}`;
         setPreview(fullImageUrl);
         setHasExistingProfileImage(true);
       } else {
@@ -63,7 +63,7 @@ const BusinessInfo = () => {
     if (preview) return preview;
     if (professionalData?.professional?.professional?.profile_image) {
       const profImage = professionalData.professional.professional.profile_image;
-      return profImage.startsWith('http') ? profImage : `${Backend_URL}${profImage}`;
+      return profImage.startsWith('http') ? profImage : `${Backend_URL}/uploads/professionals/${profImage}`;
     }
     return DEFAULT_LOGO;
   };
@@ -116,7 +116,7 @@ const BusinessInfo = () => {
     if (existingProfileUrl) {
       const fullImageUrl = existingProfileUrl.startsWith('http')
         ? existingProfileUrl
-        : `${Backend_URL}${existingProfileUrl}`;
+        : `${Backend_URL}/uploads/professionals/${existingProfileUrl}`;
       setPreview(fullImageUrl);
       setHasExistingProfileImage(true);
     } else {
