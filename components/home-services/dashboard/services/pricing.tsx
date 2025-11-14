@@ -1,12 +1,12 @@
 'use client';
 import { useState, FormEvent, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
 import { getAccessToken } from "@/app/api/axios";
 import { Loader2, DollarSign, ClipboardList, FileText } from "lucide-react";
 import { ServicePricingPayload, useServicePricing } from "@/hooks/useServices";
 import { useProfessionalReview } from "@/hooks/RegisterPro/useRegister";
 import GlobalLoader from "@/components/ui/global-loader";
 import toast from "react-hot-toast";
+import { useQueryClient } from "@tanstack/react-query";
 
 const PRICING_TYPES = [
     { value: "hourly", label: "Hourly Rate" },
@@ -19,9 +19,11 @@ const ServicePricing = () => {
     const token = getAccessToken() || "";
     const { mutate, isPending } = useServicePricing(token);
     const { data: professionalData, isLoading: isProfLoading } = useProfessionalReview(token);
-    const searchParams = useSearchParams();
-    const serviceId = searchParams.get("service_id") || "";
-    const professional_id = searchParams.get("professional_id") || "";
+    const queryClient = useQueryClient();
+    const serviceData = queryClient.getQueryData(['currentService']) as
+        { service_id: string; professional_id: string } | undefined;
+    const serviceId = serviceData?.service_id;
+    const professional_id = serviceData?.professional_id;
     const [pricingType, setPricingType] = useState<string>("hourly");
     const [minimumPrice, setMinimumPrice] = useState<string>("");
     const [maximumPrice, setMaximumPrice] = useState<string>("");

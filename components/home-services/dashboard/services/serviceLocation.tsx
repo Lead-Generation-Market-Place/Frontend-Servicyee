@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useRef, useState, useEffect, useCallback } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
   GoogleMap,
@@ -12,6 +12,7 @@ import {
 import { Loader2 } from "lucide-react";
 import { getAccessToken } from "@/app/api/axios";
 import { useServiceLocation } from "@/hooks/useServices";
+import { useQueryClient } from "@tanstack/react-query";
 
 const containerStyle = { width: "100%", height: "400px" };
 const TAB_OPTIONS = [
@@ -24,16 +25,17 @@ const DEFAULT_ZOOM = 2;
 
 const Map = () => {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const serviceId = searchParams.get("service_id") || "";
-  const professional_id = searchParams.get("professional_id") || "";
-  
+  const queryClient = useQueryClient();
+  const serviceData = queryClient.getQueryData(['currentService']) as
+    { service_id: string; professional_id: string } | undefined;
+  const serviceId = serviceData?.service_id as string;
+  const professional_id = serviceData?.professional_id as string;
   const token = getAccessToken() || "";
   const searchBoxRef = useRef<google.maps.places.SearchBox | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
   const circleRef = useRef<google.maps.Circle | null>(null);
-  
+
   const [activeTab, setActiveTab] = useState("distance");
   const [radiusMiles, setRadiusMiles] = useState(10);
   const [center, setCenter] = useState<{ lat: number; lng: number }>(DEFAULT_CENTER);
@@ -46,12 +48,12 @@ const Map = () => {
   } | null>(null);
   const [locationError, setLocationError] = useState("");
   const [isGeolocationAllowed, setIsGeolocationAllowed] = useState<boolean | null>(null);
-  
+
   const saveLocationMutation = useServiceLocation(token);
 
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   if (!apiKey) throw new Error('Missing NEXT_PUBLIC_GOOGLE_MAPS_API_KEY');
-  
+
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: apiKey,
     libraries: ['places'],
@@ -71,7 +73,7 @@ const Map = () => {
         center: { lat: selectedLocation.lat, lng: selectedLocation.lng },
         radius: milesToMeters(radiusMiles),
       }).getBounds();
-      
+
       if (circleBounds) bounds.union(circleBounds);
       mapRef.current.fitBounds(bounds);
     }
@@ -226,11 +228,10 @@ const Map = () => {
           {TAB_OPTIONS.map((tab) => (
             <li className="me-2" key={tab.value}>
               <button
-                className={`inline-block p-2.5 border-b-2 rounded-t-lg transition-colors duration-200 ${
-                  activeTab === tab.value
+                className={`inline-block p-2.5 border-b-2 rounded-t-lg transition-colors duration-200 ${activeTab === tab.value
                     ? "text-[#0077B6] border-[#0077B6]"
                     : "text-gray-500 border-transparent hover:text-gray-600 hover:border-gray-300"
-                }`}
+                  }`}
                 onClick={() => setActiveTab(tab.value)}
               >
                 {tab.label}
@@ -263,11 +264,10 @@ const Map = () => {
                   type="text"
                   placeholder="Search location..."
                   onChange={handleSearchInputChange}
-                  className={`mt-1 block w-full text-[12px] px-4 py-2 border rounded-[2px] focus:outline-none focus:ring-1 focus:border-transparent text-gray-800 dark:text-white dark:bg-gray-800 text-sm ${
-                    locationError
+                  className={`mt-1 block w-full text-[12px] px-4 py-2 border rounded-[2px] focus:outline-none focus:ring-1 focus:border-transparent text-gray-800 dark:text-white dark:bg-gray-800 text-sm ${locationError
                       ? "border-red-500 focus:ring-red-500"
                       : "border-gray-400 dark:border-gray-700 focus:ring-[#0096C7]"
-                  }`}
+                    }`}
                 />
               </StandaloneSearchBox>
               {locationError && <p className="mt-1 text-xs text-red-500">{locationError}</p>}
@@ -323,9 +323,8 @@ const Map = () => {
           type="button"
           onClick={handleNext}
           disabled={!canProceed}
-          className={`mt-6 py-2 px-6 rounded-[4px] flex items-center justify-center gap-2 text-white text-[13px] transition duration-300 ${
-            !canProceed ? "bg-[#0077B6]/70 cursor-not-allowed" : "bg-[#0077B6] hover:bg-[#0077B6]/90"
-          }`}
+          className={`mt-6 py-2 px-6 rounded-[4px] flex items-center justify-center gap-2 text-white text-[13px] transition duration-300 ${!canProceed ? "bg-[#0077B6]/70 cursor-not-allowed" : "bg-[#0077B6] hover:bg-[#0077B6]/90"
+            }`}
         >
           {saveLocationMutation.isPending && <Loader2 className="animate-spin w-4 h-4" />}
           Next

@@ -5,7 +5,7 @@ import { Loader2 } from "lucide-react";
 import { getAccessToken } from "@/app/api/axios";
 import GlobalLoader from "@/components/ui/global-loader";
 import { useGetServicesQuestionByServiceId, useSubmitQuestionAnswer } from "@/hooks/useServices";
-import { useSearchParams } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 
 export interface ServiceQuestion {
   _id: string;
@@ -29,10 +29,11 @@ export default function MultiChoiceServiceForm() {
   const token = getAccessToken() || "";
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
-  const searchParams = useSearchParams();
-  const serviceId = searchParams.get("service_id") || "";
-  const professional_id = searchParams.get("professional_id") || "";
-
+  const queryClient = useQueryClient();
+  const serviceData = queryClient.getQueryData(['currentService']) as
+    { service_id: string; professional_id: string } | undefined;
+  const serviceId = serviceData?.service_id as string;
+  const professional_id = serviceData?.professional_id as string;
   const { data: questionsData, isLoading: questionsLoading, error } =
     useGetServicesQuestionByServiceId(token, serviceId);
   const { mutate: submitAnswers, isPending: isSubmitting } =
@@ -305,8 +306,8 @@ export default function MultiChoiceServiceForm() {
               onClick={handleSubmit}
               disabled={isSubmitting}
               className={`text-white py-2 px-6 rounded-[4px] transition duration-300 flex items-center justify-center gap-2 ${isSubmitting
-                  ? "bg-[#0077B6]/70 cursor-not-allowed"
-                  : "bg-[#0077B6] hover:bg-[#005f8e]"
+                ? "bg-[#0077B6]/70 cursor-not-allowed"
+                : "bg-[#0077B6] hover:bg-[#005f8e]"
                 }`}
             >
               {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
