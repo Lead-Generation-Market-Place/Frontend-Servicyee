@@ -1,4 +1,4 @@
-import { AddNewServiceAPI, GetProfessionalServicesAPI, GetServicesAPI, UpdateServiceStatusAPI, UseGetServicesQuestionAPI, UseServicePricingAPI, UseSubmitQuestionAnswerAPI } from "@/app/api/services/services";
+import { AddNewServiceAPI, GetProfessionalServicesAPI, GetServicesAPI, SaveServiceLocationAPI, UpdateServiceStatusAPI, UseGetServicesQuestionAPI, UseServicePricingAPI, UseSubmitQuestionAnswerAPI } from "@/app/api/services/services";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
@@ -127,21 +127,48 @@ interface ApiError {
 
 export const useSubmitQuestionAnswer = (token: string) => {
   const router = useRouter();
-  const queryClient = useQueryClient(); 
+  const queryClient = useQueryClient();
   return useMutation({
     mutationKey: ["submitServiceAnswers"],
-    mutationFn: (data: AnswerPayload[]) => 
+    mutationFn: (data: AnswerPayload[]) =>
       UseSubmitQuestionAnswerAPI(data, token),
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["serviceData"] });
-      router.push("/home-services/dashboard/services/step-9");
+      router.push(`/home-services/dashboard/services/serviceLocation?service_id=${variables[0].service_id}&professional_id=${variables[0].professional_id}`);
     },
     onError: (error: ApiError) => {
-      const errorMessage = error?.response?.data?.message 
+      const errorMessage = error?.response?.data?.message
         || "Failed to save service answers";
       toast.error(errorMessage);
     },
   });
 };
-
 // end of service questions answers hook
+
+//  Location of Service 
+export interface LocationPayload {
+  professional_id: string;
+  service_id: string;
+  lat: number;
+  lng: number;
+  city: string;
+  state: string;
+  zip: string;
+  radiusMiles: number;
+  isLoading: boolean;
+}
+
+export const useServiceLocation = (token: string) => {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: ["saveServiceLocation"],
+    mutationFn: (data: LocationPayload) =>
+    SaveServiceLocationAPI(data, token),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["serviceData"] });
+      toast.success("New Service Added successfully");
+      router.push(`/home-services/dashboard/services`);
+    },
+  });
+};
