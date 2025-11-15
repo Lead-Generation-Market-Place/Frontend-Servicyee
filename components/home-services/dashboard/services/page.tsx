@@ -257,37 +257,6 @@ export default function Dashboard() {
               </div>
             </motion.div>
 
-            {/* Setup Status */}
-            {!isProfessionalSetupComplete && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6 }}
-                className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-sm p-5"
-              >
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 bg-amber-100 dark:bg-amber-800 rounded-sm">
-                    <Settings className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                  </div>
-                  <div>
-                    <h4 className="text-[13px] font-semibold text-amber-900 dark:text-amber-100">
-                      Setup Required
-                    </h4>
-                    <p className="text-[12px] text-amber-700 dark:text-amber-300">
-                      Complete your profile to activate services
-                    </p>
-                  </div>
-                </div>
-                <Link
-                  href="/home-services/dashboard/services/setup"
-                  className="inline-flex items-center justify-center w-full px-3 py-1.5 bg-amber-600 text-white text-[13px] font-medium rounded-sm hover:bg-amber-700 transition-colors"
-                >
-                  Complete Setup
-                  <ChevronRight className="w-4 h-4 ml-1" />
-                </Link>
-              </motion.div>
-            )}
-
             {/* Success Tips */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
