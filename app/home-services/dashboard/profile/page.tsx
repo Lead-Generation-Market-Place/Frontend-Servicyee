@@ -377,7 +377,7 @@ export default function SetupProgress() {
                     <div className="absolute inset-0 bg-[#0077B6] rounded-full" />
                     <div className="absolute inset-1 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center">
                       <Image
-                        src={`${Backend_URL}${data.profile_image}`}
+                        src={`${Backend_URL}/uploads/professionals/${data.profile_image}`}
                         className="rounded-full"
                         alt="Profile"
                         height={64}

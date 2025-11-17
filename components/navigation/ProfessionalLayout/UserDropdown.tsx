@@ -5,14 +5,9 @@ import React, { useState } from "react";
 import { Dropdown } from "@/components/ui/dropdown";
 import { DropdownItem } from "@/components/ui/dropdownitems";
 import { useAuth } from "@/components/providers/context/auth-context";
-import { useRouter } from "next/navigation";
-import { useQueryClient } from "@tanstack/react-query";
-
 export default function UserDropdown() {
-  const queryClient = useQueryClient();
 
   const { logout, user: authData, isLoading } = useAuth();
-  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [imageError, setImageError] = useState(false);
   const authContextData = authData as any;
@@ -33,13 +28,10 @@ export default function UserDropdown() {
     setImageError(true);
   };
 
-  const handleLogout = async () => {
-    closeDropdown();
-    await logout();
-    queryClient.clear();
-    router.push("/auth/login");
-  };
-
+const handleLogout = async () => {
+  closeDropdown();
+  await logout(); 
+};
 
   const getUserInitial = userName ? userName.charAt(0).toUpperCase() : "U";
 

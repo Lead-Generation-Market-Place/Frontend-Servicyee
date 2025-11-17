@@ -25,8 +25,8 @@ const subCategoriesData = [
 ];
 
 const servicesData = [
-    { id: '68e6876ce5690430fb1cf2e7', name: 'Leak Fixing', subCategoryId: '1' },
-    { id: '68e6876ce5690430fb1cf2e5', name: 'Pipe Installation', subCategoryId: '1' },
+    { id: '68eaad6c73f142e5115639ed', name: 'Leak Fixing', subCategoryId: '1' },
+    { id: '68eaae2a73f142e5115639f0', name: 'Furniture Assembly', subCategoryId: '1' },
     { id: '68e6876ce5690430fb1cf2e3', name: 'Wiring Repair', subCategoryId: '3' },
     { id: '68e6876ce5690430fb1cf2e4', name: 'Fan Installation', subCategoryId: '3' },
     { id: '68e6876ce5690430fb1cf20', name: 'Furniture Repair', subCategoryId: '2' },

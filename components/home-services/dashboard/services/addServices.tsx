@@ -21,6 +21,7 @@ import { getAccessToken } from '@/app/api/axios';
 import { cn } from '@/lib/utils';
 import GlobalLoader from '@/components/ui/global-loader';
 import { useProfesssionalProgress } from '@/hooks/RegisterPro/useRegister';
+import toast from 'react-hot-toast';
 
 interface Service {
   id: string;
@@ -36,7 +37,7 @@ export default function Services() {
   } = useGetServicesList(token);
   const addNewServiceMutation = useAddNewService(token);
   const { data: ProfessionalAccount } = useProfesssionalProgress(token);
-  
+
   const [services, setServices] = useState<Service[]>([]);
   const [selectedService, setSelectedService] = useState<string>('');
   const [selectedServiceName, setSelectedServiceName] = useState<string>('');
@@ -45,11 +46,7 @@ export default function Services() {
 
   useEffect(() => {
     if (servicesData) {
-      console.log('Services Data:', servicesData); // Debug log
-      
       let servicesArray: any[] = [];
-
-      // Try different possible data structures
       if (Array.isArray(servicesData)) {
         servicesArray = servicesData;
       } else if (servicesData?.data && Array.isArray(servicesData.data)) {
@@ -70,7 +67,6 @@ export default function Services() {
             for (const key in obj) {
               const value = obj[key];
               if (Array.isArray(value)) {
-                console.log('Found array in key:', key, value); // Debug log
                 return value;
               }
               // Also check nested objects
@@ -85,27 +81,26 @@ export default function Services() {
         servicesArray = findAnyArray(servicesData);
       }
 
-      console.log('Extracted services array:', servicesArray); // Debug log
 
       // More flexible filtering - accept services with either id or _id
       const cleanServices = servicesArray
         .filter((service) => {
           if (!service) return false;
-          
+
           // Check for id in different possible formats
           const hasId = (
             (service.id && service.id !== null && service.id !== undefined) ||
             (service._id && service._id !== null && service._id !== undefined) ||
             (service.service_id && service.service_id !== null && service.service_id !== undefined)
           );
-          
+
           // Check for name in different possible formats
           const hasName = (
             (service.name && service.name !== null && service.name !== undefined) ||
             (service.service_name && service.service_name !== null && service.service_name !== undefined) ||
             (service.title && service.title !== null && service.title !== undefined)
           );
-          
+
           return hasId && hasName;
         })
         .map((service) => {
@@ -113,14 +108,13 @@ export default function Services() {
           const id = service.id || service._id || service.service_id;
           // Use the first available name field
           const name = service.name || service.service_name || service.title;
-          
+
           return {
             id: id,
             name: name
           };
         });
 
-      console.log('Clean services:', cleanServices); // Debug log
       setServices(cleanServices);
     }
   }, [servicesData]);
@@ -146,9 +140,8 @@ export default function Services() {
     }
 
     const professional_id = ProfessionalAccount?._id || ProfessionalAccount?.id;
-    
+
     if (!professional_id) {
-      console.error('Professional ID not found');
       return;
     }
 
@@ -158,8 +151,8 @@ export default function Services() {
         service_id: selectedService,
         professional_id: professional_id
       });
-    } catch (error) {
-      console.error('Failed to add service:', error);
+    } catch {
+      toast.error('Failed to add service:',);
     }
   };
 
