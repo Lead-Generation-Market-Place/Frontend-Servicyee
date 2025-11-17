@@ -155,13 +155,13 @@ export const UseSubmitQuestionAnswerAPI = async (data: AnswerPayload[], token: s
 
 
 // Adding the Location of Service API
-export const SaveServiceLocationAPI = async (  payload: LocationPayload, token: string) => {
+export const SaveServiceLocationAPI = async (payload: LocationPayload, token: string) => {
   try {
     console.log("Saving service location with payload:", payload);
     const response = await api.put(
       "/services/service_location",
       {
-        professional_id: payload.professional_id,  service_id: payload.service_id,
+        professional_id: payload.professional_id, service_id: payload.service_id,
         lat: payload.lat,
         lng: payload.lng,
         city: payload.city,
@@ -182,3 +182,24 @@ export const SaveServiceLocationAPI = async (  payload: LocationPayload, token: 
   }
 };
 
+
+
+// deleting the service
+export const DeleteServiceAPI = async (service_id: string, professional_id: string, token: string) => {
+  try {
+    const response = await api.delete("/services/delete_service", {
+        data: {
+          service_id,
+          professional_id
+        },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
