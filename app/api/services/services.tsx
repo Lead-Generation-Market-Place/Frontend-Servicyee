@@ -135,7 +135,6 @@ export const UseGetServicesQuestionAPI = async (token: string, serviceId: string
 // Submit Service Questions Answers API
 export const UseSubmitQuestionAnswerAPI = async (data: AnswerPayload[], token: string) => {
   try {
-    console.log("Submitting answers:", data);
     const response = await api.put(`/services/answers_submit`, data, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -157,7 +156,6 @@ export const UseSubmitQuestionAnswerAPI = async (data: AnswerPayload[], token: s
 // Adding the Location of Service API
 export const SaveServiceLocationAPI = async (payload: LocationPayload, token: string) => {
   try {
-    console.log("Saving service location with payload:", payload);
     const response = await api.put(
       "/services/service_location",
       {
