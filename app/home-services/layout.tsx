@@ -8,7 +8,6 @@ import React, { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Footer from "@/components/navigation/Footer";
 import dynamic from "next/dynamic";
-import { ProtectedRoute } from "@/components/providers/routes/protected-route";
 
 export default function ConditionalLayout({
   children,
@@ -21,15 +20,14 @@ export default function ConditionalLayout({
   const mainContentMargin = isMobileOpen
     ? "ml-0"
     : isExpanded
-    ? "lg:ml-[290px]"
-    : "lg:ml-[90px]";
+      ? "lg:ml-[290px]"
+      : "lg:ml-[90px]";
   useEffect(() => {
     const root = document.documentElement;
     root.classList.add("theme-light", "theme-dark");
   }, []);
   if (isDashboardRoute) {
     return (
-      <ProtectedRoute>
       <div className="xl:flex  bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
         <AppSidebar isServiceProvider />
         <div
@@ -43,7 +41,6 @@ export default function ConditionalLayout({
           </div>
         </div>
       </div>
-      </ProtectedRoute>
     );
   }
   return (

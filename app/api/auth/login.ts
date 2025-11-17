@@ -5,15 +5,10 @@ export interface User {
   _id: string;
   email: string;
   username: string;
+  role?: string;
+  permissions?: string[];
   createdAt?: string;
   updatedAt?: string;
-  user: {
-    _id: string;
-    email: string;
-    username: string;
-    createdAt?: string;
-    updatedAt?: string;
-  };
 }
 
 export interface LoginResponse {
@@ -28,6 +23,7 @@ export interface ApiError {
   message: string;
   statusCode: number;
   error?: string;
+  code?: string;
 }
 
 class AuthService {
@@ -48,89 +44,127 @@ class AuthService {
         throw new Error("No refresh token received from server");
       }
 
-      tokenManager.setTokens(accessToken, refreshToken);
+      // Store tokens in cookies (accessible by middleware)
+      await tokenManager.setTokens(accessToken, refreshToken);
 
       return { user, tokens: { accessToken, refreshToken } };
     } catch (error: any) {
+      // Enhanced error handling with specific error codes
       if (error.response) {
         const serverError: ApiError = {
           message: error.response.data?.message || "Login failed",
           statusCode: error.response.status,
           error: error.response.data?.error,
+          code: error.response.data?.code,
         };
 
         switch (error.response.status) {
           case 400:
-            serverError.message = "Invalid email or password format";
+            serverError.message =
+              error.response.data?.message || "Invalid request format";
             break;
           case 401:
             serverError.message = "Invalid email or password";
             break;
+          case 403:
+            serverError.message = "Account suspended or access restricted";
+            break;
           case 404:
             serverError.message = "Account not found";
             break;
+          case 422:
+            serverError.message = "Validation failed. Please check your input.";
+            break;
           case 429:
             serverError.message =
-              "Too many login attempts. Please try again later.";
+              "Too many login attempts. Please try again in 15 minutes.";
             break;
           case 500:
             serverError.message = "Server error. Please try again later.";
             break;
+          default:
+            serverError.message = "Login failed. Please try again.";
         }
 
         throw new Error(serverError.message);
       } else if (error.request) {
-        throw new Error("Network error. Please check your connection.");
+        throw new Error(
+          "Network error. Please check your internet connection."
+        );
       } else {
-        throw new Error(error.message || "Login failed. Please try again.");
+        throw new Error(
+          error.message || "An unexpected error occurred during login."
+        );
       }
     }
   }
-
   async logout(): Promise<void> {
-    try {
-      await api.post("/auth/logout");
-    } catch (error) {
-      console.error("Logout API call failed:", error);
-    } finally {
-      tokenManager.clearTokens();
-    }
+    tokenManager.clearTokens(); 
   }
-
   async getCurrentUser(): Promise<User> {
     try {
-      const accessToken = tokenManager.getAccessToken();
-      if (!accessToken)
-        throw new Error("No access token found. Please log in again.");
-
-      const response = await api.get("/auth/me", {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-
-      if (!response.data) {
-        throw new Error("No user data returned from /auth/me endpoint.");
+      if (!tokenManager.isAuthenticated()) {
+        throw new Error("No valid authentication token found");
       }
-
+      const response = await api.get("/auth/me");
+      if (!response.data) {
+        throw new Error("No user data returned from server");
+      }
       return response.data as User;
     } catch (error: any) {
       if (error.response?.status === 401) {
-        console.warn("Session expired, logging out...");
         await this.logout();
         throw new Error("Session expired. Please log in again.");
       }
-
-      throw new Error(error.message || "Failed to fetch current user.");
+      if (error.response?.status === 403) {
+        throw new Error("Access denied. Insufficient permissions.");
+      }
+      throw new Error(error.message || "Failed to fetch user information.");
     }
   }
+
   isAuthenticated(): boolean {
     return tokenManager.isAuthenticated();
   }
 
-  async refreshUser(): Promise<User> {
-    const user = await this.getCurrentUser();
-    return user;
+  async refreshTokens(): Promise<{
+    accessToken: string;
+    refreshToken: string;
+  }> {
+    try {
+      const refreshToken = tokenManager.getRefreshToken();
+      if (!refreshToken) {
+        throw new Error("No refresh token available");
+      }
+
+      const response = await api.post("/auth/refresh", { refreshToken });
+      const { accessToken, refreshToken: newRefreshToken } =
+        response.data.tokens;
+
+      if (!accessToken || !newRefreshToken) {
+        throw new Error("Invalid token response from server");
+      }
+
+      await tokenManager.setTokens(accessToken, newRefreshToken);
+      return { accessToken, refreshToken: newRefreshToken };
+    } catch {
+      await this.logout();
+      throw new Error("Token refresh failed. Please log in again.");
+    }
+  }
+
+  // Check if token is about to expire (for proactive refresh)
+  isTokenExpiringSoon(minutes: number = 5): boolean {
+    const token = tokenManager.getAccessToken();
+    if (!token) return true;
+
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      const timeUntilExpiry = payload.exp * 1000 - Date.now();
+      return timeUntilExpiry < minutes * 60 * 1000;
+    } catch {
+      return true;
+    }
   }
 }
 
