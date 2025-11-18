@@ -39,11 +39,6 @@ export function useRegister() {
         router.push("/auth/login");
       }
     },
-    onError: (error: any) => {
-      toast.error(
-        error?.response?.data?.message || "Failed to update Business Name"
-      );
-    },
     onSettled: () => {
       setIsPending(false);
     },

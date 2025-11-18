@@ -97,12 +97,6 @@ export function useAddNewService(token: string) {
 
       router.push(`/home-services/dashboard/services/pricing`);
     },
-
-    onError: (error: any) => {
-      toast.error(
-        error?.response?.data?.message || "Failed to add new service"
-      );
-    },
   });
 }
 
@@ -264,13 +258,18 @@ export const useDeleteService = () => {
     onSuccess: async () => {
       try {
         await Promise.all([
+          queryClient.invalidateQueries({ queryKey: ["serviceData"] }),
+          queryClient.invalidateQueries({ queryKey: ["professionalServices"] }),
           queryClient.invalidateQueries({ queryKey: ["services"] }),
+          queryClient.invalidateQueries({ queryKey: ["questions"] })
         ]);
         toast.success("Service deleted successfully");
+
       } catch {
         toast.success("Service deleted successfully");
       }
     },
+
     onError: (error: any) => {
       const errorMessage = error?.response?.data?.message
         || "Failed to delete service";
