@@ -43,14 +43,13 @@ export function useUpdateServiceStatus() {
       service_status: boolean;
       token: string;
     }) => UpdateServiceStatusAPI(data),
-
-    onSuccess: (response) => {
+    onSuccess:  (response) => {
       toast.success(response?.message || "Service status updated successfully");
-      // Invalidate both services queries to ensure UI updates
       Promise.all([
         queryClient.invalidateQueries({ queryKey: ["services"] }),
         queryClient.invalidateQueries({ queryKey: ["professionalServices"] })
       ]);
+      
     },
     onError: (error: any) => {
       toast.error(
