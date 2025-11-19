@@ -2,11 +2,9 @@
 import { useState, FormEvent, useEffect } from "react";
 import { getAccessToken } from "@/app/api/axios";
 import { Loader2, DollarSign, ClipboardList, FileText } from "lucide-react";
-import { ServicePricingPayload, useServicePricing } from "@/hooks/useServices";
-import { useProfessionalReview } from "@/hooks/RegisterPro/useRegister";
+import { ServicePricingPayload, useGetServiceById, useUpdateServicePricing } from "@/hooks/useServices";
 import GlobalLoader from "@/components/ui/global-loader";
 import toast from "react-hot-toast";
-import { useQueryClient } from "@tanstack/react-query";
 
 const PRICING_TYPES = [
     { value: "hourly", label: "Hourly Rate" },
@@ -16,72 +14,110 @@ const PRICING_TYPES = [
 ];
 
 const ServicePricing = () => {
-    const token = getAccessToken() || "";
-    const { mutate, isPending } = useServicePricing(token);
-    const { data: professionalData, isLoading: isProfLoading } = useProfessionalReview(token);
-    const queryClient = useQueryClient();
-    const serviceData = queryClient.getQueryData(['currentService']) as
-        { service_id: string; professional_id: string } | undefined;
-    const serviceId = serviceData?.service_id;
-    const professional_id = serviceData?.professional_id;
-    const [pricingType, setPricingType] = useState<string>("hourly");
-    const [minimumPrice, setMinimumPrice] = useState<string>("");
-    const [maximumPrice, setMaximumPrice] = useState<string>("");
-    const [completedTasks, setCompletedTasks] = useState<string>("");
-    const [description, setDescription] = useState<string>("");
+    const token = getAccessToken();
+    const [serviceData, setServiceData] = useState<{ service_id: string; professional_id: string } | null>(null);
     useEffect(() => {
-        if (professionalData?.professional?.professional) {
-            const prof = professionalData.professional.professional;
-
-            // Only pre-fill if it matches the selected service
-            if (prof.service_id === serviceId) {
-                setPricingType(prof.pricing_type || "hourly");
-                setMinimumPrice(prof.minimum_price || "");
-                setMaximumPrice(prof.maximum_price || "");
-                setCompletedTasks(prof.completed_tasks || "");
-                setDescription(prof.description || "");
-            }
+        const storedService = localStorage.getItem('currentService');
+        if (storedService) {
+            setServiceData(JSON.parse(storedService));
         }
-    }, [professionalData, serviceId]);
+    }, []);
 
-    if (isProfLoading) {
-        return <GlobalLoader />;
-    }
+    const { service_id, professional_id } = serviceData || {};
+    const {
+        data: serviceByIdData,
+        isLoading: isServiceLoading,
+        isError: serviceError
+    } = useGetServiceById(service_id!, professional_id!, token!);
+    const { mutate: updateServicePricing, isPending: isUpdating } = useUpdateServicePricing(token!);
+    const [formData, setFormData] = useState({
+        pricingType: "hourly",
+        minimumPrice: "",
+        maximumPrice: "",
+        completedTasks: "",
+        description: ""
+    });
+
+    // Pre-fill form with existing service data
+    useEffect(() => {
+        const service = serviceByIdData?.data?.data;
+        if (service) {
+            setFormData({
+                pricingType: service.pricing_type || "hourly",
+                minimumPrice: service.minimum_price?.toString() || "",
+                maximumPrice: service.maximum_price?.toString() || "",
+                completedTasks: service.completed_tasks?.toString() || "",
+                description: service.description || ""
+            });
+        }
+    }, [serviceByIdData]);
+
+    // Handle input changes
+    const handleInputChange = (field: string, value: string) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+    };
+
     const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (Number(minimumPrice) > Number(maximumPrice)) {
+
+        // Validation
+        if (Number(formData.minimumPrice) > Number(formData.maximumPrice)) {
             toast.error("Minimum price cannot be greater than maximum price");
             return;
         }
 
-        if (!serviceId || !professional_id) {
-            toast.error("Service or Professional ID not found");
+        if (!service_id || !professional_id) {
+            toast.error("Service information not found");
             return;
         }
 
         const pricingData: ServicePricingPayload = {
-            service_id: serviceId,
+            service_id,
             professional_id,
-            pricing_type: pricingType,
-            minimum_price: minimumPrice,
-            maximum_price: maximumPrice,
-            completed_tasks: completedTasks,
-            description: description.trim(),
+            pricing_type: formData.pricingType,
+            minimum_price: formData.minimumPrice,
+            maximum_price: formData.maximumPrice,
+            completed_tasks: formData.completedTasks,
+            description: formData.description.trim(),
         };
 
-        mutate(pricingData);
+        updateServicePricing(pricingData);
     };
 
+    // Show global loader while fetching service data
+    if (isServiceLoading) {
+        return <GlobalLoader />;
+    }
+
+    // Show error state
+    if (serviceError) {
+        return (
+            <div className="dark:bg-gray-900 min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    <p className="text-red-600 dark:text-red-400 text-[13px]">
+                        Failed to load service data. Please try again.
+                    </p>
+                </div>
+            </div>
+        );
+    }
+
+    const hasExistingData = !!serviceByIdData?.data?.data;
+    const isLoading = isServiceLoading || isUpdating;
+
     return (
-        <div className=" dark:bg-gray-900 py-2 px-4 sm:px-2">
+        <div className="dark:bg-gray-900 min-h-screen py-2 px-4 sm:px-2">
             <div className="max-w-3xl mx-auto">
                 {/* Header */}
                 <div className="mb-8">
                     <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 text-[13px]">
-                        Service Pricing & Information
+                        {hasExistingData ? "Update Service Pricing" : "Service Pricing & Information"}
                     </h2>
                     <p className="text-sm text-gray-600 dark:text-gray-400 text-[13px]">
-                        Set your pricing structure and service details.
+                        {hasExistingData
+                            ? "Update your pricing structure and service details."
+                            : "Set your pricing structure and service details."
+                        }
                     </p>
                 </div>
 
@@ -93,33 +129,29 @@ const ServicePricing = () => {
                                 <div className="p-1.5 bg-blue-50 dark:bg-blue-900/20 rounded-[4px]">
                                     <DollarSign className="h-3.5 w-3.5 text-[#0077B6]" />
                                 </div>
-                                <div>
-                                    <h3 className="text-[13px] font-medium text-gray-900 dark:text-gray-200">
-                                        Pricing Structure
-                                    </h3>
-                                </div>
+                                <h3 className="text-[13px] font-medium text-gray-900 dark:text-gray-200">
+                                    Pricing Structure
+                                </h3>
                             </div>
 
-                            <div className="grid grid-cols-1 gap-6">
-                                <div>
-                                    <label htmlFor="pricing-type" className="block text-[13px] font-medium text-gray-900 dark:text-gray-200 mb-2">
-                                        Pricing Type *
-                                    </label>
-                                    <select
-                                        id="pricing-type"
-                                        value={pricingType}
-                                        required
-                                        onChange={(e) => setPricingType(e.target.value)}
-                                        disabled={isPending}
-                                        className="mt-1 block w-full rounded-[4px] bg-white dark:bg-gray-900 py-2 pl-3 pr-8 text-[13px] text-gray-900 dark:text-white outline-1 outline-gray-300 dark:outline-gray-600 focus:outline-1 focus:outline-[#0077B6] focus:outline-offset-2"
-                                    >
-                                        {PRICING_TYPES.map((type) => (
-                                            <option key={type.value} value={type.value}>
-                                                {type.label}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
+                            <div>
+                                <label htmlFor="pricing-type" className="block text-[13px] font-medium text-gray-900 dark:text-gray-200 mb-2">
+                                    Pricing Type *
+                                </label>
+                                <select
+                                    id="pricing-type"
+                                    value={formData.pricingType}
+                                    required
+                                    onChange={(e) => handleInputChange("pricingType", e.target.value)}
+                                    disabled={isLoading}
+                                    className="mt-1 block w-full rounded-[4px] bg-white dark:bg-gray-900 py-2 pl-3 pr-8 text-[13px] text-gray-900 dark:text-white outline-1 outline-gray-300 dark:outline-gray-600 focus:outline-1 focus:outline-[#0077B6] focus:outline-offset-2"
+                                >
+                                    {PRICING_TYPES.map((type) => (
+                                        <option key={type.value} value={type.value}>
+                                            {type.label}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
                         </section>
 
@@ -129,11 +161,9 @@ const ServicePricing = () => {
                                 <div className="p-1.5 bg-blue-50 dark:bg-blue-900/20 rounded-[4px]">
                                     <ClipboardList className="h-3.5 w-3.5 text-[#0077B6]" />
                                 </div>
-                                <div>
-                                    <h3 className="text-[13px] font-medium text-gray-900 dark:text-gray-200">
-                                        Price Range
-                                    </h3>
-                                </div>
+                                <h3 className="text-[13px] font-medium text-gray-900 dark:text-gray-200">
+                                    Price Range
+                                </h3>
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -147,9 +177,9 @@ const ServicePricing = () => {
                                         min="0"
                                         step="0.01"
                                         required
-                                        value={minimumPrice}
-                                        onChange={(e) => setMinimumPrice(e.target.value)}
-                                        disabled={isPending}
+                                        value={formData.minimumPrice}
+                                        onChange={(e) => handleInputChange("minimumPrice", e.target.value)}
+                                        disabled={isLoading}
                                         placeholder="0.00"
                                         className="mt-1 block w-full rounded-[4px] bg-white dark:bg-gray-900 px-3 py-2 text-[13px] text-gray-900 dark:text-white placeholder:text-[13px] dark:placeholder-gray-500 outline-1 outline-gray-300 dark:outline-gray-600 focus:outline-1 focus:outline-[#0077B6] focus:outline-offset-2"
                                     />
@@ -165,9 +195,9 @@ const ServicePricing = () => {
                                         min="0"
                                         step="0.01"
                                         required
-                                        value={maximumPrice}
-                                        onChange={(e) => setMaximumPrice(e.target.value)}
-                                        disabled={isPending}
+                                        value={formData.maximumPrice}
+                                        onChange={(e) => handleInputChange("maximumPrice", e.target.value)}
+                                        disabled={isLoading}
                                         placeholder="0.00"
                                         className="mt-1 block w-full rounded-[4px] bg-white dark:bg-gray-900 px-3 py-2 text-[13px] text-gray-900 dark:text-white placeholder:text-[13px] dark:placeholder-gray-500 outline-1 outline-gray-300 dark:outline-gray-600 focus:outline-1 focus:outline-[#0077B6] focus:outline-offset-2"
                                     />
@@ -181,14 +211,12 @@ const ServicePricing = () => {
                                 <div className="p-1.5 bg-blue-50 dark:bg-blue-900/20 rounded-[4px]">
                                     <FileText className="h-3.5 w-3.5 text-[#0077B6]" />
                                 </div>
-                                <div>
-                                    <h3 className="text-[13px] font-medium text-gray-900 dark:text-gray-200">
-                                        Experience & Description
-                                    </h3>
-                                </div>
+                                <h3 className="text-[13px] font-medium text-gray-900 dark:text-gray-200">
+                                    Experience & Description
+                                </h3>
                             </div>
 
-                            <div className="grid grid-cols-1 gap-6">
+                            <div className="space-y-6">
                                 <div>
                                     <label htmlFor="completed-tasks" className="block text-[13px] font-medium text-gray-900 dark:text-gray-200 mb-2">
                                         Completed Tasks *
@@ -198,9 +226,9 @@ const ServicePricing = () => {
                                         type="number"
                                         min="0"
                                         required
-                                        value={completedTasks}
-                                        onChange={(e) => setCompletedTasks(e.target.value)}
-                                        disabled={isPending}
+                                        value={formData.completedTasks}
+                                        onChange={(e) => handleInputChange("completedTasks", e.target.value)}
+                                        disabled={isLoading}
                                         placeholder="Number of completed tasks"
                                         className="mt-1 block w-full rounded-[4px] bg-white dark:bg-gray-900 px-3 py-2 text-[13px] text-gray-900 dark:text-white placeholder:text-[13px] dark:placeholder-gray-500 outline-1 outline-gray-300 dark:outline-gray-600 focus:outline-1 focus:outline-[#0077B6] focus:outline-offset-2"
                                     />
@@ -214,9 +242,9 @@ const ServicePricing = () => {
                                         id="description"
                                         rows={4}
                                         required
-                                        value={description}
-                                        onChange={(e) => setDescription(e.target.value)}
-                                        disabled={isPending}
+                                        value={formData.description}
+                                        onChange={(e) => handleInputChange("description", e.target.value)}
+                                        disabled={isLoading}
                                         placeholder="Describe your services, expertise, and what clients can expect..."
                                         className="mt-1 block w-full rounded-[4px] bg-white dark:bg-gray-900 px-3 py-2 text-[13px] text-gray-900 dark:text-white placeholder:text-[13px] dark:placeholder-gray-500 outline-1 outline-gray-300 dark:outline-gray-600 focus:outline-1 focus:outline-[#0077B6] focus:outline-offset-2 resize-none"
                                     />
@@ -229,11 +257,11 @@ const ServicePricing = () => {
                     <div className="fixed bottom-6 right-6 flex gap-4 text-[13px]">
                         <button
                             type="submit"
-                            disabled={isPending}
+                            disabled={isLoading}
                             className="text-white text-[13px] py-2 px-6 rounded-[4px] bg-[#0077B6] hover:bg-[#005f8e] disabled:bg-gray-400 disabled:cursor-not-allowed transition flex items-center gap-2"
                         >
-                            {isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                            Next
+                            {isLoading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                            {hasExistingData ? "Update Service" : "Next"}
                         </button>
                     </div>
                 </form>

@@ -2,6 +2,7 @@ import {
   AddNewServiceAPI,
   DeleteServiceAPI,
   GetProfessionalServicesAPI,
+  GetServiceByIdAPI,
   GetServicesAPI,
   SaveServiceLocationAPI,
   UpdateServiceStatusAPI,
@@ -13,21 +14,15 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
-// Common query configuration
-const queryConfig = {
-  staleTime: 1000 * 60 * 5,
-  refetchOnWindowFocus: false,
-  refetchOnMount: true,
-  refetchOnReconnect: true,
-};
-
 // Get Professional Services Hook
 export function useGetServices(token: string | null) {
   return useQuery({
     queryKey: ["professionalServices"],
     queryFn: () => GetProfessionalServicesAPI(token!),
     enabled: !!token,
-    ...queryConfig,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    refetchOnReconnect: true,
   });
 }
 
@@ -43,13 +38,13 @@ export function useUpdateServiceStatus() {
       service_status: boolean;
       token: string;
     }) => UpdateServiceStatusAPI(data),
-    onSuccess:  (response) => {
+    onSuccess: (response) => {
       toast.success(response?.message || "Service status updated successfully");
       Promise.all([
         queryClient.invalidateQueries({ queryKey: ["services"] }),
         queryClient.invalidateQueries({ queryKey: ["professionalServices"] })
       ]);
-      
+
     },
     onError: (error: any) => {
       toast.error(
@@ -66,7 +61,9 @@ export function useGetServicesList(token: string | null) {
     queryKey: ["services"],
     queryFn: () => GetServicesAPI(token!),
     enabled: !!token,
-    ...queryConfig,
+    refetchOnWindowFocus: false,
+    refetchOnMount: true,
+    refetchOnReconnect: true,
   });
 }
 
@@ -113,22 +110,21 @@ export interface ServicePricingPayload {
 export function useServicePricing(token: string) {
   const router = useRouter();
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationKey: ["UseServicePricing"],
     mutationFn: (data: ServicePricingPayload) => UseServicePricingAPI(data, token),
-
     onSuccess: async (data, variables) => {
-      // Invalidate service data queries
       await queryClient.invalidateQueries({ queryKey: ["serviceData"] });
-
-      // Update current service data
       queryClient.setQueryData(["currentService"], {
         service_id: variables.service_id,
         professional_id: variables.professional_id,
       });
-
-      router.push(`/home-services/dashboard/services/questions`);
+      const locationArray = data?.data?.location_idslenght > 0 || data?.data?.data?.location_ids.lenght > 0;
+      if (locationArray) {
+        router.push(`/home-services/dashboard/services`);
+      } else {
+        router.push(`/home-services/dashboard/services/questions`);
+      }
     },
 
     onError: (error: any) => {
@@ -139,13 +135,39 @@ export function useServicePricing(token: string) {
   });
 }
 
+
+
+export function useUpdateServicePricing(token: string) {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: ['updateServicePricing'],
+    mutationFn: (data: ServicePricingPayload) => UseServicePricingAPI(data, token),
+    onSuccess: async (response, variables) => {
+      await queryClient.invalidateQueries({ queryKey: ['serviceData'] });
+      queryClient.setQueryData(['currentService'], {
+        service_id: variables.service_id,
+        professional_id: variables.professional_id,
+      });
+      toast.success(response?.message || 'Service pricing updated successfully');
+      router.push('/home-services/dashboard/services');
+    },
+    onError: (error: any) => {
+      const errorMessage = error?.response?.data?.message || 'Failed to update service pricing';
+      toast.error(errorMessage);
+    },
+  });
+}
+
 // Get Service Questions by Service ID Hook
 export function useGetServicesQuestionByServiceId(token: string | null, serviceId: string | null) {
   return useQuery({
     queryKey: ["questions", serviceId],
     queryFn: () => UseGetServicesQuestionAPI(token!, serviceId!),
     enabled: !!token && !!serviceId,
-    ...queryConfig,
+    refetchOnWindowFocus: false,
+    refetchOnMount: true,
+    refetchOnReconnect: true,
   });
 }
 
@@ -240,9 +262,6 @@ export const useServiceLocation = (token: string) => {
   });
 };
 
-
-
-
 // Deleting the service
 export const useDeleteService = () => {
   const queryClient = useQueryClient();
@@ -277,4 +296,18 @@ export const useDeleteService = () => {
   });
 };
 
-
+// Updating the service Pricing
+export const useGetServiceById = (
+  service_id: string,
+  professional_id: string,
+  token: string
+) => {
+  return useQuery({
+    queryKey: ["service", service_id, professional_id],
+    queryFn: () => GetServiceByIdAPI(service_id, professional_id, token),
+    enabled: !!token && !!service_id && !!professional_id,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+  });
+};

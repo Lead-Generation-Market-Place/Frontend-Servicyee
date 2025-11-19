@@ -148,11 +148,6 @@ export const UseSubmitQuestionAnswerAPI = async (data: AnswerPayload[], token: s
 };
 
 
-
-
-
-
-
 // Adding the Location of Service API
 export const SaveServiceLocationAPI = async (payload: LocationPayload, token: string) => {
   try {
@@ -186,16 +181,39 @@ export const SaveServiceLocationAPI = async (payload: LocationPayload, token: st
 export const DeleteServiceAPI = async (service_id: string, professional_id: string, token: string) => {
   try {
     const response = await api.delete("/services/delete_service", {
-        data: {
-          service_id,
-          professional_id
-        },
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+      data: {
+        service_id,
+        professional_id
+      },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
     );
 
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+
+// Edit or Update the service prcing and name....
+export const GetServiceByIdAPI = async (
+  service_id: string,
+  professional_id: string,
+  token: string
+) => {
+  try {
+    const response = await api.get("/services/get_service", {
+      params: {
+        service_id,
+        professional_id,
+      },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   } catch (error) {
     throw handleApiError(error);

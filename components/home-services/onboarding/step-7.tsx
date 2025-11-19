@@ -49,7 +49,6 @@ export interface SaveAvailabilityResult {
 export default function AvailabilityForm() {
   const token = getAccessToken() || "";
   const { data: professionalData, isLoading: isLoadingProfessionalData, isError: isProfessionalError } = useProfessionalReview(token);
-  console.log("The data is", professionalData)
   const [businessName, setBusinessName] = useState<string>("");
   const [professionalId, setProfessionalId] = useState<string>("");
   const { mutate, isPending, isError, error } = useBusinesAvailability(token);
