@@ -3,8 +3,10 @@ import {
   DeleteServiceAPI,
   GetProfessionalServicesAPI,
   GetServiceByIdAPI,
+  GetServiceLocationByIdAPI,
   GetServicesAPI,
   SaveServiceLocationAPI,
+  SaveUpdateServiceLocationAPI,
   UpdateServiceStatusAPI,
   UseGetServicesQuestionAPI,
   UseServicePricingAPI,
@@ -219,6 +221,7 @@ export const useSubmitQuestionAnswer = (token: string) => {
 export interface LocationPayload {
   professional_id: string;
   service_id: string;
+  location_id: string,
   lat: number;
   lng: number;
   city: string;
@@ -306,6 +309,63 @@ export const useGetServiceById = (
     queryKey: ["service", service_id, professional_id],
     queryFn: () => GetServiceByIdAPI(service_id, professional_id, token),
     enabled: !!token && !!service_id && !!professional_id,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+  });
+};
+
+
+// Update Service Location 
+export const useUpdateServiceLocation = (token: string) => {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ["saveServiceLocation"],
+    mutationFn: (data: LocationPayload) => SaveUpdateServiceLocationAPI(data, token),
+
+    onSuccess: async () => {
+      try {
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: ["serviceData"] }),
+          queryClient.invalidateQueries({ queryKey: ["professionalServices"] }),
+          queryClient.invalidateQueries({ queryKey: ["services"] }),
+          queryClient.invalidateQueries({ queryKey: ["questions"] })
+        ]);
+
+        toast.success("Service Area Updated successfully");
+        router.push(`/home-services/dashboard/services`);
+
+      } catch {
+        toast.success("Service Area Updated successfully");
+        router.push(`/home-services/dashboard/services`);
+      }
+    },
+
+    onError: (error: any) => {
+      const errorMessage = error?.response?.data?.message
+        || "Failed to save service location";
+      toast.error(errorMessage);
+    },
+  });
+};
+
+
+
+
+/// Get Service Location by Location, Pro and Service Id, 
+// Updating the service Pricing
+export const useGetServiceLocationById = (
+  service_id: string,
+  professional_id: string,
+  location_id: string,
+  token: string
+) => {
+  return useQuery({
+    queryKey: ["service", service_id, professional_id],
+    queryFn: () => GetServiceLocationByIdAPI(service_id, professional_id, location_id, token),
+    enabled: !!token && !!service_id && !!professional_id && !!location_id,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,

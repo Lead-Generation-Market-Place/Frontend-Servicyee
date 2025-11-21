@@ -190,6 +190,7 @@ const Map = () => {
       saveLocationMutation.mutate({
         professional_id,
         service_id: serviceId,
+        location_id: "",
         lat: selectedLocation.lat,
         lng: selectedLocation.lng,
         city: selectedLocation.city || "",
