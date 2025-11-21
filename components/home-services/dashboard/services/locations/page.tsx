@@ -40,9 +40,7 @@ const ServiceLocation = () => {
     isLoading: isServiceLoading,
     isError: serviceError
   } = useGetServiceById(service_id!, professional_id!, token!);
-
   const serviceLocations: ServiceLocation[] = serviceByIdData?.data?.data?.location_ids || [];
-
   const handleEditLocation = (location: ServiceLocation) => {
     const currentLocationData = {
       service_id: service_id,
@@ -50,11 +48,9 @@ const ServiceLocation = () => {
       location_id: location._id,
       location_data: location
     };
-
     localStorage.setItem('currentLocation', JSON.stringify(currentLocationData));
     router.push("/home-services/dashboard/services/editLocation");
   };
-
   const handleDeleteLocation = (locationId: string, locationName: string) => {
     toast.success(`Delete location ${locationName}`);
   };
@@ -65,7 +61,7 @@ const ServiceLocation = () => {
       professional_id: professional_id,
     };
     localStorage.setItem('currentService', JSON.stringify(currentServiceData));
-    router.push("/home-services/dashboard/services/add-location");
+    router.push("/home-services/dashboard/services/serviceLocation");
   };
 
   const toggleZipCodes = (locationId: string) => {
@@ -85,7 +81,6 @@ const ServiceLocation = () => {
   if (isServiceLoading) {
     return <GlobalLoader />;
   }
-
   if (serviceError) {
     return (
       <div className="dark:bg-gray-900 min-h-screen flex items-center justify-center px-4">
@@ -103,7 +98,6 @@ const ServiceLocation = () => {
       </div>
     );
   }
-
   return (
     <div className="dark:bg-gray-900 min-h-screen py-4 sm:py-6 px-3 sm:px-4 lg:px-6">
       <div className="max-w-6xl mx-auto">
@@ -126,7 +120,7 @@ const ServiceLocation = () => {
               <button
                 type="button"
                 onClick={handleAddLocation}
-                className="w-full sm:w-auto bg-[#0077B6] text-white text-[13px] sm:text-sm py-3 px-6 rounded-sm hover:bg-[#005A8D] transition-colors flex items-center gap-2 justify-center shadow-sm"
+                className="w-full sm:w-auto bg-[#0077B6] text-white text-[13px] sm:text-sm py-2 px-4 rounded-sm hover:bg-[#005A8D] transition-colors flex items-center gap-2 justify-center shadow-sm"
               >
                 <Plus className="h-4 w-4" />
                 Add New Location
