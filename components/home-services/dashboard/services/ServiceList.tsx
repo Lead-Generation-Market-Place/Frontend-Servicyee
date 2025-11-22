@@ -167,6 +167,20 @@ const ServicesList = ({ data }: ServicesListProps) => {
     router.push("/home-services/dashboard/services/locations");
   };
 
+
+  const questionsDetails = (service: TransformedService) => {
+    const currentServiceData = {
+      service_id: service.originalData.service_id,
+      professional_id: service.originalData.professional_id,
+    };
+    localStorage.setItem('currentService', JSON.stringify(currentServiceData));
+    queryClient.setQueryData(["currentService"], currentServiceData);
+
+    router.push("/home-services/dashboard/services/questionsDetails");
+  };
+
+  
+
   // Navigate to the next incomplete step
   const navigateToNextStep = (service: TransformedService) => {
     const nextStep = getNextIncompleteStep(service);
@@ -598,7 +612,7 @@ const ServicesList = ({ data }: ServicesListProps) => {
                                   </div>
                                   {!isInactive && (
                                     <button
-                                      onClick={() => navigateToStep('questions', service)}
+                                      onClick={() => questionsDetails(service)}
                                       className="inline-flex items-center px-3 py-1.5 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-sm text-[#0077B6] hover:bg-gray-50 dark:hover:bg-gray-500 transition-colors text-[12px] font-medium"
                                     >
                                       <FiEdit className="w-3 h-3 mr-1" />

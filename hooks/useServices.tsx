@@ -309,18 +309,18 @@ export const useGetServiceById = (
     queryKey: ["service", service_id, professional_id],
     queryFn: () => GetServiceByIdAPI(service_id, professional_id, token),
     enabled: !!token && !!service_id && !!professional_id,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    refetchOnReconnect: true,
   });
 };
 
 
-// Update Service Location 
+
+
 export const useUpdateServiceLocation = (token: string) => {
   const router = useRouter();
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationKey: ["saveServiceLocation"],
     mutationFn: (data: LocationPayload) => SaveUpdateServiceLocationAPI(data, token),
@@ -353,7 +353,6 @@ export const useUpdateServiceLocation = (token: string) => {
 
 
 
-
 /// Get Service Location by Location, Pro and Service Id, 
 // Updating the service Pricing
 export const useGetServiceLocationById = (
@@ -369,5 +368,34 @@ export const useGetServiceLocationById = (
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
+  });
+};
+
+
+
+// Add New Question 
+export const useAddQuestionAnswer = (token: string) => {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: ["submitServiceAnswers"],
+    mutationFn: (data: AnswerPayload[]) => UseSubmitQuestionAnswerAPI(data, token),
+    onSuccess: async (data, variables) => {
+      if (variables.length > 0) {
+        await queryClient.invalidateQueries({ 
+          queryKey: ["service", variables[0].service_id, variables[0].professional_id] 
+        });
+        queryClient.setQueryData(["currentService"], {
+          service_id: variables[0].service_id,
+          professional_id: variables[0].professional_id,
+        });
+        router.push(`/home-services/dashboard/services`);
+      }
+    },
+    onError: (error: ApiError) => {
+      const errorMessage = error?.response?.data?.message
+        || "Failed to save service answers";
+      toast.error(errorMessage);
+    },
   });
 };
