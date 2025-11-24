@@ -26,8 +26,6 @@ export const UseUpdateBusinessAvailabilityAPI = async (
   token: string
 ) => {
   try {
-    console.log("the data is, ", data);
-
     const response = await api.put("/professionals/update_availability", data, {
       headers: {
         "Content-Type": "application/json",

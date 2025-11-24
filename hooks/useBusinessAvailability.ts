@@ -1,7 +1,9 @@
-import { AvailabilityPayload, UseUpdateBusinessAvailabilityAPI } from "@/app/api/services/businessAvailability";
+import {
+  AvailabilityPayload,
+  UseUpdateBusinessAvailabilityAPI,
+} from "@/app/api/services/businessAvailability";
 import { useMutation } from "@tanstack/react-query";
-import { toast } from "sonner"; // or your toast library
-
+import toast from "react-hot-toast";
 
 export const useBusinessAvailability = (token: string) => {
   return useMutation({

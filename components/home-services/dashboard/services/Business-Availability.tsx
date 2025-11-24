@@ -1,75 +1,89 @@
 // components/HideBusinessDatePicker.tsx
-import { useState } from 'react';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, subMonths, isSameDay, addDays, isBefore, isAfter } from 'date-fns';
+import { useState, useEffect, useMemo } from 'react';
+import {
+  format,
+  startOfMonth,
+  endOfMonth,
+  eachDayOfInterval,
+  addMonths,
+  subMonths,
+  isSameDay,
+  addDays,
+  isBefore,
+  isAfter
+} from 'date-fns';
 import { useBusinessAvailability } from '@/hooks/useBusinessAvailability';
 import { getAccessToken } from '@/app/api/axios';
 import { useProfesssionalProgress } from '@/hooks/RegisterPro/useRegister';
 import GlobalLoader from '@/components/ui/global-loader';
 import { useRouter } from 'next/navigation';
-
 interface HideBusinessDatePickerProps {
   onSuccess?: () => void;
   onCancel?: () => void;
 }
-
-const HideBusinessDatePicker = ({
-  onSuccess,
-  onCancel
-}: HideBusinessDatePickerProps) => {
+const HideBusinessDatePicker = ({ onSuccess, onCancel }: HideBusinessDatePickerProps) => {
   const router = useRouter();
   const token = getAccessToken() || "";
-  const { data, isLoading } = useProfesssionalProgress(token);
+  const { data, isLoading, refetch } = useProfesssionalProgress(token);
+  const { mutate: updateAvailability, isPending } = useBusinessAvailability(token);
+
   const professional_id = data?._id;
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isHidden, setIsHidden] = useState(false);
-  const { mutate: updateAvailability, isPending } = useBusinessAvailability(token);
-  const today = new Date();
-  const maxDate = addDays(today, 30);
-  const monthStart = startOfMonth(currentMonth);
-  const monthEnd = endOfMonth(currentMonth);
-  const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd });
+
+  const today = useMemo(() => new Date(), []);
+  const maxDate = useMemo(() => addDays(today, 30), [today]);
+  const monthStart = useMemo(() => startOfMonth(currentMonth), [currentMonth]);
+  const monthEnd = useMemo(() => endOfMonth(currentMonth), [currentMonth]);
+  const daysInMonth = useMemo(() =>
+    eachDayOfInterval({ start: monthStart, end: monthEnd }),
+    [monthStart, monthEnd]
+  );
+
+  // Memoized values to prevent unnecessary re-renders
+  const hiddenUntil = useMemo(() =>
+    data?.hidden_until ? new Date(data.hidden_until) : null,
+    [data?.hidden_until]
+  );
+
+  const isBusinessAvailable = data?.is_available;
+  const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+  const quickDurations = useMemo(() => [
+    { days: 1, label: '24 hours' },
+    { days: 3, label: '3 days' },
+    { days: 7, label: '1 week' },
+    { days: 14, label: '2 weeks' },
+  ], []);
+
+
+  // Update hidden status when data changes
+  useEffect(() => {
+    if (data) {
+      setIsHidden(!isBusinessAvailable && hiddenUntil !== null);
+    }
+  }, [data, isBusinessAvailable, hiddenUntil]);
+
+  // Navigation
   const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
   const prevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
-  const isDateSelectable = (date: Date): boolean => {
-    return !isBefore(date, today) && !isAfter(date, maxDate);
-  };
+  const handleBack = () => router.back();
 
-
-
-  const handleBack = () => {
-    router.back();
-  };
+  // Date utilities
+  const isDateSelectable = (date: Date): boolean =>
+    !isBefore(date, today) && !isAfter(date, maxDate);
 
   const calculateDaysUntil = (date: Date): number => {
     const timeDiff = date.getTime() - today.getTime();
     return Math.ceil(timeDiff / (1000 * 3600 * 24));
   };
+
   const handleDateClick = (day: Date) => {
     if (!isDateSelectable(day)) return;
     setSelectedDate(day);
   };
-  const hideBusiness = () => {
-    if (!selectedDate || !professional_id) return;
-    const payload = {
-      professional_id,
-      isAvailable: false,
-      hiddenUntil: selectedDate.toISOString(),
-    };
 
-    updateAvailability(payload, {
-      onSuccess: () => {
-        setIsHidden(true);
-        onSuccess?.();
-      },
-    });
-  };
-  const quickDurations = [
-    { days: 1, label: '24 hours' },
-    { days: 3, label: '3 days' },
-    { days: 7, label: '1 week' },
-    { days: 14, label: '2 weeks' },
-  ];
   const handleQuickSelect = (days: number) => {
     const newDate = new Date();
     newDate.setDate(today.getDate() + days);
@@ -78,29 +92,53 @@ const HideBusinessDatePicker = ({
       setCurrentMonth(startOfMonth(newDate));
     }
   };
-  const calculateImpactMetrics = () => {
-    if (!selectedDate) return null;
-    const daysHidden = calculateDaysUntil(selectedDate);
-    const weekendsHidden = Math.floor(daysHidden / 7) * 2;
-    return {
-      daysHidden,
-      weekendsHidden,
-      businessDaysHidden: daysHidden - weekendsHidden,
+
+  // API Actions
+  const hideBusiness = () => {
+    if (!selectedDate || !professional_id) return;
+
+    const payload = {
+      professional_id,
+      isAvailable: false,
+      hiddenUntil: selectedDate.toISOString(),
     };
+    updateAvailability(payload, {
+      onSuccess: () => {
+        setIsHidden(true);
+        refetch();
+        onSuccess?.();
+      },
+    });
   };
-  const impactMetrics = calculateImpactMetrics();
-  const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+  const makeBusinessAvailable = () => {
+    if (!professional_id) return;
+
+    const payload = {
+      professional_id,
+      isAvailable: true,
+      hiddenUntil: '',
+    };
+
+    updateAvailability(payload, {
+      onSuccess: () => {
+        setIsHidden(false);
+        setSelectedDate(null);
+        refetch();
+        onSuccess?.();
+      }
+    });
+  };
+
+  // Loading state
   if (isLoading) {
-    return (
-      <GlobalLoader></GlobalLoader>
-    );
+    return <GlobalLoader />;
   }
 
-
-  // Show error state if no professional ID
+  // Error state
   if (!professional_id) {
     return (
-      <div className="w-full max-w-xl mx-auto dark:bg-gray-900 dark:border-gray-700  p-6">
+      <div className="w-full max-w-xl mx-auto dark:bg-gray-900 dark:border-gray-700 p-6">
         <div className="text-center py-4">
           <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 dark:bg-red-900/30 mb-4">
             <svg className="h-8 w-8 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -124,9 +162,10 @@ const HideBusinessDatePicker = ({
     );
   }
 
-  if (isHidden) {
+  // Business is available state
+  if (isBusinessAvailable && !isHidden) {
     return (
-      <div className="w-full max-w-xl mx-auto dark:bg-gray-900 dark:border-gray-700  p-6 transition-all duration-200">
+      <div className="w-full max-w-xl mx-auto dark:bg-gray-900 dark:border-gray-700 p-6">
         <div className="text-center py-4">
           <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-sm bg-green-100 dark:bg-green-900/30 mb-4">
             <svg className="h-8 w-8 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -134,53 +173,22 @@ const HideBusinessDatePicker = ({
             </svg>
           </div>
           <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">
-            Business Hidden Successfully
+            Business is Available
           </h3>
-          <p className="text-xs text-gray-600 dark:text-gray-300 mb-4">
-            Your business profile is now hidden and will automatically reappear on{' '}
-            <span className="font-medium text-[#0077B6] dark:text-[#48CAE4]">
-              {selectedDate && format(selectedDate, 'MMMM d, yyyy')}
-            </span>
+          <p className="text-xs text-gray-600 dark:text-gray-300 mb-6">
+            Your business profile is currently visible to customers and accepting new leads.
           </p>
-
-          {impactMetrics && (
-            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-sm p-3 mb-4">
-              <h4 className="text-xs font-medium text-blue-900 dark:text-blue-100 mb-2">
-                Hidden Period Summary
-              </h4>
-              <div className="grid grid-cols-3 gap-2 text-center">
-                <div>
-                  <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                    {impactMetrics.daysHidden}
-                  </div>
-                  <div className="text-xs text-blue-700 dark:text-blue-300">Total Days</div>
-                </div>
-                <div>
-                  <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                    {impactMetrics.businessDaysHidden}
-                  </div>
-                  <div className="text-xs text-blue-700 dark:text-blue-300">Business Days</div>
-                </div>
-                <div>
-                  <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                    {impactMetrics.weekendsHidden}
-                  </div>
-                  <div className="text-xs text-blue-700 dark:text-blue-300">Weekends</div>
-                </div>
-              </div>
-            </div>
-          )}
 
           <div className="flex flex-col gap-2">
             <button
-              onClick={() => setIsHidden(false)}
-              className="px-4 py-2 text-xs font-medium rounded-sm text-white bg-[#0077B6] dark:bg-[#48CAE4] hover:bg-[#005b8c] dark:hover:bg-[#3aa8d0] transition-colors"
+              onClick={() => setIsHidden(true)}
+              className="px-4 py-2 text-xs font-medium rounded-sm border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             >
-              Change Settings
+              Hide Business Temporarily
             </button>
             <button
               onClick={handleBack}
-              className="px-4 py-2 text-xs font-medium rounded-sm border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              className="px-4 py-2 text-xs font-medium rounded-sm text-white bg-[#0077B6] dark:bg-[#48CAE4] hover:bg-[#005b8c] dark:hover:bg-[#3aa8d0] transition-colors"
             >
               Back to Services
             </button>
@@ -190,8 +198,94 @@ const HideBusinessDatePicker = ({
     );
   }
 
+  // Business is hidden state
+  if (isHidden && hiddenUntil) {
+    const isHiddenPast = hiddenUntil <= today;
+    const daysRemaining = calculateDaysUntil(hiddenUntil);
+
+    return (
+      <div className="w-full max-w-xl mx-auto dark:bg-gray-900 dark:border-gray-700 p-6">
+        <div className="text-center py-4">
+          <div className={`mx-auto flex items-center justify-center h-16 w-16 rounded-sm mb-4 ${isHiddenPast
+            ? 'bg-yellow-100 dark:bg-yellow-900/30'
+            : 'bg-orange-100 dark:bg-orange-900/30'
+            }`}>
+            <svg className={`h-8 w-8 ${isHiddenPast
+              ? 'text-yellow-600 dark:text-yellow-400'
+              : 'text-orange-600 dark:text-orange-400'
+              }`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+          </div>
+
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">
+            {isHiddenPast ? 'Business Should Be Available' : 'Business is Hidden'}
+          </h3>
+
+          <p className="text-xs text-gray-600 dark:text-gray-300 mb-4">
+            {isHiddenPast
+              ? `Your business was scheduled to reappear on ${format(hiddenUntil, 'MMMM d, yyyy')}. It should be available now.`
+              : `Your business profile is hidden and will automatically reappear on ${format(hiddenUntil, 'MMMM d, yyyy')}`
+            }
+          </p>
+
+          {!isHiddenPast && (
+            <div className=" rounded-sm p-3 mb-4">
+              <h4 className="text-xs font-medium text-[#0077B6] dark:text-blue-100 mb-2">
+                Hidden Period Summary
+              </h4>
+              <div className="grid grid-cols-2 gap-2 text-center">
+                <div>
+                  <div className="text-lg font-bold text-[#0077B6] dark:text-[#48CAE4]">
+                    {daysRemaining}
+                  </div>
+                  <div className="text-xs text-[#0077B6] dark:text-blue-300">Days Remaining</div>
+                </div>
+                <div>
+                  <div className="text-lg font-bold text-[#0077B6] dark:text-[#48CAE4]">
+                    {format(hiddenUntil, 'MMM d')}
+                  </div>
+                  <div className="text-xs text-[#0077B6] dark:text-blue-300">Return Date</div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="flex flex-col gap-2">
+            <button
+              onClick={makeBusinessAvailable}
+              disabled={isPending}
+              className="px-4 py-2 text-xs font-medium rounded-sm text-white bg-green-600 dark:bg-green-700 hover:bg-green-700 dark:hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isPending ? 'Making Available...' : 'Make Available Now'}
+            </button>
+
+            <button
+              onClick={() => {
+                setIsHidden(false);
+                setSelectedDate(hiddenUntil);
+                setCurrentMonth(startOfMonth(hiddenUntil));
+              }}
+              className="px-4 py-2 text-xs font-medium rounded-sm border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            >
+              Change Hide Settings
+            </button>
+
+            <button
+              onClick={handleBack}
+              className="px-4 py-2 text-xs font-medium rounded-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+            >
+              Back to Services
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Date picker for hiding business
   return (
-    <div className="w-full max-w-xl mx-auto dark:bg-gray-900 dark:border-gray-700  p-6 transition-all duration-200">
+    <div className="w-full max-w-xl mx-auto dark:bg-gray-900 dark:border-gray-700 p-6 transition-all duration-200">
       <div className="mb-5">
         <h2 className="text-sm font-bold text-gray-900 dark:text-white mb-1">
           Hide Your Business
@@ -299,7 +393,7 @@ const HideBusinessDatePicker = ({
             type="button"
             onClick={hideBusiness}
             disabled={!selectedDate || isPending || !professional_id}
-            className={`px-4 py-2 text-xs font-medium rounded-sm text-white transition-all duration-200 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0077B6] dark:focus:ring-[#48CAE4] ${selectedDate && !isPending && professional_id
+            className={`px-4 py-2 text-xs font-medium rounded-sm text-white transition-all duration-200 flex items-center justify-center ${selectedDate && !isPending && professional_id
               ? 'bg-[#0077B6] dark:bg-[#48CAE4] hover:bg-[#005b8c] dark:hover:bg-[#3aa8d0] shadow-sm hover:shadow-xl'
               : 'bg-gray-300 dark:bg-gray-600 cursor-not-allowed'
               }`}
@@ -318,7 +412,7 @@ const HideBusinessDatePicker = ({
           </button>
           <button
             type="button"
-            onClick={onCancel}
+            onClick={handleBack}
             className="px-4 py-2 text-xs font-medium rounded-sm border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
           >
             Cancel
