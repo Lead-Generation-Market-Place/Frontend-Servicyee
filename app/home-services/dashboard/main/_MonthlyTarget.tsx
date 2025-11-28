@@ -24,7 +24,7 @@ interface ProfessionalData {
   reviews: Review[];
 }
 
-const RATING_COLORS = ["#00A8FF", "#00E5FF", "#D600FF", "#FF007A", "#16A34A"];
+const RATING_COLORS = ["#0077B6", "#00E3FF", "#7A00FF"];
 
 export default function CustomerSatisfaction() {
   const token = getAccessToken();
@@ -56,7 +56,7 @@ export default function CustomerSatisfaction() {
 
   // Filter only approved reviews
   const filteredReviews = useMemo(() => {
-    return reviews.filter(review => review.review_type === "Approved");
+    return reviews.filter(review => review.review_type === "approved");
   }, [reviews]);
 
   // Calculate comprehensive satisfaction metrics
@@ -125,28 +125,9 @@ export default function CustomerSatisfaction() {
     return null;
   };
 
-  // Custom label for pie chart
-  const renderCustomizedLabel = ({ cx, cy, midAngle, outerRadius, percent }: any) => {
-    if (!percent || percent === 0) return null;
 
-    const RADIAN = Math.PI / 180;
-    const radius = outerRadius + 20;
-    const x = cx + radius * Math.cos(-midAngle * RADIAN);
-    const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
-    return (
-      <text
-        x={x}
-        y={y}
-        fill={"#0077B6"}
-        textAnchor={x > cx ? 'start' : 'end'}
-        dominantBaseline="central"
-        className="text-[12px] font-medium"
-      >
-        {`${(percent * 100).toFixed(0)}%`}
-      </text>
-    );
-  };
+
 
   // Show loading state
   if (isLoading) {
@@ -206,7 +187,6 @@ export default function CustomerSatisfaction() {
                   innerRadius={35}
                   outerRadius={55}
                   labelLine={false}
-                  label={renderCustomizedLabel}
                   stroke="none"
                 >
                   {satisfactionData.pieChartData.map((entry, index) => (

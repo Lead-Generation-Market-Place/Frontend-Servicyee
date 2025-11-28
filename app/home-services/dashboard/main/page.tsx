@@ -95,7 +95,7 @@ export default function Dashboard() {
           </p>
           <button
             onClick={() => window.location.reload()}
-            className="mt-4 px-4 py-2 bg-blue-600 hover:bg-[#0077B6] dark:bg-[#0077B6] dark:hover:bg-blue-600 text-white rounded-lg transition-colors duration-200 text-[13px]"
+            className="mt-4 px-4 py-2 bg-[#0077B6] hover:bg-[#0077B6] dark:bg-[#0077B6] dark:hover:bg-[#0077B6] text-white rounded-lg transition-colors duration-200 text-[13px]"
           >
             Refresh Page
           </button>
