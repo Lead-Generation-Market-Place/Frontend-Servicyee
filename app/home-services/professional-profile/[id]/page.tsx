@@ -32,6 +32,7 @@ import ShareDialogWrapper from "@/components/home-services/homepage/ShareDialogW
 import Breadcrumbs from "@/components/home-services/homepage/Breadcrumbs";
 
 import QuestionModal from "@/components/home-services/homepage/QuestionModal";
+// import { useAutoTrackView } from "@/hooks/useAutoTrackView";
 
 export default function ProfessionalProfile({
   params,
@@ -39,6 +40,12 @@ export default function ProfessionalProfile({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
+
+  // Count Professional View 
+//  const professional_id= id
+  //useAutoTrackView(professional_id);
+
+
   console.log(id);
   const [activeTab, setActiveTab] = useState<string>("about");
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);

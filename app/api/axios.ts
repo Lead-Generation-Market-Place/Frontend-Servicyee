@@ -21,7 +21,6 @@ class AuthTokenManager {
       // Set secure cookies with proper attributes
       document.cookie = `${this.ACCESS_TOKEN_KEY}=${accessToken}; path=/; max-age=1800; secure; samesite=strict`; // 30 minutes
       document.cookie = `${this.REFRESH_TOKEN_KEY}=${refreshToken}; path=/; max-age=2592000; secure; samesite=strict`; // 30 days
-      api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
     } catch (error) {
       console.error('Failed to set tokens in cookies:', error);
       throw new Error('Failed to store authentication tokens');
@@ -58,13 +57,8 @@ class AuthTokenManager {
 
   // Clear all tokens from cookies
   clearTokens(): void {
-    try {
       document.cookie = `${this.ACCESS_TOKEN_KEY}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
       document.cookie = `${this.REFRESH_TOKEN_KEY}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
-      delete api.defaults.headers.common['Authorization'];
-    } catch (error) {
-      console.error('Failed to clear tokens:', error);
-    }
   }
 
   // Check if user is authenticated
@@ -109,7 +103,6 @@ export const tokenManager = new AuthTokenManager();
 // Request interceptor - automatically attach token
 api.interceptors.request.use(
   (config) => {
-    // Only attach token for same-origin or specific API calls
     if (typeof window !== 'undefined') {
       const token = tokenManager.getAccessToken();
       if (token && tokenManager.validateToken(token)) {
@@ -139,33 +132,7 @@ api.interceptors.response.use(
       if (refreshToken && tokenManager.validateToken(refreshToken)) {
         originalRequest._retry = true;
         
-        try {
-          // Attempt to refresh tokens
-          const refreshResponse = await api.post('/auth/refresh', {
-            refreshToken
-          });
-          
-          const { accessToken: newAccessToken, refreshToken: newRefreshToken } = refreshResponse.data.tokens;
-          
-          if (newAccessToken && newRefreshToken) {
-            await tokenManager.setTokens(newAccessToken, newRefreshToken);
-            
-            // Retry original request with new token
-            originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-            return api(originalRequest);
-          }
-        } catch (refreshError) {
-          console.error('Token refresh failed:', refreshError);
-          // Refresh failed, clear all tokens
-          tokenManager.clearTokens();
-          
-          // Redirect to login if we're in browser context
-          if (typeof window !== 'undefined') {
-            window.location.href = '/auth/login?reason=session_expired';
-          }
-        }
       } else {
-        // No valid refresh token, clear tokens and redirect
         tokenManager.clearTokens();
         if (typeof window !== 'undefined') {
           window.location.href = '/auth/login?reason=authentication_required';
@@ -181,11 +148,7 @@ api.interceptors.response.use(
       }
     }
 
-    if (error.response?.status === 429) {
-      console.error('Rate limit exceeded');
-      // You might want to show a user-friendly message here
-    }
-
+    if (error.response?.status === 429)
     return Promise.reject(error);
   }
 );

@@ -18,9 +18,7 @@ const SECURITY_CONFIG = {
 const ROUTE_CONFIG = {
   PUBLIC: ["/", "/auth/login", "/auth/register"],
   PROTECTED_PREFIXES: [
-    "/home-services/dashboard",
-    "/api",
-    "/api/services",
+    "/home-services/dashboard"
   ],
 };
 
