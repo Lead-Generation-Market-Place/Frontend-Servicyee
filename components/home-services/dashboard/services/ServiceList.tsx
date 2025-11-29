@@ -37,6 +37,7 @@ interface Service {
   _id: string;
   service_id: string;
   service_name: string;
+  description?: string;
   service_status: boolean;
   completed_tasks: number;
   totalLeads: number;
@@ -55,6 +56,7 @@ interface TransformedService {
   name: string;
   active: boolean;
   completed: boolean;
+  description: string,
   performance: {
     trend: 'up' | 'down' | 'stable';
     change: number;
@@ -142,6 +144,42 @@ const ServicesList = ({ data }: ServicesListProps) => {
         router.push('/home-services/dashboard/services/addServices');
     }
   };
+  const handleEdit = (service: TransformedService) => {
+    const currentServiceData = {
+      service_id: service.originalData.service_id,
+      professional_id: service.originalData.professional_id,
+    };
+    localStorage.setItem('currentService', JSON.stringify(currentServiceData));
+    queryClient.setQueryData(["currentService"], currentServiceData);
+
+    router.push("/home-services/dashboard/services/edit");
+  };
+
+
+  const handleEditLocation = (service: TransformedService) => {
+    const currentServiceData = {
+      service_id: service.originalData.service_id,
+      professional_id: service.originalData.professional_id,
+    };
+    localStorage.setItem('currentService', JSON.stringify(currentServiceData));
+    queryClient.setQueryData(["currentService"], currentServiceData);
+
+    router.push("/home-services/dashboard/services/locations");
+  };
+
+
+  const questionsDetails = (service: TransformedService) => {
+    const currentServiceData = {
+      service_id: service.originalData.service_id,
+      professional_id: service.originalData.professional_id,
+    };
+    localStorage.setItem('currentService', JSON.stringify(currentServiceData));
+    queryClient.setQueryData(["currentService"], currentServiceData);
+
+    router.push("/home-services/dashboard/services/questionsDetails");
+  };
+
+  
 
   // Navigate to the next incomplete step
   const navigateToNextStep = (service: TransformedService) => {
@@ -168,6 +206,7 @@ const ServicesList = ({ data }: ServicesListProps) => {
         return {
           id: service._id,
           name: service.service_name,
+          description: service.description || '',
           active: service.service_status,
           completed: isCompleted,
           performance: generatePerformanceData(),
@@ -314,7 +353,6 @@ const ServicesList = ({ data }: ServicesListProps) => {
                                 }`}>
                                 {service.name}
                               </h2>
-
                               {/* Pricing Type Badge */}
                               {service.completed && service.active && service.pricing_type && (
                                 <div className="flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-medium bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
@@ -506,7 +544,7 @@ const ServicesList = ({ data }: ServicesListProps) => {
                                   </div>
                                   {!isInactive && (
                                     <button
-                                      onClick={() => navigateToStep('pricing', service)}
+                                      onClick={() => handleEdit(service)}
                                       className="inline-flex items-center px-3 py-1.5 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-sm text-[#0077B6] hover:bg-gray-50 dark:hover:bg-gray-500 transition-colors text-[12px] font-medium"
                                     >
                                       <FiEdit className="w-3 h-3 mr-1" />
@@ -534,13 +572,13 @@ const ServicesList = ({ data }: ServicesListProps) => {
                                       </p>
                                       <p className={`text-[12px] ${isInactive ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-300'
                                         }`}>
-                                        {service.originalData.location_ids?.length || 0} locations covered
+                                        {service.originalData.location_ids?.length || 0} Service Area
                                       </p>
                                     </div>
                                   </div>
                                   {!isInactive && (
                                     <button
-                                      onClick={() => navigateToStep('locations', service)}
+                                      onClick={() => handleEditLocation(service)}
                                       className="inline-flex items-center px-3 py-1.5 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-sm text-[#0077B6] hover:bg-gray-50 dark:hover:bg-gray-500 transition-colors text-[12px] font-medium"
                                     >
                                       <FiEdit className="w-3 h-3 mr-1" />
@@ -574,7 +612,7 @@ const ServicesList = ({ data }: ServicesListProps) => {
                                   </div>
                                   {!isInactive && (
                                     <button
-                                      onClick={() => navigateToStep('questions', service)}
+                                      onClick={() => questionsDetails(service)}
                                       className="inline-flex items-center px-3 py-1.5 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-sm text-[#0077B6] hover:bg-gray-50 dark:hover:bg-gray-500 transition-colors text-[12px] font-medium"
                                     >
                                       <FiEdit className="w-3 h-3 mr-1" />

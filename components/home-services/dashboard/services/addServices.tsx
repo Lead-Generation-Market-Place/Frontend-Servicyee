@@ -21,7 +21,6 @@ import { getAccessToken } from '@/app/api/axios';
 import { cn } from '@/lib/utils';
 import GlobalLoader from '@/components/ui/global-loader';
 import { useProfesssionalProgress } from '@/hooks/RegisterPro/useRegister';
-import toast from 'react-hot-toast';
 
 interface Service {
   id: string;
@@ -145,15 +144,11 @@ export default function Services() {
       return;
     }
 
-    try {
-      await addNewServiceMutation.mutateAsync({
-        service_name: selectedServiceName,
-        service_id: selectedService,
-        professional_id: professional_id
-      });
-    } catch {
-      toast.error('Failed to add service:',);
-    }
+    await addNewServiceMutation.mutateAsync({
+      service_name: selectedServiceName,
+      service_id: selectedService,
+      professional_id: professional_id
+    });
   };
 
   if (servicesLoading) {

@@ -148,11 +148,6 @@ export const UseSubmitQuestionAnswerAPI = async (data: AnswerPayload[], token: s
 };
 
 
-
-
-
-
-
 // Adding the Location of Service API
 export const SaveServiceLocationAPI = async (payload: LocationPayload, token: string) => {
   try {
@@ -186,10 +181,86 @@ export const SaveServiceLocationAPI = async (payload: LocationPayload, token: st
 export const DeleteServiceAPI = async (service_id: string, professional_id: string, token: string) => {
   try {
     const response = await api.delete("/services/delete_service", {
-        data: {
-          service_id,
-          professional_id
-        },
+      data: {
+        service_id,
+        professional_id
+      },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+    );
+
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+
+// Edit or Update the service prcing and name....
+export const GetServiceByIdAPI = async (
+  service_id: string,
+  professional_id: string,
+  token: string
+) => {
+  try {
+    const response = await api.get("/services/get_service", {
+      params: {
+        service_id,
+        professional_id,
+      },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+
+// Edit or Update the service prcing and name....
+export const GetServiceLocationByIdAPI = async (
+  service_id: string,
+  professional_id: string,
+  location_id: string,
+  token: string
+) => {
+  try {
+    const response = await api.get("/services/get_servicelocation", {
+      params: {
+        service_id,
+        professional_id,
+        location_id,
+      },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+
+// Update Service Location
+export const SaveUpdateServiceLocationAPI = async (payload: LocationPayload, token: string) => {
+  try {
+    const response = await api.put(
+      "/services/updateservice_location",
+      {
+        professional_id: payload.professional_id, location_id: payload.location_id,
+        lat: payload.lat,
+        lng: payload.lng,
+        city: payload.city,
+        state: payload.state,
+        zip: payload.zip,
+        radius_miles: payload.radiusMiles,
+      },
+      {
         headers: {
           Authorization: `Bearer ${token}`,
         },

@@ -56,17 +56,6 @@ export default function Dashboard() {
     ];
   }, [data]);
 
-  // Activity stats
-  const activityStats = useMemo(() => {
-    const services = data?.services?.services || [];
-    const totalLeads = services.reduce((acc: number, service: any) => acc + (service.totalLeads || 0), 0);
-
-    return [
-      { label: "Credits Spent", value: "0", color: "text-blue-600" },
-      { label: "New Leads", value: totalLeads.toString(), color: "text-green-600" },
-      { label: "Profile Views", value: "0", color: "text-purple-600" },
-    ];
-  }, [data]);
   const activeServicesCount = useMemo(() => {
     return data?.services?.services?.filter((s: any) => s.service_status).length || 0;
   }, [data]);
@@ -192,36 +181,6 @@ export default function Dashboard() {
 
           </div>
           <div className="space-y-4 sm:space-y-6">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="bg-white dark:bg-gray-800 rounded-sm p-4 sm:p-5 border border-gray-200 dark:border-gray-700 shadow-sm"
-            >
-              <h3 className="text-[13px] font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-[#0077B6]" />
-                Activity
-              </h3>
-
-              <div className="space-y-3">
-                {activityStats.map((stat) => (
-                  <div key={stat.label} className="flex items-center justify-between">
-                    <span className="text-[13px] text-gray-600 dark:text-gray-400">{stat.label}</span>
-                    <span className={`text-[13px] font-semibold ${stat.color}`}>{stat.value}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
-                <Link
-                  href="#"
-                  className="inline-flex items-center text-[13px] text-[#0077B6] hover:text-[#005f91] transition-colors"
-                >
-                  View Detailed Insights
-                  <ChevronRight className="w-4 h-4 ml-1" />
-                </Link>
-              </div>
-            </motion.div>
 
             {/* Credit Balance */}
             <motion.div
@@ -241,7 +200,7 @@ export default function Dashboard() {
                   <span className="text-lg font-bold">{data?.services?.professional?.credit_balance || 0}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-[13px] text-blue-100">This Week</span>
+                  <span className="text-[13px] text-blue-100">This Monthly</span>
                   <span className="text-[13px] font-medium">0 spent</span>
                 </div>
               </div>

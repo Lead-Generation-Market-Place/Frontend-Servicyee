@@ -22,14 +22,42 @@ const TAB_OPTIONS = [
 const milesToMeters = (miles: number) => miles * 1609.34;
 const DEFAULT_CENTER = { lat: 0, lng: 0 };
 const DEFAULT_ZOOM = 2;
-
+interface LocationData {
+  service_id: string;
+  professional_id: string;
+  lat: number;
+  lng: number;
+  city: string;
+  state: string;
+  zip: string;
+  radiusMiles: number;
+  isLoading: boolean;
+}
 const Map = () => {
   const router = useRouter();
+
+  const [locationData, setLocationData] = useState<LocationData | null>(null);
+
+  // Get data from localStorage - FIXED
+  useEffect(() => {
+    try {
+      const constData = localStorage.getItem("currentService");
+      if (constData) {
+        const parsedData = JSON.parse(constData);
+        console.log("Parsed location data:", parsedData);
+        setLocationData(parsedData);
+      }
+    } catch (error) {
+      console.error("Error parsing localStorage data:", error);
+      toast.error('Error loading service data');
+    }
+  }, []);
+
   const queryClient = useQueryClient();
   const serviceData = queryClient.getQueryData(['currentService']) as
     { service_id: string; professional_id: string } | undefined;
-  const serviceId = serviceData?.service_id as string;
-  const professional_id = serviceData?.professional_id as string;
+  const serviceId = serviceData?.service_id as string || locationData?.service_id as string;
+  const professional_id = serviceData?.professional_id as string || locationData?.professional_id as string;
   const token = getAccessToken() || "";
   const searchBoxRef = useRef<google.maps.places.SearchBox | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -190,6 +218,7 @@ const Map = () => {
       saveLocationMutation.mutate({
         professional_id,
         service_id: serviceId,
+        location_id: "",
         lat: selectedLocation.lat,
         lng: selectedLocation.lng,
         city: selectedLocation.city || "",
@@ -229,8 +258,8 @@ const Map = () => {
             <li className="me-2" key={tab.value}>
               <button
                 className={`inline-block p-2.5 border-b-2 rounded-t-lg transition-colors duration-200 ${activeTab === tab.value
-                    ? "text-[#0077B6] border-[#0077B6]"
-                    : "text-gray-500 border-transparent hover:text-gray-600 hover:border-gray-300"
+                  ? "text-[#0077B6] border-[#0077B6]"
+                  : "text-gray-500 border-transparent hover:text-gray-600 hover:border-gray-300"
                   }`}
                 onClick={() => setActiveTab(tab.value)}
               >
@@ -265,8 +294,8 @@ const Map = () => {
                   placeholder="Search location..."
                   onChange={handleSearchInputChange}
                   className={`mt-1 block w-full text-[12px] px-4 py-2 border rounded-[2px] focus:outline-none focus:ring-1 focus:border-transparent text-gray-800 dark:text-white dark:bg-gray-800 text-sm ${locationError
-                      ? "border-red-500 focus:ring-red-500"
-                      : "border-gray-400 dark:border-gray-700 focus:ring-[#0096C7]"
+                    ? "border-red-500 focus:ring-red-500"
+                    : "border-gray-400 dark:border-gray-700 focus:ring-[#0096C7]"
                     }`}
                 />
               </StandaloneSearchBox>
