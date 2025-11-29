@@ -55,6 +55,7 @@ interface ProfessionalData {
     credit_balance: number;
     total_review: number;
     total_hire: number;
+    profile_views: number;
     rating_avg: number;
   };
   professionalServices?: ProfessionalService[];
@@ -118,7 +119,7 @@ export default function Dashboard() {
   const totalRevenue = data?.credits
     ?.filter(credit => credit.type === 'purchase' && credit.status === 'completed')
     .reduce((total, credit) => total + Number(credit.price || 0), 0) || 0;
-  const profileViews = 0; // Need to finalized
+  const profileViews = data?.professional?.profile_views || 0;
 
   const metrics = [
     {
