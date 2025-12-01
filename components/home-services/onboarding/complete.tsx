@@ -13,7 +13,7 @@ import GlobalLoader from '@/components/ui/global-loader';
 const ProfileImage = ({ profileImage, name, Backend_URL }: { profileImage: string; name: string; Backend_URL: string }) => (
   profileImage ? (
     <Image
-      src={`${Backend_URL}${profileImage}`}
+      src={`${Backend_URL}/uploads/professionals/${profileImage}`}
       alt={name}
       width={80}
       height={80}

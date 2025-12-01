@@ -32,6 +32,7 @@ import ShareDialogWrapper from "@/components/home-services/homepage/ShareDialogW
 import Breadcrumbs from "@/components/home-services/homepage/Breadcrumbs";
 
 import QuestionModal from "@/components/home-services/homepage/QuestionModal";
+import { useAutoTrackView } from "@/hooks/useAutoTrackView";
 
 export default function ProfessionalProfile({
   params,
@@ -39,6 +40,12 @@ export default function ProfessionalProfile({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
+
+  //   Count Professional View 
+  const professional_id = id
+  useAutoTrackView(professional_id);
+
+
   console.log(id);
   const [activeTab, setActiveTab] = useState<string>("about");
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
@@ -160,11 +167,10 @@ export default function ProfessionalProfile({
                     {[...Array(5)].map((_, i) => (
                       <Star
                         key={i}
-                        className={`w-4 h-4 ${
-                          i < 4
-                            ? "fill-emerald-500 text-emerald-500"
-                            : "text-gray-300"
-                        }`}
+                        className={`w-4 h-4 ${i < 4
+                          ? "fill-emerald-500 text-emerald-500"
+                          : "text-gray-300"
+                          }`}
                       />
                     ))}
                   </div>
@@ -185,11 +191,10 @@ export default function ProfessionalProfile({
                   <button
                     key={item.id}
                     onClick={() => scrollTo(item.id)}
-                    className={`pb-2 px-1 relative whitespace-nowrap ${
-                      activeTab === item.id
-                        ? "text-sky-500 dark:text-sky-400 font-medium"
-                        : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                    }`}
+                    className={`pb-2 px-1 relative whitespace-nowrap ${activeTab === item.id
+                      ? "text-sky-500 dark:text-sky-400 font-medium"
+                      : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                      }`}
                   >
                     {item.name}
                     {activeTab === item.id && (
@@ -322,7 +327,7 @@ export default function ProfessionalProfile({
                   </div>
                 </div>
                 <div className="mt-4">
-                  <h4 className="font-medium text-sm font-semibold">
+                  <h4 className="font-medium text-sm ">
                     Specializations:
                   </h4>
                   <ul className="list-disc pl-5 mt-2 space-y-1 text-xs">
@@ -357,7 +362,7 @@ export default function ProfessionalProfile({
                 <h3 className="text-md font-semibold">Our Services</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
                   <div className="border border-gray-200 dark:border-gray-700 p-3 rounded-lg">
-                    <h4 className="font-medium text-sm font-semibold">
+                    <h4 className=" text-sm font-semibold">
                       New Home Construction
                     </h4>
                     <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
@@ -365,7 +370,7 @@ export default function ProfessionalProfile({
                     </p>
                   </div>
                   <div className="border border-gray-200 dark:border-gray-700 p-3 rounded-lg">
-                    <h4 className="font-medium text-sm font-semibold">
+                    <h4 className=" text-sm font-semibold">
                       Kitchen Remodeling
                     </h4>
                     <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
@@ -373,7 +378,7 @@ export default function ProfessionalProfile({
                     </p>
                   </div>
                   <div className="border border-gray-200 dark:border-gray-700 p-3 rounded-lg">
-                    <h4 className="font-medium text-sm font-semibold">
+                    <h4 className=" text-sm font-semibold">
                       Bathroom Remodeling
                     </h4>
                     <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
@@ -381,7 +386,7 @@ export default function ProfessionalProfile({
                     </p>
                   </div>
                   <div className="border border-gray-200 dark:border-gray-700 p-3 rounded-lg">
-                    <h4 className="font-medium text-sm font-semibold">
+                    <h4 className=" text-sm font-semibold">
                       Commercial Buildouts
                     </h4>
                     <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
@@ -398,7 +403,7 @@ export default function ProfessionalProfile({
                 </h3>
                 <div className="mt-4 space-y-4 tex-xs">
                   <div>
-                    <h4 className="font-medium text-sm font-semibold">
+                    <h4 className=" text-sm font-semibold">
                       Licenses
                     </h4>
                     <ul className="list-disc pl-5 mt-2 space-y-1 text-xs">
@@ -408,7 +413,7 @@ export default function ProfessionalProfile({
                     </ul>
                   </div>
                   <div>
-                    <h4 className="font-medium text-sm font-semibold">
+                    <h4 className=" text-sm font-semibold">
                       Insurance
                     </h4>
                     <p className="mt-1 text-gray-700 dark:text-gray-300 text-xs">
@@ -416,7 +421,7 @@ export default function ProfessionalProfile({
                     </p>
                   </div>
                   <div>
-                    <h4 className="font-medium text-sm font-semibold">
+                    <h4 className=" text-sm font-semibold">
                       Associations
                     </h4>
                     <ul className="list-disc pl-5 mt-2 space-y-1 text-xs">
@@ -526,11 +531,10 @@ export default function ProfessionalProfile({
                       <button
                         key={index}
                         onClick={() => setCurrentPhotoIndex(index)}
-                        className={`w-2 h-2 rounded-full transition-all ${
-                          index === currentPhotoIndex
-                            ? "bg-white w-4"
-                            : "bg-white/50"
-                        }`}
+                        className={`w-2 h-2 rounded-full transition-all ${index === currentPhotoIndex
+                          ? "bg-white w-4"
+                          : "bg-white/50"
+                          }`}
                         aria-label={`Go to photo ${index + 1}`}
                       />
                     ))}
@@ -543,9 +547,8 @@ export default function ProfessionalProfile({
                     <button
                       key={item.id}
                       onClick={() => setCurrentPhotoIndex(index)}
-                      className={`relative h-20 rounded-md overflow-hidden transition-all ${
-                        index === currentPhotoIndex ? "ring-2 ring-sky-500" : ""
-                      }`}
+                      className={`relative h-20 rounded-md overflow-hidden transition-all ${index === currentPhotoIndex ? "ring-2 ring-sky-500" : ""
+                        }`}
                     >
                       <Image
                         src={item.imageUrl}
@@ -576,11 +579,10 @@ export default function ProfessionalProfile({
                         {[...Array(5)].map((_, i) => (
                           <Star
                             key={i}
-                            className={`w-5 h-5 ${
-                              i < 4
-                                ? "fill-emerald-500 text-emerald-500"
-                                : "text-gray-300"
-                            }`}
+                            className={`w-5 h-5 ${i < 4
+                              ? "fill-emerald-500 text-emerald-500"
+                              : "text-gray-300"
+                              }`}
                           />
                         ))}
                       </div>
