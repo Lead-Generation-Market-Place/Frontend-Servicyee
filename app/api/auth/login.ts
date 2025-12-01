@@ -33,73 +33,60 @@ class AuthService {
   }): Promise<LoginResponse> {
     try {
       const response = await api.post("/auth/login", credentials);
-      const { accessToken, refreshToken } = response.data.tokens;
+      const tokens = response.data.tokens;
+      if (!tokens || !tokens.accessToken || !tokens.refreshToken) {
+        throw new Error("Invalid email or password"); // safe error
+      }
+      const { accessToken, refreshToken } = tokens;
       const { user } = response.data;
-
-      if (!accessToken) {
-        throw new Error("No access token received from server");
-      }
-
-      if (!refreshToken) {
-        throw new Error("No refresh token received from server");
-      }
-
-      // Store tokens in cookies (accessible by middleware)
       await tokenManager.setTokens(accessToken, refreshToken);
-
       return { user, tokens: { accessToken, refreshToken } };
     } catch (error: any) {
-      // Enhanced error handling with specific error codes
       if (error.response) {
-        const serverError: ApiError = {
-          message: error.response.data?.message || "Login failed",
-          statusCode: error.response.status,
-          error: error.response.data?.error,
-          code: error.response.data?.code,
-        };
+        const status = error.response.status;
+        let message = error.response.data?.message || "Login failed";
 
-        switch (error.response.status) {
+        switch (status) {
           case 400:
-            serverError.message =
-              error.response.data?.message || "Invalid request format";
+            message = "Invalid request format";
             break;
           case 401:
-            serverError.message = "Invalid email or password";
+            message = "Invalid email or password";
             break;
           case 403:
-            serverError.message = "Account suspended or access restricted";
+            message = "Account suspended or access restricted";
             break;
           case 404:
-            serverError.message = "Account not found";
+            message = "Account not found";
             break;
           case 422:
-            serverError.message = "Validation failed. Please check your input.";
+            message = "Validation failed. Please check your input";
             break;
           case 429:
-            serverError.message =
-              "Too many login attempts. Please try again in 15 minutes.";
+            message = "Too many login attempts. Please try again later";
             break;
           case 500:
-            serverError.message = "Server error. Please try again later.";
+            message = "Server error. Please try again later";
             break;
-          default:
-            serverError.message = "Login failed. Please try again.";
         }
 
-        throw new Error(serverError.message);
-      } else if (error.request) {
+        throw new Error(message);
+      }
+      else if (error.request) {
         throw new Error(
           "Network error. Please check your internet connection."
         );
-      } else {
+      }
+      else {
         throw new Error(
           error.message || "An unexpected error occurred during login."
         );
       }
     }
   }
+
   async logout(): Promise<void> {
-    tokenManager.clearTokens(); 
+    tokenManager.clearTokens();
   }
   async getCurrentUser(): Promise<User> {
     try {

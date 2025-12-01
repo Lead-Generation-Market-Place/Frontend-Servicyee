@@ -169,10 +169,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             const response = await authAPI.login({ email, password });
             dispatch({ type: 'AUTH_SUCCESS', payload: response.user });
             queryClient.invalidateQueries();
-
-            // Redirect to intended page or dashboard
             const urlParams = new URLSearchParams(window.location.search);
-            const redirect = urlParams.get('redirect') || '/home_services/dashboard';
+            const redirect = urlParams.get('redirect') || '/home-services/dashboard';
             router.push(redirect);
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Login failed';
