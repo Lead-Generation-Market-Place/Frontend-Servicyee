@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // Create axios instance with secure defaults
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000/api/v1/',
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'https://servicyee-backend.onrender.com/api/v1',
   timeout: 100000,
   headers: {
     'Content-Type': 'application/json',
@@ -151,4 +151,15 @@ export { api };
 
  export const getSubcategoryStaticURL = () => {
   return "https://servicyee-backend.onrender.com/uploads/SubCategory";
+ }
+
+  export const getCategoryStaticURL = () => {
+  return "https://servicyee-backend.onrender.com/uploads/category";
+ }
+
+ export const getMediacUrl = () => {
+  return 'http://localhost:4000';
+ }
+ export const getPorfessionalsStaticURL = () => {
+    return "https://servicyee-backend.onrender.com/uploads/professionals";
  }
