@@ -131,6 +131,26 @@ export function useServicePricing(token: string) {
   });
 }
 
+// add service Pricing Only
+export function useAddServicePricing(token: string) {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: ["UseServicePricing"],
+    mutationFn: (data: ServicePricingPayload) =>
+      UseServicePricingAPI(data, token),
+    onSuccess: async (data, variables) => {
+      await queryClient.invalidateQueries({ queryKey: ["serviceData"] });
+      queryClient.setQueryData(["currentService"], {
+        service_id: variables.service_id,
+        professional_id: variables.professional_id,
+      });
+      router.push(`/home-services/dashboard/services`);
+    },
+  });
+}
+
+
 export function useUpdateServicePricing(token: string) {
   const router = useRouter();
   const queryClient = useQueryClient();
