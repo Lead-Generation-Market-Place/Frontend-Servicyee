@@ -1,5 +1,5 @@
 'use client';
-import { useState, FormEvent, useEffect } from "react";
+import { useEffect } from "react";
 import { getAccessToken } from "@/app/api/axios";
 import { Loader2, DollarSign, ClipboardList, FileText } from "lucide-react";
 import { ServicePricingPayload, useServicePricing } from "@/hooks/useServices";
@@ -7,6 +7,12 @@ import { useProfessionalReview } from "@/hooks/RegisterPro/useRegister";
 import GlobalLoader from "@/components/ui/global-loader";
 import toast from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { useRouter, useSearchParams } from "next/navigation";
+
+
 
 const PRICING_TYPES = [
     { value: "hourly", label: "Hourly Rate" },
@@ -15,67 +21,93 @@ const PRICING_TYPES = [
     { value: "custom", label: "Custom Pricing" },
 ];
 
+// Zod schema for validation
+const servicePricingSchema = z.object({
+    pricing_type: z.string().nonempty("Completed tasks is required"),
+    minimum_price: z
+        .string()
+        .nonempty("Minimum price is required")
+        .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, "Invalid minimum price"),
+    maximum_price: z
+        .string()
+        .nonempty("Maximum price is required")
+        .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, "Invalid maximum price"),
+    completed_tasks: z
+        .string()
+        .nonempty("Completed tasks is required")
+        .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, "Invalid completed tasks"),
+    description: z.string().min(16, "Description must be at least 16 characters"),
+});
+
+type ServicePricingFormData = z.infer<typeof servicePricingSchema>;
+
 const ServicePricing = () => {
     const token = getAccessToken() || "";
     const { mutate, isPending } = useServicePricing(token);
+    const router = useRouter()
     const { data: professionalData, isLoading: isProfLoading } = useProfessionalReview(token);
     const queryClient = useQueryClient();
     const serviceData = queryClient.getQueryData(['currentService']) as
         { service_id: string; professional_id: string } | undefined;
-    const serviceId = serviceData?.service_id;
-    const professional_id = serviceData?.professional_id;
-    const [pricingType, setPricingType] = useState<string>("hourly");
-    const [minimumPrice, setMinimumPrice] = useState<string>("");
-    const [maximumPrice, setMaximumPrice] = useState<string>("");
-    const [completedTasks, setCompletedTasks] = useState<string>("");
-    const [description, setDescription] = useState<string>("");
+    const searchParams = useSearchParams();
+    const serviceID = searchParams.get("service_id");
+    const professionalId = searchParams.get("professional_id");
+    const serviceId = serviceID || serviceData?.service_id;
+    const professional_id = professionalId || serviceData?.professional_id;
+    const {
+        register,
+        handleSubmit,
+        setValue,
+        formState: { errors },
+    } = useForm<ServicePricingFormData>({
+        resolver: zodResolver(servicePricingSchema),
+    });
+
     useEffect(() => {
         if (professionalData?.professional?.professional) {
             const prof = professionalData.professional.professional;
-
-            // Only pre-fill if it matches the selected service
             if (prof.service_id === serviceId) {
-                setPricingType(prof.pricing_type || "hourly");
-                setMinimumPrice(prof.minimum_price || "");
-                setMaximumPrice(prof.maximum_price || "");
-                setCompletedTasks(prof.completed_tasks || "");
-                setDescription(prof.description || "");
+                setValue("pricing_type", prof.pricing_type || "hourly");
+                setValue("minimum_price", prof.minimum_price || "");
+                setValue("maximum_price", prof.maximum_price || "");
+                setValue("completed_tasks", prof.completed_tasks || "");
+                setValue("description", prof.description || "");
             }
         }
-    }, [professionalData, serviceId]);
+    }, [professionalData, serviceId, setValue]);
 
     if (isProfLoading) {
         return <GlobalLoader />;
     }
-    const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        if (Number(minimumPrice) > Number(maximumPrice)) {
+
+    const onSubmit = (data: ServicePricingFormData) => {
+        // Check min/max prices
+        if (Number(data.minimum_price) > Number(data.maximum_price)) {
             toast.error("Minimum price cannot be greater than maximum price");
             return;
         }
 
         if (!serviceId || !professional_id) {
-            toast.error("Service or Professional ID not found");
+            router.push("/home-services/dashboard/services");
             return;
         }
 
         const pricingData: ServicePricingPayload = {
             service_id: serviceId,
             professional_id,
-            pricing_type: pricingType,
-            minimum_price: minimumPrice,
-            maximum_price: maximumPrice,
-            completed_tasks: completedTasks,
-            description: description.trim(),
+            pricing_type: data.pricing_type,
+            minimum_price: data.minimum_price,
+            maximum_price: data.maximum_price,
+            completed_tasks: data.completed_tasks,
+            description: data.description.trim(),
         };
 
         mutate(pricingData);
     };
 
     return (
-        <div className=" dark:bg-gray-900 py-2 px-4 sm:px-2">
+        <div className="dark:bg-gray-900 py-2 px-4 sm:px-2">
             <div className="max-w-3xl mx-auto">
-                {/* Header */}
                 <div className="mb-8">
                     <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 text-[13px]">
                         Service Pricing & Information
@@ -85,9 +117,9 @@ const ServicePricing = () => {
                     </p>
                 </div>
 
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit(onSubmit)}>
                     <div className="space-y-8">
-                        {/* Pricing Type Section */}
+                        {/* Pricing Type */}
                         <section className="border-b border-gray-200 dark:border-gray-700 pb-8">
                             <div className="flex items-center gap-3 mb-4">
                                 <div className="p-1.5 bg-blue-50 dark:bg-blue-900/20 rounded-[4px]">
@@ -107,9 +139,7 @@ const ServicePricing = () => {
                                     </label>
                                     <select
                                         id="pricing-type"
-                                        value={pricingType}
-                                        required
-                                        onChange={(e) => setPricingType(e.target.value)}
+                                        {...register("pricing_type")}
                                         disabled={isPending}
                                         className="mt-1 block w-full rounded-[4px] bg-white dark:bg-gray-900 py-2 pl-3 pr-8 text-[13px] text-gray-900 dark:text-white outline-1 outline-gray-300 dark:outline-gray-600 focus:outline-1 focus:outline-[#0077B6] focus:outline-offset-2"
                                     >
@@ -119,11 +149,14 @@ const ServicePricing = () => {
                                             </option>
                                         ))}
                                     </select>
+                                    {errors.pricing_type && (
+                                        <p className="text-red-500 text-sm mt-1">{errors.pricing_type.message}</p>
+                                    )}
                                 </div>
                             </div>
                         </section>
 
-                        {/* Pricing Range Section */}
+                        {/* Price Range */}
                         <section className="border-b border-gray-200 dark:border-gray-700 pb-8">
                             <div className="flex items-center gap-3 mb-4">
                                 <div className="p-1.5 bg-blue-50 dark:bg-blue-900/20 rounded-[4px]">
@@ -146,13 +179,14 @@ const ServicePricing = () => {
                                         type="number"
                                         min="0"
                                         step="0.01"
-                                        required
-                                        value={minimumPrice}
-                                        onChange={(e) => setMinimumPrice(e.target.value)}
+                                        {...register("minimum_price")}
                                         disabled={isPending}
                                         placeholder="0.00"
                                         className="mt-1 block w-full rounded-[4px] bg-white dark:bg-gray-900 px-3 py-2 text-[13px] text-gray-900 dark:text-white placeholder:text-[13px] dark:placeholder-gray-500 outline-1 outline-gray-300 dark:outline-gray-600 focus:outline-1 focus:outline-[#0077B6] focus:outline-offset-2"
                                     />
+                                    {errors.minimum_price && (
+                                        <p className="text-red-500 text-sm mt-1">{errors.minimum_price.message}</p>
+                                    )}
                                 </div>
 
                                 <div>
@@ -164,18 +198,19 @@ const ServicePricing = () => {
                                         type="number"
                                         min="0"
                                         step="0.01"
-                                        required
-                                        value={maximumPrice}
-                                        onChange={(e) => setMaximumPrice(e.target.value)}
+                                        {...register("maximum_price")}
                                         disabled={isPending}
                                         placeholder="0.00"
                                         className="mt-1 block w-full rounded-[4px] bg-white dark:bg-gray-900 px-3 py-2 text-[13px] text-gray-900 dark:text-white placeholder:text-[13px] dark:placeholder-gray-500 outline-1 outline-gray-300 dark:outline-gray-600 focus:outline-1 focus:outline-[#0077B6] focus:outline-offset-2"
                                     />
+                                    {errors.maximum_price && (
+                                        <p className="text-red-500 text-sm mt-1">{errors.maximum_price.message}</p>
+                                    )}
                                 </div>
                             </div>
                         </section>
 
-                        {/* Experience Section */}
+                        {/* Experience & Description */}
                         <section>
                             <div className="flex items-center gap-3 mb-4">
                                 <div className="p-1.5 bg-blue-50 dark:bg-blue-900/20 rounded-[4px]">
@@ -197,13 +232,14 @@ const ServicePricing = () => {
                                         id="completed-tasks"
                                         type="number"
                                         min="0"
-                                        required
-                                        value={completedTasks}
-                                        onChange={(e) => setCompletedTasks(e.target.value)}
+                                        {...register("completed_tasks")}
                                         disabled={isPending}
                                         placeholder="Number of completed tasks"
                                         className="mt-1 block w-full rounded-[4px] bg-white dark:bg-gray-900 px-3 py-2 text-[13px] text-gray-900 dark:text-white placeholder:text-[13px] dark:placeholder-gray-500 outline-1 outline-gray-300 dark:outline-gray-600 focus:outline-1 focus:outline-[#0077B6] focus:outline-offset-2"
                                     />
+                                    {errors.completed_tasks && (
+                                        <p className="text-red-500 text-sm mt-1">{errors.completed_tasks.message}</p>
+                                    )}
                                 </div>
 
                                 <div>
@@ -213,19 +249,20 @@ const ServicePricing = () => {
                                     <textarea
                                         id="description"
                                         rows={4}
-                                        required
-                                        value={description}
-                                        onChange={(e) => setDescription(e.target.value)}
+                                        {...register("description")}
                                         disabled={isPending}
                                         placeholder="Describe your services, expertise, and what clients can expect..."
                                         className="mt-1 block w-full rounded-[4px] bg-white dark:bg-gray-900 px-3 py-2 text-[13px] text-gray-900 dark:text-white placeholder:text-[13px] dark:placeholder-gray-500 outline-1 outline-gray-300 dark:outline-gray-600 focus:outline-1 focus:outline-[#0077B6] focus:outline-offset-2 resize-none"
                                     />
+                                    {errors.description && (
+                                        <p className="text-red-500 text-sm mt-1">{errors.description.message}</p>
+                                    )}
                                 </div>
                             </div>
                         </section>
                     </div>
 
-                    {/* Form Actions */}
+                    {/* Submit Button */}
                     <div className="fixed bottom-6 right-6 flex gap-4 text-[13px]">
                         <button
                             type="submit"

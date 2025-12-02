@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/components/providers/context/auth-context";
@@ -9,23 +9,29 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AlertCircle } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { loginSchema, LoginFormData } from "@/schemas/auth/login";
+
+
+
+
 interface LoginFormProps extends React.ComponentProps<"div"> {
   className?: string;
 }
 
 export default function LoginForm({ className, ...props }: LoginFormProps) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [formError, setFormError] = useState<string | null>(null);
 
-  const { login, isLoading, error, clearError } = useAuth();
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setFormError(null);
-    await login(email, password);
+  const { login, isLoading, error } = useAuth();
+
+  const { register, handleSubmit, formState: { errors }, } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+  });
+
+  const onSubmit = async (data: LoginFormData) => {
+    await login(data.email, data.password);
   };
 
-  const displayError = formError || error;
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -37,13 +43,14 @@ export default function LoginForm({ className, ...props }: LoginFormProps) {
         </CardHeader>
 
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {displayError && (
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            {error && (
               <div className="bg-destructive/15 text-destructive text-sm p-3 rounded-md flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                {displayError}
+                {error}
               </div>
             )}
+
 
             <div className="space-y-4">
               <div className="space-y-2">
@@ -51,17 +58,14 @@ export default function LoginForm({ className, ...props }: LoginFormProps) {
                 <Input
                   id="email"
                   type="email"
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                    if (error) clearError();
-                    if (formError) setFormError(null);
-                  }}
+                  {...register("email")}
                   placeholder="info@allneeda.com"
-                  required
                   disabled={isLoading}
-                  className={displayError && !email ? "border-destructive" : ""}
+                  className={errors.email ? "border-destructive" : ""}
                 />
+                {errors.email && (
+                  <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -77,17 +81,14 @@ export default function LoginForm({ className, ...props }: LoginFormProps) {
                 <Input
                   id="password"
                   type="password"
-                  value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    if (error) clearError();
-                    if (formError) setFormError(null);
-                  }}
+                  {...register("password")}
                   placeholder="••••••••"
-                  required
                   disabled={isLoading}
-                  className={displayError && !password ? "border-destructive" : ""}
+                  className={errors.password ? "border-destructive" : ""}
                 />
+                {errors.password && (
+                  <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
+                )}
               </div>
 
               <Button

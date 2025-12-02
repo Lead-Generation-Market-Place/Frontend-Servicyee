@@ -35,17 +35,28 @@ class AuthService {
       const response = await api.post("/auth/login", credentials);
       const tokens = response.data.tokens;
       if (!tokens || !tokens.accessToken || !tokens.refreshToken) {
-        throw new Error("Invalid email or password"); // safe error
+        throw new Error("Invalid email or password"); // safe fallback
       }
-      const { accessToken, refreshToken } = tokens;
       const { user } = response.data;
-      await tokenManager.setTokens(accessToken, refreshToken);
-      return { user, tokens: { accessToken, refreshToken } };
+
+      await tokenManager.setTokens(tokens.accessToken, tokens.refreshToken);
+      return {
+        user,
+        tokens: {
+          accessToken: tokens.accessToken,
+          refreshToken: tokens.refreshToken,
+        },
+      };
     } catch (error: any) {
       if (error.response) {
         const status = error.response.status;
+        if (status === 422 && error.response.data?.errors) {
+          throw {
+            message: "Validation failed",
+            fieldErrors: error.response.data.errors,
+          };
+        }
         let message = error.response.data?.message || "Login failed";
-
         switch (status) {
           case 400:
             message = "Invalid request format";
@@ -59,9 +70,6 @@ class AuthService {
           case 404:
             message = "Account not found";
             break;
-          case 422:
-            message = "Validation failed. Please check your input";
-            break;
           case 429:
             message = "Too many login attempts. Please try again later";
             break;
@@ -69,15 +77,12 @@ class AuthService {
             message = "Server error. Please try again later";
             break;
         }
-
         throw new Error(message);
-      }
-      else if (error.request) {
+      } else if (error.request) {
         throw new Error(
           "Network error. Please check your internet connection."
         );
-      }
-      else {
+      } else {
         throw new Error(
           error.message || "An unexpected error occurred during login."
         );
