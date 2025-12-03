@@ -119,35 +119,37 @@ const ServicesList = ({ data }: ServicesListProps) => {
     if (!service.setupProgress.step4) return 'locations';
     return 'service_name'; // fallback
   };
-
-  // Function to navigate to step with cache setup
   const navigateToStep = (step: string, service: TransformedService) => {
     // Set the current service data in cache before navigation
     queryClient.setQueryData(["currentService"], {
       service_id: service.originalData.service_id,
       professional_id: service.originalData.professional_id,
     });
-  
+
+    const params = new URLSearchParams({
+      service_id: service.originalData.service_id,
+      professional_id: service.originalData.professional_id,
+    }).toString();
 
     // Navigate to the step
     switch (step) {
       case 'service_name':
-        router.push('/home-services/dashboard/services/addServices');
+        router.push(`/home-services/dashboard/services/addServices?${params}`);
         break;
       case 'pricing':
-        router.push('/home-services/dashboard/services/pricing');
+        router.push(`/home-services/dashboard/services/pricing?${params}`);
         break;
       case 'addypricing':
-        router.push('/home-services/dashboard/services/addpricing');
+        router.push(`/home-services/dashboard/services/addpricing?${params}`);
         break;
       case 'questions':
-        router.push('/home-services/dashboard/services/questions');
+        router.push(`/home-services/dashboard/services/questions?${params}`);
         break;
       case 'locations':
-        router.push('/home-services/dashboard/services/serviceLocation');
+        router.push(`/home-services/dashboard/services/serviceLocation?${params}`);
         break;
       default:
-        router.push('/home-services/dashboard/services/addServices');
+        router.push(`/home-services/dashboard/services/addServices?${params}`);
     }
   };
   const handleEdit = (service: TransformedService) => {
@@ -155,22 +157,25 @@ const ServicesList = ({ data }: ServicesListProps) => {
       service_id: service.originalData.service_id,
       professional_id: service.originalData.professional_id,
     };
-    localStorage.setItem('currentService', JSON.stringify(currentServiceData));
     queryClient.setQueryData(["currentService"], currentServiceData);
-
-    router.push("/home-services/dashboard/services/edit");
+    const params = new URLSearchParams({
+      service_id: service.originalData.service_id,
+      professional_id: service.originalData.professional_id,
+    }).toString();
+    router.push(`/home-services/dashboard/services/edit?${params}`);
   };
-
 
   const handleEditLocation = (service: TransformedService) => {
     const currentServiceData = {
       service_id: service.originalData.service_id,
       professional_id: service.originalData.professional_id,
     };
-    localStorage.setItem('currentService', JSON.stringify(currentServiceData));
+    const params = new URLSearchParams({
+      service_id: service.originalData.service_id,
+      professional_id: service.originalData.professional_id,
+    }).toString();
     queryClient.setQueryData(["currentService"], currentServiceData);
-
-    router.push("/home-services/dashboard/services/locations");
+    router.push(`/home-services/dashboard/services/locations?${params}`);
   };
 
 
@@ -179,10 +184,13 @@ const ServicesList = ({ data }: ServicesListProps) => {
       service_id: service.originalData.service_id,
       professional_id: service.originalData.professional_id,
     };
-    localStorage.setItem('currentService', JSON.stringify(currentServiceData));
+    const params = new URLSearchParams({
+      service_id: service.originalData.service_id,
+      professional_id: service.originalData.professional_id,
+    }).toString();
     queryClient.setQueryData(["currentService"], currentServiceData);
 
-    router.push("/home-services/dashboard/services/questionsDetails");
+    router.push(`/home-services/dashboard/services/questionsDetails?${params}`);
   };
 
 
