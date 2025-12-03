@@ -6,10 +6,6 @@ const api = axios.create({
   baseURL:
     process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api/v1/",
   timeout: 30000,
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'https://servicyee-backend.onrender.com/api/v1',
-  timeout: 100000,
-
-
   headers: {
     "Content-Type": "application/json",
   },
@@ -166,23 +162,21 @@ export const clearAccessToken = () => {
 export const getAccessToken = () => tokenManager.getAccessToken();
 export { api };
 
-export const getStaticURL = () => {
-  return "https://servicyee-backend.onrender.com/uploads/service";
-};
+ export const getStaticURL = () => {
+  return "http://localhost:4000/uploads/service";
+ }
 
-export const getSubcategoryStaticURL = () => {
-  return "https://servicyee-backend.onrender.com/uploads/SubCategory";
-};
-
+ export const getSubcategoryStaticURL = () => {
+  return "http://localhost:4000/uploads/SubCategory";
  }
 
   export const getCategoryStaticURL = () => {
-  return "https://servicyee-backend.onrender.com/uploads/category";
+  return "http://localhost:4000/uploads/category";
  }
 
  export const getMediacUrl = () => {
   return 'http://localhost:4000';
  }
  export const getPorfessionalsStaticURL = () => {
-    return "https://servicyee-backend.onrender.com/uploads/professionals";
+    return "http://localhost:4000/uploads/professionals";
  }
